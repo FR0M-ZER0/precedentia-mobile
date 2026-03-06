@@ -27,18 +27,48 @@ A estrutura do projeto é organizada da seguinte forma:
 
     lib/
      ├── core/
-     ├── data/
-     │   ├── datasources/
-     │   ├── models/
-     │   └── repositories/
-     ├── domain/
-     │   ├── entities/
-     │   ├── repositories/
-     │   └── usecases/
-     ├── presentation/
-     │   ├── blocs/
-     │   ├── screens/
-     │   └── widgets/
+     │   ├── errors/
+     │   │   └── failures.dart
+     │   ├── network/
+     │   │   └── api_client.dart
+     │   ├── usecases/
+     │   │   └── usecase.dart
+     │   └── utils/
+     │
+     ├── features/
+     │   └── auth/
+     │       ├── data/
+     │       │   ├── datasources/
+     │       │   │   └── auth_remote_datasource.dart
+     │       │   │
+     │       │   ├── models/
+     │       │   │   └── user_model.dart
+     │       │   │
+     │       │   └── repositories/
+     │       │       └── auth_repository_impl.dart
+     │       │
+     │       ├── domain/
+     │       │   ├── entities/
+     │       │   │   └── user.dart
+     │       │   │
+     │       │   ├── repositories/
+     │       │   │   └── auth_repository.dart
+     │       │   │
+     │       │   └── usecases/
+     │       │       ├── login_user.dart
+     │       │       └── register_user.dart
+     │       │
+     │       └── presentation/
+     │           ├── blocs/
+     │           │   └── auth_bloc.dart
+     │           │
+     │           ├── screens/
+     │           │   ├── login_screen.dart
+     │           │   └── register_screen.dart
+     │           │
+     │           └── widgets/
+     │               └── auth_button.dart
+     │
      ├── app.dart
      └── main.dart
      
