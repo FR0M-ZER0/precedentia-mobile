@@ -16,6 +16,7 @@ O projeto utiliza as seguintes tecnologias e bibliotecas:
  sensíveis
 - **Hive** - Banco de dados NoSQL leve para armazenamento local
 - **Flutter Test** - Suite de testes nativa do Flutter para testes unitários e de widget
+- **Go Router** - Biblioteca para roteamento que facilita navegação entre telas de forma declarativa
 
 ## 🏗️ Arquitetura
 
