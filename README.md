@@ -108,8 +108,7 @@ flutter pub get
 flutter run
 ```
 
-O Flutter irá compilar e executar o aplicativo no emulador ou
-dispositivo conectado.
+O Flutter irá compilar e executar o aplicativo no emulador ou dispositivo conectado.
 
 ## 🧪 Rodando os testes
 
