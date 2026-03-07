@@ -145,3 +145,7 @@ flutter build appbundle
 ``` bash
 flutter build ios
 ```
+
+## Saiba mais
+
+Para verificar as padronizações usadas neste projeto, bem como demais documentações, visite o nosso [repositório principal](https://github.com/FR0M-ZER0/PrecedentIA)
