@@ -1,2 +1,3 @@
 #!/usr/bin/env sh
+echo "🔍 Checando o formato do commit"
 npx --no -- commitlint --edit "$1"
