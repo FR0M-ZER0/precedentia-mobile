@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'core/router/app_router.dart';
+import 'package:precedentia_mobile/core/rrouter/app_router.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
