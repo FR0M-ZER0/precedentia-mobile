@@ -1,0 +1,31 @@
+{
+  "name": "precedentia-mobile",
+  "version": "1.0.0",
+  "description": "Interface mobile do sistema **PrecedentIA**, desenvolvida em Flutter, responsável por fornecer uma experiência rápida e intuitiva para busca e visualização de precedentes jurídicos.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FR0M-ZER0/precedentia-mobile.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/FR0M-ZER0/precedentia-mobile/issues"
+  },
+  "homepage": "https://github.com/FR0M-ZER0/precedentia-mobile#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "husky": "^9.1.7"
+  }
+}
