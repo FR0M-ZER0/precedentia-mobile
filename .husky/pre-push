@@ -1,23 +1,23 @@
 #!/usr/bin/env sh
 
 echo
-# echo "🧪 Running tests..."
-# flutter test
-# if [ $? -ne 0 ]; then
-#   echo "❌ Tests failed. Commit aborted."
-#   exit 1
-# fi
+echo "🧪 Running tests..."
+flutter test
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed. Commit aborted."
+  exit 1
+fi
 
 echo
-# echo "✅ All tests passed!"
+echo "✅ All tests passed!"
 
 echo
-# echo -e "
-# \e[38;5;39m███████╗\e[0m \e[38;5;18m ██████╗ \e[0m
-# \e[38;5;39m██╔════╝\e[0m \e[38;5;18m██╔═══██╗\e[0m
-# \e[38;5;39m█████╗  \e[0m \e[38;5;18m██║   ██║\e[0m
-# \e[38;5;39m██╔══╝  \e[0m \e[38;5;18m██║   ██║\e[0m
-# \e[38;5;39m██║     \e[0m \e[38;5;18m╚██████╔╝\e[0m
+echo -e "
+\e[38;5;39m███████╗\e[0m \e[38;5;18m ██████╗ \e[0m
+\e[38;5;39m██╔════╝\e[0m \e[38;5;18m██╔═══██╗\e[0m
+\e[38;5;39m█████╗  \e[0m \e[38;5;18m██║   ██║\e[0m
+\e[38;5;39m██╔══╝  \e[0m \e[38;5;18m██║   ██║\e[0m
+\e[38;5;39m██║     \e[0m \e[38;5;18m╚██████╔╝\e[0m
 
-# Obrigado por contribuir! - Equipe From Zer0_
-# "
+Obrigado por contribuir! - Equipe From Zer0_
+"
