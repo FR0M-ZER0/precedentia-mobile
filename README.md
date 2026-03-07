@@ -110,7 +110,7 @@ Eles são necessários para o rodar os hooks do git (husky)
 npm i
 ```
 
-### 3️⃣ Execute o aplicativo
+### 4️⃣ Execute o aplicativo
 
 ``` bash
 flutter run
