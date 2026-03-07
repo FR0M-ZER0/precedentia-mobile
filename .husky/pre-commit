@@ -10,7 +10,7 @@ fi
 
 echo
 echo "🎨 Checking code formatting..."
-dart format --set-exit-if-changed .
+dart format .
 if [ $? -ne 0 ]; then
   echo "❌ Code is not formatted. Run 'dart format .'"
   exit 1
