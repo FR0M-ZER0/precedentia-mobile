@@ -96,10 +96,18 @@ Execute o comando abaixo para garantir que todas as dependências estão configu
 flutter doctor -v
 ```
 
-### 2️⃣ Instale as dependências
+### 2️⃣ Instale as dependências do flutter
 
 ``` bash
 flutter pub get
+```
+
+### 3️⃣ Instale as dependências do node
+
+Eles são necessários para o rodar os hooks do git (husky)
+
+```bash
+npm i
 ```
 
 ### 3️⃣ Execute o aplicativo
