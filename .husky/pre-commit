@@ -12,7 +12,7 @@ echo
 echo "🎨 Checking code formatting..."
 dart format .
 if [ $? -ne 0 ]; then
-  echo "❌ Code is not formatted. Run 'dart format .'"
+  echo "❌ Format failed."
   exit 1
 fi
 
