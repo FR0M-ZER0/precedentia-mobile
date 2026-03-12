@@ -110,6 +110,12 @@ Eles são necessários para o rodar os hooks do git (husky)
 npm i
 ```
 
+Em seguida, rode o seguinte comando para ativar os hooks do Husky:
+
+```bash
+npm run prepare
+```
+
 ### 4️⃣ Execute o aplicativo
 
 ``` bash
