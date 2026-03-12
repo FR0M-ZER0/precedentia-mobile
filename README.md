@@ -124,6 +124,8 @@ flutter run
 
 O Flutter irá compilar e executar o aplicativo no emulador ou dispositivo conectado.
 
+> **Atenção:** No linux, é preciso instalar alguns pacotes para utilizar as bibliotecas que o projeto utiliza: `sudo apt install lld libscret-1-dev`
+
 ## 🧪 Rodando os testes
 
 Para executar a suite de testes do projeto:
