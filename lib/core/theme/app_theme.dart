@@ -23,18 +23,16 @@ class AppTheme {
       textTheme: TextTheme(
         // Title: Merriweather Bold 28px
         titleLarge: GoogleFonts.merriweather(
-          fontSize: 48,
-          fontWeight: FontWeight.w700,
-          color: AppColors.mainDarkColor,
-          letterSpacing: 0.02,
-          height: 1.0,
-        ),
-        // Title: Merriweather Bold 28px
-        titleMedium: GoogleFonts.merriweather(
           fontSize: 28,
           fontWeight: FontWeight.w700,
           color: AppColors.mainDarkColor,
-          height: 1.0,
+        ),
+
+        // Title medium: Merriweather Bold 24px
+        titleMedium: GoogleFonts.merriweather(
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: AppColors.mainDarkColor,
         ),
 
         // Subtitle: IBM Plex Sans Regular 16px
@@ -42,24 +40,70 @@ class AppTheme {
           fontSize: 16,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.02,
-          height: 1.0,
           color: AppColors.altDarkColor,
         ),
-        // TextSmall: IBM Plex Sans Regular 12px
+
+        // Subtitle small: IBM Plex Sans Regular 16px
+        labelSmall: GoogleFonts.ibmPlexSans(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: AppColors.altDarkColor,
+        ),
+
+        // Section title: IBM Plex Sans Medium 14px
+        headlineMedium: GoogleFonts.ibmPlexSans(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: AppColors.mainDarkColor,
+        ),
+
+        // Body text: IBM Plex Sans Regular 16px
+        bodyMedium: GoogleFonts.ibmPlexSans(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.32,
+          height: 1.875,
+          color: AppColors.mainDarkColor,
+        ),
+
+        // Functional: IBM Plex Sans Medium 16px
+        displayMedium: GoogleFonts.ibmPlexSans(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.96,
+          color: AppColors.altDarkColor,
+        ),
+
+        // Text large small tracking: IBM Plex Sans Medium 20px
+        bodyLarge: GoogleFonts.ibmPlexSans(
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.4,
+          color: AppColors.altDarkColor,
+        ),
+
+        // Text large: IBM Plex Sans Medium 20px
+        displayLarge: GoogleFonts.ibmPlexSans(
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 1.6,
+          color: AppColors.mainDarkColor,
+        ),
+
+        // Text normal: IBM Plex Sans Regular 14px
+        displaySmall: GoogleFonts.ibmPlexSans(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.28,
+          color: AppColors.mainDarkColor,
+        ),
+
+        // Text small: IBM Plex Sans Regular 12px
         bodySmall: GoogleFonts.ibmPlexSans(
           fontSize: 12,
           fontWeight: FontWeight.w400,
-          letterSpacing: 0.02,
-          height: 1.0,
+          letterSpacing: 0.24,
           color: AppColors.altDarkColor,
-        ),
-        // Corpo: IBM Plex Sans SemiBold 42px
-        displayLarge: GoogleFonts.ibmPlexSans(
-          fontSize: 42,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.02,
-          height: 1.0,
-          color: AppColors.mainDarkColor,
         ),
       ),
 
