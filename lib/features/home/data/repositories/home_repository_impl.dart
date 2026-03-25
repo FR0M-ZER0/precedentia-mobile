@@ -1,4 +1,4 @@
-import 'package:precedentia_mobile/core/features/home/domain/repositories/home_repository.dart';
+import 'package:precedentia_mobile/features/home/domain/repositories/home_repository.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
   @override
