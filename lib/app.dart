@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:precedentia_mobile/core/rrouter/app_router.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -7,7 +8,9 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'PrecedentIA App',
+      title: 'PrecedentIA',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
       routerConfig: AppRouter.router,
     );
   }
