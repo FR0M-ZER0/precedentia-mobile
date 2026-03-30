@@ -5,39 +5,82 @@ import 'package:precedentia_mobile/core/widgets/base_template.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  // Função que exibe o modal de escolha ao clicar no botão
+  void _showSelectionModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext bottomSheetContext) {
+        final textTheme = Theme.of(context).textTheme;
+        final colorScheme = Theme.of(context).colorScheme;
+
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Ocupa apenas o espaço necessário
+            children: [
+              Text(
+                "Como deseja enviar a petição?",
+                style: textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              
+              // Opção 1: Arquivo PDF
+              ListTile(
+                leading: Icon(Icons.upload_file, color: colorScheme.primary, size: 32),
+                title: Text("Enviar arquivo PDF", style: textTheme.headlineMedium),
+                subtitle: Text("Faça o upload do documento em .pdf", style: textTheme.bodySmall),
+                onTap: () {
+                  Navigator.pop(bottomSheetContext); // Fecha o modal
+                  context.push('/enviar-peticao'); // Vai para a tela de PDF
+                },
+              ),
+              
+              const Divider(height: 32),
+              
+              // Opção 2: Inserção de Texto
+              ListTile(
+                leading: Icon(Icons.edit_document, color: colorScheme.primary, size: 32),
+                title: Text("Digitar dados manualmente", style: textTheme.headlineMedium),
+                subtitle: Text("Preencha os campos de texto no aplicativo", style: textTheme.bodySmall),
+                onTap: () {
+                  Navigator.pop(bottomSheetContext); // Fecha o modal
+                  context.push('/enviar-peticao-texto'); // Vai para a tela de Texto
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Acessando o textTheme do seu AppTheme para o conteúdo do body
     final textTheme = Theme.of(context).textTheme;
 
     return BasePageTemplate(
       title: "Página Inicial",
       subtitle: "Bem-vindo ao PrecedentIA",
-      detailText: "v1.0.0", // Exemplo de uso do campo detalhe
-      
-      // DICA: Como a Home é a primeira tela (raiz '/'), não temos para onde "voltar".
-      // Remover ou comentar o onBackPress esconde o botão "Voltar" do BasePageTemplate.
-      // onBackPress: () => context.pop(), 
-      
+      detailText: "v1.0.0",
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
-            // Usando IBM Plex Sans 16px definido no seu AppTheme
             style: textTheme.titleSmall,
           ),
           const SizedBox(height: 30),
 
-          // Botão que agora redireciona para a tela de Envio de Petição
+          // Botão que agora abre o modal de seleção
           SizedBox(
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
-              onPressed: () {
-                // Navega para a rota que criamos no AppRouter
-                context.push('/enviar-peticao');
-              },
+              onPressed: () => _showSelectionModal(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,

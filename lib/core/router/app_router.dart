@@ -3,6 +3,7 @@ import 'package:precedentia_mobile/features/home/presentation/pages/home_page.da
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -27,6 +28,11 @@ class AppRouter {
         path: '/resultados-precedentes',
         name: 'precedents_results',
         builder: (context, state) => const PrecedentsResultsPage(),
+      ),
+      GoRoute(
+        path: '/enviar-peticao-texto',
+        name: 'send_petition_text',
+        builder: (context, state) => const SendPetitionTextPage(),
       ),
     ],
   );
