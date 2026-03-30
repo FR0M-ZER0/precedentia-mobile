@@ -14,8 +14,11 @@ class HomePage extends StatelessWidget {
       title: "Página Inicial",
       subtitle: "Bem-vindo ao PrecedentIA",
       detailText: "v1.0.0", // Exemplo de uso do campo detalhe
-      // O botão "Voltar" só aparece porque passamos a função abaixo
-      onBackPress: () => context.pop(),
+      
+      // DICA: Como a Home é a primeira tela (raiz '/'), não temos para onde "voltar".
+      // Remover ou comentar o onBackPress esconde o botão "Voltar" do BasePageTemplate.
+      // onBackPress: () => context.pop(), 
+      
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -26,13 +29,14 @@ class HomePage extends StatelessWidget {
           ),
           const SizedBox(height: 30),
 
-          // Exemplo de botão seguindo o padrão que o grupo pode usar
+          // Botão que agora redireciona para a tela de Envio de Petição
           SizedBox(
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
               onPressed: () {
-                // Exemplo: context.go('/search');
+                // Navega para a rota que criamos no AppRouter
+                context.push('/enviar-peticao');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
