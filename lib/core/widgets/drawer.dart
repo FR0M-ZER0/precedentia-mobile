@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart'; // Importante para o seu AppRouter
+import 'package:go_router/go_router.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -44,8 +44,8 @@ class CustomDrawer extends StatelessWidget {
           _buildMenuItem(
             context,
             Icons.description_outlined,
-            "Petições",
-            "/history",
+            "Precedentes",
+            "/precedents",
           ),
           _buildMenuItem(context, Icons.person_outline, "Perfil", "/profile"),
 
