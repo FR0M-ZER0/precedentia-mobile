@@ -1,49 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
+import 'package:precedentia_mobile/core/widgets/speed_dial.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Acessando o textTheme do seu AppTheme para o conteúdo do body
-    final textTheme = Theme.of(context).textTheme;
-
     return BasePageTemplate(
-      title: "Página Inicial",
-      subtitle: "Bem-vindo ao PrecedentIA",
-      detailText: "v1.0.0", // Exemplo de uso do campo detalhe
-      // O botão "Voltar" só aparece porque passamos a função abaixo
-      onBackPress: () => context.pop(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
-            // Usando IBM Plex Sans 16px definido no seu AppTheme
-            style: textTheme.titleSmall,
-          ),
-          const SizedBox(height: 30),
+      title: "Procure precedentes",
+      subtitle:
+          "Envie o arquivo da petição inicial ou escreva os campos da pesquisa",
+      onBackPress: null, // Oculta o voltar na home
+      // Atualizamos o SpeedDialMenu aqui:
+      floatingActionButton: SpeedDialMenu(
+        // Quando clicar no botão de Texto/Manual:
+        onTextPressed: () {
+          context.push('/search/manual'); // Navega para a rota manual
+        },
 
-          // Exemplo de botão seguindo o padrão que o grupo pode usar
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                // Exemplo: context.go('/search');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text("Iniciar Nova Consulta"),
-            ),
-          ),
+        // Quando clicar no botão de Upload:
+        onUploadPressed: () {
+          context.push('/search/upload'); // Navega para a rota de upload
+        },
+
+        // Opcional: ação ao clicar no + principal
+        onMainPressed: () {},
+      ),
+
+      body: const Column(
+        children: [
+          // Conteúdo principal da Home
         ],
       ),
     );

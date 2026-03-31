@@ -9,6 +9,8 @@ class BasePageTemplate extends StatelessWidget {
   final String? detailText;
   final VoidCallback? onBackPress;
   final Widget body;
+  // 1. Adicione o parâmetro aqui
+  final Widget? floatingActionButton;
 
   const BasePageTemplate({
     super.key,
@@ -17,17 +19,19 @@ class BasePageTemplate extends StatelessWidget {
     this.subtitle,
     this.detailText,
     this.onBackPress,
+    this.floatingActionButton, // 2. E aqui no construtor
   });
 
   @override
   Widget build(BuildContext context) {
-    // Acessa as definições que você criou no AppTheme
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: const NavBar(),
       endDrawer: const CustomDrawer(),
+      // 3. Adicione esta linha para o Scaffold renderizar o botão
+      floatingActionButton: floatingActionButton,
       body: Column(
         children: [
           Expanded(
@@ -36,7 +40,6 @@ class BasePageTemplate extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Botão Voltar Dinâmico
                   if (onBackPress != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -53,7 +56,6 @@ class BasePageTemplate extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               'Voltar',
-                              // Usa o estilo bodySmall do seu AppTheme (IBM Plex Sans 12px)
                               style: textTheme.bodySmall?.copyWith(
                                 color: colorScheme.error,
                                 fontWeight: FontWeight.bold,
@@ -64,14 +66,8 @@ class BasePageTemplate extends StatelessWidget {
                       ),
                     ),
 
-                  // Título Principal
-                  Text(
-                    title,
-                    // Usa o titleMedium do seu AppTheme (Merriweather 28px Bold)
-                    style: textTheme.titleMedium,
-                  ),
+                  Text(title, style: textTheme.titleMedium),
 
-                  // Subtítulo e Detalhe
                   if (subtitle != null || detailText != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8, bottom: 20),
@@ -82,21 +78,15 @@ class BasePageTemplate extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 subtitle!,
-                                // Usa o titleSmall (IBM Plex Sans 16px)
                                 style: textTheme.titleSmall,
                               ),
                             ),
                           if (detailText != null)
-                            Text(
-                              detailText!,
-                              // Usa o bodySmall (IBM Plex Sans 12px)
-                              style: textTheme.bodySmall,
-                            ),
+                            Text(detailText!, style: textTheme.bodySmall),
                         ],
                       ),
                     ),
 
-                  // Conteúdo customizável da página
                   body,
                 ],
               ),
