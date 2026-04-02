@@ -55,11 +55,13 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
   }
 
   void _submitForm() {
+    final textTheme = Theme.of(context).textTheme;
+
     if (_formKey.currentState!.validate()) {
       if (_pedidos.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Adicione pelo menos um pedido.'),
+          SnackBar(
+            content: Text('Adicione pelo menos um pedido.', style: textTheme.bodyMedium?.copyWith(color: AppColors.mainWhiteColor)),
             backgroundColor: AppColors.detailsColor,
           ),
         );
@@ -67,10 +69,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Petição enviada com sucesso!'),
+        SnackBar(
+          content: Text('Petição enviada com sucesso!', style: textTheme.bodyMedium?.copyWith(color: AppColors.mainDarkColor)),
           backgroundColor: AppColors.accentColor,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -79,18 +81,20 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Preencha os campos obrigatórios.'),
+        SnackBar(
+          content: Text('Preencha os campos obrigatórios.', style: textTheme.bodyMedium?.copyWith(color: AppColors.mainWhiteColor)),
           backgroundColor: AppColors.detailsColor,
         ),
       );
     }
   }
 
-  InputDecoration _customInputDecoration(String hint, {String? label}) {
+  InputDecoration _customInputDecoration(String hint, TextTheme textTheme, {String? label}) {
     return InputDecoration(
       hintText: hint,
       labelText: label,
+      hintStyle: textTheme.bodyMedium?.copyWith(color: AppColors.altDarkColor.withOpacity(0.7)),
+      labelStyle: textTheme.bodyMedium?.copyWith(color: AppColors.mainDarkColor, fontWeight: FontWeight.w500),
       filled: true,
       fillColor: AppColors.altLightColor,
       border: OutlineInputBorder(
@@ -140,7 +144,8 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                 return TextFormField(
                   controller: controller,
                   focusNode: focusNode,
-                  decoration: _customInputDecoration('Tipo de ação'),
+                  style: textTheme.bodyMedium, 
+                  decoration: _customInputDecoration('Tipo de ação', textTheme),
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Campo obrigatório' : null,
                 );
@@ -151,12 +156,13 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
             const SizedBox(height: 16),
 
             DropdownButtonFormField<String>(
-              decoration: _customInputDecoration('Selecione um valor', label: 'Tribunal'),
+              decoration: _customInputDecoration('Selecione um valor', textTheme, label: 'Tribunal'),
+              style: textTheme.bodyMedium, 
               value: _selectedTribunal,
               items: _tribunais.map((String tribunal) {
                 return DropdownMenuItem<String>(
                   value: tribunal,
-                  child: Text(tribunal),
+                  child: Text(tribunal, style: textTheme.bodyMedium), 
                 );
               }).toList(),
               onChanged: (String? newValue) {
@@ -172,14 +178,15 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
             TextFormField(
               controller: _resumoController,
               maxLines: 6,
-              decoration: _customInputDecoration('Resumo dos fatos'),
+              style: textTheme.bodyMedium, 
+              decoration: _customInputDecoration('Resumo dos fatos', textTheme),
               validator: (value) =>
                   value == null || value.isEmpty ? 'Campo obrigatório' : null,
             ),
             const SizedBox(height: 16),
 
             InputDecorator(
-              decoration: _customInputDecoration('Pedidos').copyWith(
+              decoration: _customInputDecoration('Pedidos', textTheme).copyWith(
                 contentPadding: const EdgeInsets.all(12),
               ),
               child: Column(
@@ -194,7 +201,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                           pedido,
                           style: textTheme.bodySmall?.copyWith(color: AppColors.mainWhiteColor),
                         ),
-                        backgroundColor: AppColors.altDarkColor, // Cor escura do badge
+                        backgroundColor: AppColors.altDarkColor, 
                         deleteIconColor: AppColors.mainWhiteColor,
                         onDeleted: () => _removePedido(pedido),
                         shape: RoundedRectangleBorder(
@@ -206,8 +213,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                   ),
                   TextField(
                     controller: _pedidosInputController,
+                    style: textTheme.bodyMedium, 
                     decoration: InputDecoration(
                       hintText: _pedidos.isEmpty ? 'Digite um pedido e aperte Enter' : 'Adicionar outro...',
+                      hintStyle: textTheme.bodyMedium?.copyWith(color: AppColors.altDarkColor.withOpacity(0.6)), // Padroniza o hint
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: const EdgeInsets.only(top: 8),
@@ -233,9 +242,12 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   'Enviar',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.mainDarkColor,
+                  ),
                 ),
               ),
             ),
