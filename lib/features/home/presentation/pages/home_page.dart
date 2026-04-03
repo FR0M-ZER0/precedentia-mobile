@@ -9,29 +9,43 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BasePageTemplate(
-      title: "Procure precedentes",
-      subtitle:
-          "Envie o arquivo da petição inicial ou escreva os campos da pesquisa",
-      onBackPress: null, // Oculta o voltar na home
-      // Atualizamos o SpeedDialMenu aqui:
-      floatingActionButton: SpeedDialMenu(
-        // Quando clicar no botão de Texto/Manual:
-        onTextPressed: () {
-          context.push('/search/manual'); // Navega para a rota manual
-        },
-
-        // Quando clicar no botão de Upload:
-        onUploadPressed: () {
-          context.push('/search/upload'); // Navega para a rota de upload
-        },
-
-        // Opcional: ação ao clicar no + principal
-        onMainPressed: () {},
-      ),
-
-      body: const Column(
+      title: "Página Inicial",
+      subtitle: "Bem-vindo ao PrecedentIA",
+      detailText: "v1.0.0", // Exemplo de uso do campo detalhe
+      
+      // DICA: Como a Home é a primeira tela (raiz '/'), não temos para onde "voltar".
+      // Remover ou comentar o onBackPress esconde o botão "Voltar" do BasePageTemplate.
+      // onBackPress: () => context.pop(), 
+      
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Conteúdo principal da Home
+          Text(
+            "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
+            // Usando IBM Plex Sans 16px definido no seu AppTheme
+            style: textTheme.titleSmall,
+          ),
+          const SizedBox(height: 30),
+
+          // Botão que agora redireciona para a tela de Envio de Petição
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () {
+                // Navega para a rota que criamos no AppRouter
+                context.push('/enviar-peticao');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text("Iniciar Nova Consulta"),
+            ),
+          ),
         ],
       ),
     );
