@@ -27,7 +27,9 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
   void _startFakeAnimation() {
     const int interval = 100;
 
-    _animationTimer = Timer.periodic(const Duration(milliseconds: interval), (timer) {
+    _animationTimer = Timer.periodic(const Duration(milliseconds: interval), (
+      timer,
+    ) {
       if (!mounted) return;
       setState(() {
         if (!_requestDone && _progress < 0.9) {
@@ -61,12 +63,13 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
 
       if (!mounted) return;
       context.replace('/resultados-precedentes');
-
     } catch (e) {
       debugPrint('Erro ao extrair petição: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao processar a petição. Tente novamente.')),
+        const SnackBar(
+          content: Text('Erro ao processar a petição. Tente novamente.'),
+        ),
       );
       context.pop();
     }
