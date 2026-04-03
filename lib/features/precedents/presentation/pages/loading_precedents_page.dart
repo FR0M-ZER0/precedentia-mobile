@@ -94,11 +94,7 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.smart_toy_outlined,
-                size: 120,
-                color: AppColors.mainDarkColor,
-              ),
+              Image.asset('assets/images/green_robot.gif', width: 150, height: 150),
               const SizedBox(height: 32),
 
               Text(
