@@ -17,11 +17,10 @@ class SendPetitionPage extends StatefulWidget {
 class _SendPetitionPageState extends State<SendPetitionPage> {
   bool _isUploading = false;
 
-  late final ExtractPetitionUseCase _extractPetitionUseCase = ExtractPetitionUseCase(
-    PetitionRepositoryImpl(
-      PetitionRemoteDatasourceImpl(),
-    ),
-  );
+  late final ExtractPetitionUseCase _extractPetitionUseCase =
+      ExtractPetitionUseCase(
+        PetitionRepositoryImpl(PetitionRemoteDatasourceImpl()),
+      );
 
   Future<void> _pickPDF() async {
     try {
@@ -63,7 +62,6 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
       debugPrint('Total encontrado: ${response['total_found']}');
       debugPrint('Results: ${response['results']}');
       debugPrint('===================================');
-
     } catch (e) {
       debugPrint('Erro ao enviar petição: $e');
       if (!mounted) return;
@@ -75,10 +73,7 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.detailsColor,
-      ),
+      SnackBar(content: Text(message), backgroundColor: AppColors.detailsColor),
     );
   }
 

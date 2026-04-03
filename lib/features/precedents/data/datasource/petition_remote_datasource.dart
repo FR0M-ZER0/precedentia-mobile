@@ -17,10 +17,7 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
       ),
     });
 
-    final response = await _dio.post(
-      '/documents/extract',
-      data: formData,
-    );
+    final response = await _dio.post('/documents/extract', data: formData);
 
     return response.data as Map<String, dynamic>;
   }
