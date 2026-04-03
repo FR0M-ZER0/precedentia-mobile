@@ -94,7 +94,11 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/images/green_robot.gif', width: 150, height: 150),
+              Image.asset(
+                'assets/images/green_robot.gif',
+                width: 150,
+                height: 150,
+              ),
               const SizedBox(height: 32),
 
               Text(
