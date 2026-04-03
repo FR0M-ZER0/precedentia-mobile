@@ -52,16 +52,10 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
 
       setState(() => _isUploading = true);
 
+      final future = _extractPetitionUseCase(filePath);
+
       if (!mounted) return;
-      context.push('/carregando-precedentes');
-
-      final response = await _extractPetitionUseCase(filePath);
-
-      debugPrint('=== Resposta /documents/extract ===');
-      debugPrint('Query: ${response['query']}');
-      debugPrint('Total encontrado: ${response['total_found']}');
-      debugPrint('Results: ${response['results']}');
-      debugPrint('===================================');
+      context.push('/carregando-precedentes', extra: future);
     } catch (e) {
       debugPrint('Erro ao enviar petição: $e');
       if (!mounted) return;

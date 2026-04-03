@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart'; // Ajuste o caminho se necessário
-import '../../../../core/widgets/nav_bar.dart'; // Ajuste o caminho se necessário
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/nav_bar.dart';
 
 class LoadingPrecedentsPage extends StatefulWidget {
-  const LoadingPrecedentsPage({super.key});
+  final Future<Map<String, dynamic>> extractFuture;
+  const LoadingPrecedentsPage({super.key, required this.extractFuture});
 
   @override
   State<LoadingPrecedentsPage> createState() => _LoadingPrecedentsPageState();
@@ -13,54 +14,67 @@ class LoadingPrecedentsPage extends StatefulWidget {
 
 class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
   double _progress = 0.0;
-  int _precedentsFound = 0;
-  Timer? _timer;
+  Timer? _animationTimer;
+  bool _requestDone = false;
 
   @override
   void initState() {
     super.initState();
-    _startLoadingSimulation();
+    _startFakeAnimation();
+    _waitForRequest();
   }
 
-  void _startLoadingSimulation() {
-    // Simula o carregamento ao longo de ~5 segundos
-    const int totalDuration = 5000;
+  void _startFakeAnimation() {
     const int interval = 100;
-    int elapsed = 0;
 
-    _timer = Timer.periodic(const Duration(milliseconds: interval), (timer) {
+    _animationTimer = Timer.periodic(const Duration(milliseconds: interval), (timer) {
+      if (!mounted) return;
       setState(() {
-        elapsed += interval;
-        _progress = elapsed / totalDuration;
-
-        // Simula encontrando alguns precedentes de forma aleatória/progressiva
-        if (elapsed % 800 == 0) {
-          _precedentsFound += 2;
+        if (!_requestDone && _progress < 0.9) {
+          _progress += 0.002;
+        }
+        if (_requestDone && _progress < 1.0) {
+          _progress += 0.05;
+        }
+        if (_progress >= 1.0) {
+          _progress = 1.0;
+          timer.cancel();
         }
       });
-
-      if (elapsed >= totalDuration) {
-        timer.cancel();
-        _onLoadingComplete();
-      }
     });
   }
 
-  void _onLoadingComplete() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$_precedentsFound precedentes encontrados!'),
-        backgroundColor: AppColors.accentColor,
-      ),
-    );
+  Future<void> _waitForRequest() async {
+    try {
+      final response = await widget.extractFuture;
 
-    // Substitui a tela de loading pela tela de resultados
-    context.replace('/resultados-precedentes');
+      debugPrint('=== Resposta /documents/extract ===');
+      debugPrint('Query: ${response['query']}');
+      debugPrint('Total encontrado: ${response['total_found']}');
+      debugPrint('Results: ${response['results']}');
+      debugPrint('===================================');
+
+      if (!mounted) return;
+      setState(() => _requestDone = true);
+
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      if (!mounted) return;
+      context.replace('/resultados-precedentes');
+
+    } catch (e) {
+      debugPrint('Erro ao extrair petição: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao processar a petição. Tente novamente.')),
+      );
+      context.pop();
+    }
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _animationTimer?.cancel();
     super.dispose();
   }
 
@@ -70,15 +84,13 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
 
     return Scaffold(
       backgroundColor: AppColors.mainWhiteColor,
-      appBar: const NavBar(), // Mantendo sua NavBar padrão
+      appBar: const NavBar(),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // ILUSTRAÇÃO DO ROBÔ
-              // TODO: Substitua pelo Image.asset correto após exportar do Figma
               const Icon(
                 Icons.smart_toy_outlined,
                 size: 120,
@@ -86,7 +98,6 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
               ),
               const SizedBox(height: 32),
 
-              // TÍTULO
               Text(
                 'Procurando precedentes',
                 style: textTheme.titleMedium,
@@ -94,19 +105,18 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
               ),
               const SizedBox(height: 8),
 
-              // CONTADOR DE PRECEDENTES
               Text(
-                'Precedentes encontrados: $_precedentsFound',
-                style: textTheme.labelSmall, // IBM Plex Sans 14px Cinza
+                // 'Precedentes encontrados: $_precedentsFound',
+                'Procurando precedentes similares',
+                style: textTheme.labelSmall,
               ),
               const SizedBox(height: 16),
 
-              // BARRA DE PROGRESSO CUSTOMIZADA COM GRADIENTE
               Container(
                 height: 16,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.altLightColor, // Fundo azul claro
+                  color: AppColors.altLightColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: LayoutBuilder(
@@ -120,8 +130,8 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
                           borderRadius: BorderRadius.circular(10),
                           gradient: const LinearGradient(
                             colors: [
-                              AppColors.detailsColor, // Vermelho/Coral
-                              AppColors.mainDarkColor, // Azul Escuro
+                              AppColors.detailsColor,
+                              AppColors.mainDarkColor,
                             ],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,

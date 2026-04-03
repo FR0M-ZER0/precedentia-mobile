@@ -48,7 +48,9 @@ class AppRouter {
       GoRoute(
         path: '/carregando-precedentes',
         name: 'loading_precedents',
-        builder: (context, state) => const LoadingPrecedentsPage(),
+        builder: (context, state) => LoadingPrecedentsPage(
+          extractFuture: state.extra as Future<Map<String, dynamic>>,
+        ),
       ),
       GoRoute(
         path: '/resultados-precedentes',
