@@ -63,11 +63,12 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.send_and_archive_outlined,
-                size: 150,
-                color: AppColors.altLightColor,
+              Image.asset(
+                'assets/images/plane.png',
+                width: 320,
+                height: 320,
               ),
+
               const SizedBox(height: 60),
 
               SizedBox(
