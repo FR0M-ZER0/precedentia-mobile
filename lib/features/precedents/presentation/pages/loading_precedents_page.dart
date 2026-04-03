@@ -62,7 +62,7 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
       await Future.delayed(const Duration(milliseconds: 800));
 
       if (!mounted) return;
-      context.replace('/resultados-precedentes');
+      context.replace('/resultados-precedentes', extra: response);
     } catch (e) {
       debugPrint('Erro ao extrair petição: $e');
       if (!mounted) return;

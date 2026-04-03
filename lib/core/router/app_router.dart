@@ -55,7 +55,9 @@ class AppRouter {
       GoRoute(
         path: '/resultados-precedentes',
         name: 'precedents_results',
-        builder: (context, state) => const PrecedentsResultsPage(),
+        builder: (context, state) => PrecedentsResultsPage(
+          data: state.extra as Map<String, dynamic>,
+        ),
       ),
       GoRoute(
         path: '/enviar-peticao-texto',

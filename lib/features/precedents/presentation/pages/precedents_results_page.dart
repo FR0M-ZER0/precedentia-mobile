@@ -4,33 +4,50 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
 class PrecedentsResultsPage extends StatelessWidget {
-  const PrecedentsResultsPage({super.key});
+  final Map<String, dynamic> data;
+
+  const PrecedentsResultsPage({super.key, required this.data});
+
+  String _nomeTribunal(String sigla) {
+    const nomes = {
+      'STF': 'Supremo Tribunal Federal',
+      'STJ': 'Superior Tribunal de Justiça',
+      'STM': 'Superior Tribunal Militar',
+      'TST': 'Tribunal Superior do Trabalho',
+      'TRF1': 'Tribunal Regional Federal 1ª Região',
+      'TRF2': 'Tribunal Regional Federal 2ª Região',
+      'TRF3': 'Tribunal Regional Federal 3ª Região',
+      'TRF4': 'Tribunal Regional Federal 4ª Região',
+      'TRF5': 'Tribunal Regional Federal 5ª Região',
+    };
+    return nomes[sigla] ?? sigla;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final results = data['results'] as List<dynamic>;
+
     return BasePageTemplate(
       title: 'Precedentes jurídicos',
       onBackPress: () => context.go('/enviar-peticao'),
       body: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: 4,
-        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        itemCount: results.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
-          final bool isPoucoProvavel = index == 3;
+          final item = results[index] as Map<String, dynamic>;
+          final double score = (item['similarity_score'] as num).toDouble();
+          final bool isAltaProbabilidade = score >= 0.55;
 
           return PrecedentResultCard(
-            tribunal: 'Superior Tribunal de Justiça',
-            siglaTribunal: 'STJ',
-            data: '01/02/2035',
-            codigoPrecedente: 'Precedente abc123',
-            titulo: 'Herança familiar',
-            descricao:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut turpis nisl, vulputate sit amet ultricies id, hendrerit id ligula. Lorem ipsum dolor sit amet, consectetur...',
-            probabilidade: isPoucoProvavel
-                ? 'Pouco provável'
-                : 'Muito provável',
-            isAltaProbabilidade: !isPoucoProvavel,
+            tribunal: _nomeTribunal(item['tribunal'] as String),
+            siglaTribunal: item['tribunal'] as String,
+            codigoPrecedente: item['name'] as String,
+            situacao: item['situation'] as String,
+            descricao: item['description'] as String,
+            probabilidade: isAltaProbabilidade ? 'Muito provável' : 'Pouco provável',
+            isAltaProbabilidade: isAltaProbabilidade,
           );
         },
       ),
@@ -41,9 +58,8 @@ class PrecedentsResultsPage extends StatelessWidget {
 class PrecedentResultCard extends StatelessWidget {
   final String tribunal;
   final String siglaTribunal;
-  final String data;
   final String codigoPrecedente;
-  final String titulo;
+  final String situacao;
   final String descricao;
   final String probabilidade;
   final bool isAltaProbabilidade;
@@ -52,9 +68,8 @@ class PrecedentResultCard extends StatelessWidget {
     super.key,
     required this.tribunal,
     required this.siglaTribunal,
-    required this.data,
     required this.codigoPrecedente,
-    required this.titulo,
+    required this.situacao,
     required this.descricao,
     required this.probabilidade,
     required this.isAltaProbabilidade,
@@ -84,7 +99,7 @@ class PrecedentResultCard extends StatelessWidget {
           children: [
             Container(
               width: 120,
-              color: AppColors.altLightColor, // Fundo azul claro
+              color: AppColors.altLightColor,
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +133,7 @@ class PrecedentResultCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    data,
+                    '01/01/2025', // TODO: Adicionar data vindo da API
                     style: textTheme.bodySmall?.copyWith(
                       color: AppColors.altDarkColor,
                     ),
@@ -137,13 +152,6 @@ class PrecedentResultCard extends StatelessWidget {
                       codigoPrecedente,
                       style: textTheme.bodySmall?.copyWith(
                         color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      titulo,
-                      style: textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 8),
