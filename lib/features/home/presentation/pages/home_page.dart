@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
+import 'package:precedentia_mobile/core/widgets/speed_dial.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Acessando o textTheme do seu AppTheme para o conteúdo do body
-    final textTheme = Theme.of(context).textTheme;
-
     return BasePageTemplate(
       title: "Página Inicial",
       subtitle: "Bem-vindo ao PrecedentIA",
