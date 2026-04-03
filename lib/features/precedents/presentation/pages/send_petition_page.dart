@@ -100,7 +100,7 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
                   label: Text(_isUploading ? 'Enviando...' : 'Enviar arquivo'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.altLightColor,
-                    foregroundColor: AppColors.mainDarkColor,
+                    foregroundColor: AppColors.altDarkColor,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
