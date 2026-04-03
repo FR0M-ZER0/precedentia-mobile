@@ -46,7 +46,9 @@ class PrecedentsResultsPage extends StatelessWidget {
             codigoPrecedente: item['name'] as String,
             situacao: item['situation'] as String,
             descricao: item['description'] as String,
-            probabilidade: isAltaProbabilidade ? 'Muito provável' : 'Pouco provável',
+            probabilidade: isAltaProbabilidade
+                ? 'Muito provável'
+                : 'Pouco provável',
             isAltaProbabilidade: isAltaProbabilidade,
           );
         },
