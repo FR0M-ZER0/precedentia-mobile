@@ -32,7 +32,7 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
       setState(() {
         elapsed += interval;
         _progress = elapsed / totalDuration;
-        
+
         // Simula encontrando alguns precedentes de forma aleatória/progressiva
         if (elapsed % 800 == 0) {
           _precedentsFound += 2;
@@ -53,7 +53,7 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
         backgroundColor: AppColors.accentColor,
       ),
     );
-    
+
     // Substitui a tela de loading pela tela de resultados
     context.replace('/resultados-precedentes');
   }
@@ -80,8 +80,8 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
               // ILUSTRAÇÃO DO ROBÔ
               // TODO: Substitua pelo Image.asset correto após exportar do Figma
               const Icon(
-                Icons.smart_toy_outlined, 
-                size: 120, 
+                Icons.smart_toy_outlined,
+                size: 120,
                 color: AppColors.mainDarkColor,
               ),
               const SizedBox(height: 32),

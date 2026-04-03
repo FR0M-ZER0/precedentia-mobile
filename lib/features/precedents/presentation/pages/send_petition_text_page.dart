@@ -12,10 +12,10 @@ class SendPetitionTextPage extends StatefulWidget {
 
 class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
   final _formKey = GlobalKey<FormState>();
-  
+
   final TextEditingController _resumoController = TextEditingController();
   final TextEditingController _pedidosInputController = TextEditingController();
-  
+
   String? _selectedTribunal;
   final List<String> _pedidos = []; // badges
 
@@ -25,7 +25,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     'Superior Tribunal de Justiça',
     'TJSP (e afins)',
     'TRF1 ...',
-    'TRT1 ...'
+    'TRT1 ...',
   ];
 
   // Mock tbm até definir
@@ -35,7 +35,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     'Ação de Despejo',
     'Ação de Alimentos',
     'Mandado de Segurança',
-    'Habeas Corpus'
+    'Habeas Corpus',
   ];
 
   // Add badge
@@ -61,7 +61,12 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       if (_pedidos.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Adicione pelo menos um pedido.', style: textTheme.bodyMedium?.copyWith(color: AppColors.mainWhiteColor)),
+            content: Text(
+              'Adicione pelo menos um pedido.',
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppColors.mainWhiteColor,
+              ),
+            ),
             backgroundColor: AppColors.detailsColor,
           ),
         );
@@ -70,7 +75,12 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Petição enviada com sucesso!', style: textTheme.bodyMedium?.copyWith(color: AppColors.mainDarkColor)),
+          content: Text(
+            'Petição enviada com sucesso!',
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.mainDarkColor,
+            ),
+          ),
           backgroundColor: AppColors.accentColor,
           duration: const Duration(seconds: 2),
         ),
@@ -82,19 +92,33 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Preencha os campos obrigatórios.', style: textTheme.bodyMedium?.copyWith(color: AppColors.mainWhiteColor)),
+          content: Text(
+            'Preencha os campos obrigatórios.',
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.mainWhiteColor,
+            ),
+          ),
           backgroundColor: AppColors.detailsColor,
         ),
       );
     }
   }
 
-  InputDecoration _customInputDecoration(String hint, TextTheme textTheme, {String? label}) {
+  InputDecoration _customInputDecoration(
+    String hint,
+    TextTheme textTheme, {
+    String? label,
+  }) {
     return InputDecoration(
       hintText: hint,
       labelText: label,
-      hintStyle: textTheme.bodyMedium?.copyWith(color: AppColors.altDarkColor.withOpacity(0.7)),
-      labelStyle: textTheme.bodyMedium?.copyWith(color: AppColors.mainDarkColor, fontWeight: FontWeight.w500),
+      hintStyle: textTheme.bodyMedium?.copyWith(
+        color: AppColors.altDarkColor.withValues(alpha: 0.7),
+      ),
+      labelStyle: textTheme.bodyMedium?.copyWith(
+        color: AppColors.mainDarkColor,
+        fontWeight: FontWeight.w500,
+      ),
       filled: true,
       fillColor: AppColors.altLightColor,
       border: OutlineInputBorder(
@@ -104,7 +128,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppColors.mainDarkColor, width: 1.5),
+        borderSide: const BorderSide(
+          color: AppColors.mainDarkColor,
+          width: 1.5,
+        ),
       ),
     );
   }
@@ -136,33 +163,43 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                 if (textEditingValue.text.isEmpty) {
                   return const Iterable<String>.empty();
                 }
-                return _sugestoesAcao.where((acao) => acao
-                    .toLowerCase()
-                    .contains(textEditingValue.text.toLowerCase()));
-              },
-              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                return TextFormField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  style: textTheme.bodyMedium, 
-                  decoration: _customInputDecoration('Tipo de ação', textTheme),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                return _sugestoesAcao.where(
+                  (acao) => acao.toLowerCase().contains(
+                    textEditingValue.text.toLowerCase(),
+                  ),
                 );
               },
-              onSelected: (String selection) {
-              },
+              fieldViewBuilder:
+                  (context, controller, focusNode, onFieldSubmitted) {
+                    return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      style: textTheme.bodyMedium,
+                      decoration: _customInputDecoration(
+                        'Tipo de ação',
+                        textTheme,
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo obrigatório'
+                          : null,
+                    );
+                  },
+              onSelected: (String selection) {},
             ),
             const SizedBox(height: 16),
 
             DropdownButtonFormField<String>(
-              decoration: _customInputDecoration('Selecione um valor', textTheme, label: 'Tribunal'),
-              style: textTheme.bodyMedium, 
-              value: _selectedTribunal,
+              decoration: _customInputDecoration(
+                'Selecione um valor',
+                textTheme,
+                label: 'Tribunal',
+              ),
+              style: textTheme.bodyMedium,
+              initialValue: _selectedTribunal,
               items: _tribunais.map((String tribunal) {
                 return DropdownMenuItem<String>(
                   value: tribunal,
-                  child: Text(tribunal, style: textTheme.bodyMedium), 
+                  child: Text(tribunal, style: textTheme.bodyMedium),
                 );
               }).toList(),
               onChanged: (String? newValue) {
@@ -178,7 +215,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
             TextFormField(
               controller: _resumoController,
               maxLines: 6,
-              style: textTheme.bodyMedium, 
+              style: textTheme.bodyMedium,
               decoration: _customInputDecoration('Resumo dos fatos', textTheme),
               validator: (value) =>
                   value == null || value.isEmpty ? 'Campo obrigatório' : null,
@@ -186,9 +223,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
             const SizedBox(height: 16),
 
             InputDecorator(
-              decoration: _customInputDecoration('Pedidos', textTheme).copyWith(
-                contentPadding: const EdgeInsets.all(12),
-              ),
+              decoration: _customInputDecoration(
+                'Pedidos',
+                textTheme,
+              ).copyWith(contentPadding: const EdgeInsets.all(12)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -199,9 +237,11 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                       return Chip(
                         label: Text(
                           pedido,
-                          style: textTheme.bodySmall?.copyWith(color: AppColors.mainWhiteColor),
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppColors.mainWhiteColor,
+                          ),
                         ),
-                        backgroundColor: AppColors.altDarkColor, 
+                        backgroundColor: AppColors.altDarkColor,
                         deleteIconColor: AppColors.mainWhiteColor,
                         onDeleted: () => _removePedido(pedido),
                         shape: RoundedRectangleBorder(
@@ -213,10 +253,14 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                   ),
                   TextField(
                     controller: _pedidosInputController,
-                    style: textTheme.bodyMedium, 
+                    style: textTheme.bodyMedium,
                     decoration: InputDecoration(
-                      hintText: _pedidos.isEmpty ? 'Digite um pedido e aperte Enter' : 'Adicionar outro...',
-                      hintStyle: textTheme.bodyMedium?.copyWith(color: AppColors.altDarkColor.withOpacity(0.6)), // Padroniza o hint
+                      hintText: _pedidos.isEmpty
+                          ? 'Digite um pedido e aperte Enter'
+                          : 'Adicionar outro...',
+                      hintStyle: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.altDarkColor.withValues(alpha: 0.6),
+                      ), // Padroniza o hint
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: const EdgeInsets.only(top: 8),
@@ -235,7 +279,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
               child: ElevatedButton(
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.altLightColor, 
+                  backgroundColor: AppColors.altLightColor,
                   foregroundColor: AppColors.mainDarkColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(

@@ -24,7 +24,7 @@ class PrecedentsRepositoryImpl implements PrecedentsRepository {
       // 2. Salva no Hive para o histórico de acessos (silenciosamente)
       await localDataSource.saveAccessedPrecedent(precedentModel);
 
-      return Right(precedentModel);
+      return Right(precedentModel.toDomain());
     } catch (e) {
       // Se falhar (ex: sem internet), tenta buscar do Hive! (Acesso Offline)
       final localPrecedents = await localDataSource.getAccessedPrecedents();
@@ -33,7 +33,7 @@ class PrecedentsRepositoryImpl implements PrecedentsRepository {
           .firstOrNull;
 
       if (offlinePrecedent != null) {
-        return Right(offlinePrecedent);
+        return Right(offlinePrecedent.toDomain());
       }
       return Left(ServerFailure());
     }
@@ -44,7 +44,7 @@ class PrecedentsRepositoryImpl implements PrecedentsRepository {
   Future<Either<Failure, List<Precedent>>> getHistory() async {
     try {
       final history = await localDataSource.getAccessedPrecedents();
-      return Right(history);
+      return Right(history.map((m) => m.toDomain()).toList());
     } catch (e) {
       return Left(CacheFailure());
     }

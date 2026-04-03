@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart'; 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
+
 class PrecedentsResultsPage extends StatelessWidget {
   const PrecedentsResultsPage({super.key});
 
@@ -9,23 +10,26 @@ class PrecedentsResultsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BasePageTemplate(
       title: 'Precedentes jurídicos',
-      onBackPress: () => context.go('/enviar-peticao'), 
+      onBackPress: () => context.go('/enviar-peticao'),
       body: ListView.separated(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(), 
-        itemCount: 4, 
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 4,
         separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
           final bool isPoucoProvavel = index == 3;
-          
+
           return PrecedentResultCard(
             tribunal: 'Superior Tribunal de Justiça',
             siglaTribunal: 'STJ',
             data: '01/02/2035',
             codigoPrecedente: 'Precedente abc123',
             titulo: 'Herança familiar',
-            descricao: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut turpis nisl, vulputate sit amet ultricies id, hendrerit id ligula. Lorem ipsum dolor sit amet, consectetur...',
-            probabilidade: isPoucoProvavel ? 'Pouco provável' : 'Muito provável',
+            descricao:
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut turpis nisl, vulputate sit amet ultricies id, hendrerit id ligula. Lorem ipsum dolor sit amet, consectetur...',
+            probabilidade: isPoucoProvavel
+                ? 'Pouco provável'
+                : 'Muito provável',
             isAltaProbabilidade: !isPoucoProvavel,
           );
         },
@@ -67,7 +71,7 @@ class PrecedentResultCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -160,8 +164,8 @@ class PrecedentResultCard extends StatelessWidget {
                         style: textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: isAltaProbabilidade
-                              ? AppColors.accentColor 
-                              : AppColors.detailsColor, 
+                              ? AppColors.accentColor
+                              : AppColors.detailsColor,
                         ),
                       ),
                     ),
