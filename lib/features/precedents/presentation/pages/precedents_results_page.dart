@@ -25,7 +25,11 @@ class PrecedentsResultsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final results = data['results'] as List<dynamic>;
+    final results = (data['results'] as List<dynamic>?) ?? [];
+
+    if (results.isEmpty) {
+      return const Center(child: Text('Nenhum precedente encontrado.'));
+    }
 
     return BasePageTemplate(
       title: 'Precedentes jurídicos',

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
+import '../../data/datasource/petition_text_remote_datasource.dart';
+import '../../data/repositories/petition_text_repository_impl.dart';
+import '../../domain/usecases/send_petition_text_usecase.dart';
 
 class SendPetitionTextPage extends StatefulWidget {
   const SendPetitionTextPage({super.key});
@@ -16,10 +19,15 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
   final TextEditingController _resumoController = TextEditingController();
   final TextEditingController _pedidosInputController = TextEditingController();
 
+  String _tipoAcao = '';
   String? _selectedTribunal;
-  final List<String> _pedidos = []; // badges
+  final List<String> _pedidos = [];
 
-  // mockando lista até definir tribunais
+  late final SendPetitionTextUseCase _sendPetitionTextUseCase =
+      SendPetitionTextUseCase(
+        PetitionRepositoryImpl(PetitionRemoteDatasourceImpl()),
+      );
+
   final List<String> _tribunais = [
     'Supremo Tribunal Federal',
     'Superior Tribunal de Justiça',
@@ -28,7 +36,6 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     'TRT1 ...',
   ];
 
-  // Mock tbm até definir
   final List<String> _sugestoesAcao = [
     'Ação de Indenização por Danos Morais',
     'Ação de Cobrança',
@@ -38,70 +45,46 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     'Habeas Corpus',
   ];
 
-  // Add badge
   void _addPedido(String value) {
     if (value.trim().isNotEmpty && !_pedidos.contains(value.trim())) {
-      setState(() {
-        _pedidos.add(value.trim());
-      });
+      setState(() => _pedidos.add(value.trim()));
       _pedidosInputController.clear();
     }
   }
 
   void _removePedido(String pedido) {
-    setState(() {
-      _pedidos.remove(pedido);
-    });
+    setState(() => _pedidos.remove(pedido));
   }
 
   void _submitForm() {
-    final textTheme = Theme.of(context).textTheme;
-
-    if (_formKey.currentState!.validate()) {
-      if (_pedidos.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Adicione pelo menos um pedido.',
-              style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.mainWhiteColor,
-              ),
-            ),
-            backgroundColor: AppColors.detailsColor,
-          ),
-        );
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Petição enviada com sucesso!',
-            style: textTheme.bodyMedium?.copyWith(
-              color: AppColors.mainDarkColor,
-            ),
-          ),
-          backgroundColor: AppColors.accentColor,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) context.push('/carregando-precedentes');
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Preencha os campos obrigatórios.',
-            style: textTheme.bodyMedium?.copyWith(
-              color: AppColors.mainWhiteColor,
-            ),
-          ),
-          backgroundColor: AppColors.detailsColor,
-        ),
-      );
+    if (!_formKey.currentState!.validate()) {
+      _showSnackError('Preencha os campos obrigatórios.');
+      return;
     }
+
+    if (_pedidos.isEmpty) {
+      _showSnackError('Adicione pelo menos um pedido.');
+      return;
+    }
+
+    final future = _sendPetitionTextUseCase(
+      type: _tipoAcao,
+      facts: _resumoController.text,
+      tribunal: _selectedTribunal!,
+      requests: _pedidos,
+    );
+
+    if (!mounted) return;
+    context.push('/carregando-precedentes', extra: future);
+  }
+
+  void _showSnackError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.detailsColor,
+      ),
+    );
   }
 
   InputDecoration _customInputDecoration(
@@ -128,10 +111,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(
-          color: AppColors.mainDarkColor,
-          width: 1.5,
-        ),
+        borderSide: const BorderSide(color: AppColors.mainDarkColor, width: 1.5),
       ),
     );
   }
@@ -169,22 +149,20 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                   ),
                 );
               },
-              fieldViewBuilder:
-                  (context, controller, focusNode, onFieldSubmitted) {
-                    return TextFormField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      style: textTheme.bodyMedium,
-                      decoration: _customInputDecoration(
-                        'Tipo de ação',
-                        textTheme,
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Campo obrigatório'
-                          : null,
-                    );
-                  },
-              onSelected: (String selection) {},
+              onSelected: (String selection) {
+                setState(() => _tipoAcao = selection);
+              },
+              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                return TextFormField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  style: textTheme.bodyMedium,
+                  onChanged: (value) => _tipoAcao = value,
+                  decoration: _customInputDecoration('Tipo de ação', textTheme),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                );
+              },
             ),
             const SizedBox(height: 16),
 
@@ -203,9 +181,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                 );
               }).toList(),
               onChanged: (String? newValue) {
-                setState(() {
-                  _selectedTribunal = newValue;
-                });
+                setState(() => _selectedTribunal = newValue);
               },
               validator: (value) =>
                   value == null ? 'Selecione um tribunal' : null,
@@ -223,10 +199,8 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
             const SizedBox(height: 16),
 
             InputDecorator(
-              decoration: _customInputDecoration(
-                'Pedidos',
-                textTheme,
-              ).copyWith(contentPadding: const EdgeInsets.all(12)),
+              decoration: _customInputDecoration('Pedidos', textTheme)
+                  .copyWith(contentPadding: const EdgeInsets.all(12)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -260,7 +234,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                           : 'Adicionar outro...',
                       hintStyle: textTheme.bodyMedium?.copyWith(
                         color: AppColors.altDarkColor.withValues(alpha: 0.6),
-                      ), // Padroniza o hint
+                      ),
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: const EdgeInsets.only(top: 8),
