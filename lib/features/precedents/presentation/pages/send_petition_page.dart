@@ -76,7 +76,7 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
     return BasePageTemplate(
       title: 'Envie a petição inicial',
       subtitle: 'Envie o arquivo da petição inicial no formato .pdf',
-      onBackPress: () => Navigator.pop(context),
+      onBackPress: () => context.go('/'),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 40.0),

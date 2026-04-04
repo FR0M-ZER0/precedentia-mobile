@@ -8,8 +8,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class PrecedentDetailPage extends StatefulWidget {
   final String precedentId;
+  final Map<String, dynamic> data;
 
-  const PrecedentDetailPage({super.key, required this.precedentId});
+  const PrecedentDetailPage({super.key, required this.precedentId, required this.data});
 
   @override
   State<PrecedentDetailPage> createState() => _PrecedentDetailPageState();
@@ -18,25 +19,43 @@ class PrecedentDetailPage extends StatefulWidget {
 class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
   bool _isExpanded = false;
 
+  String _nomeTribunal(String sigla) {
+    const nomes = {
+      'STF': 'Supremo Tribunal Federal',
+      'STJ': 'Superior Tribunal de Justiça',
+      'STM': 'Superior Tribunal Militar',
+      'TST': 'Tribunal Superior do Trabalho',
+      'TRF1': 'Tribunal Regional Federal 1ª Região',
+      'TRF2': 'Tribunal Regional Federal 2ª Região',
+      'TRF3': 'Tribunal Regional Federal 3ª Região',
+      'TRF4': 'Tribunal Regional Federal 4ª Região',
+      'TRF5': 'Tribunal Regional Federal 5ª Região',
+    };
+    return nomes[sigla] ?? sigla;
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     // --- MOCK DE DADOS ---
+    final item = widget.data;
+    final double score = (item['similarity_score'] as num).toDouble();
+
     final precedent = Precedent(
-      id: widget.precedentId,
-      court: "Superior Tribunal de Justiça",
-      courtAcronym: "STJ",
-      creationDate: DateTime(2035, 1, 12),
-      subject: "Herança familiar",
-      summary:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus rutrum, leo id fermentum fermentum, augue lectus placerat ligula, a ornare eros odio sed ex. Etiam consequat pretium mollis. Sed felis purus, ultrices in maximus nec, placerat at diam. Quisque diam dui, fermentum vel sapien a, mattis tincidunt dui. Cras eleifend lobortis elit, et euismod lacus mattis a. Integer ut mi felis.",
-      score: 80.0,
-      compatibility: Compatibility.muitoProvavel,
+      id: item['id'].toString(),
+      name: item['name'],
+      court: _nomeTribunal(item['tribunal'] as String),
+      courtAcronym: item['tribunal'] as String,
+      creationDate: DateTime(2025, 1, 1), // mockado
+      subject: item['name'] as String,
+      summary: item['description'] as String,
+      score: score * 100, // converte 0.63 → 63%
+      compatibility: score >= 0.55 ? Compatibility.muitoProvavel : Compatibility.poucoProvavel,
     );
 
     return BasePageTemplate(
-      title: "Precedente ${precedent.id}",
+      title: precedent.name,
       onBackPress: () {
         if (context.canPop()) {
           context.pop();

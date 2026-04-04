@@ -2,6 +2,7 @@ enum Compatibility { muitoProvavel, provavel, poucoProvavel }
 
 class Precedent {
   final String id; // Número indicador
+  final String name;
   final String court; // Superior Tribunal de Justiça
   final String courtAcronym; // STJ
   final DateTime creationDate; // 01/02/2035
@@ -12,6 +13,7 @@ class Precedent {
 
   Precedent({
     required this.id,
+    required this.name,
     required this.court,
     required this.courtAcronym,
     required this.creationDate,

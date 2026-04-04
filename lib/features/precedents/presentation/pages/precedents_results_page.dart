@@ -40,16 +40,20 @@ class PrecedentsResultsPage extends StatelessWidget {
           final double score = (item['similarity_score'] as num).toDouble();
           final bool isAltaProbabilidade = score >= 0.55;
 
-          return PrecedentResultCard(
-            tribunal: _nomeTribunal(item['tribunal'] as String),
-            siglaTribunal: item['tribunal'] as String,
-            codigoPrecedente: item['name'] as String,
-            situacao: item['situation'] as String,
-            descricao: item['description'] as String,
-            probabilidade: isAltaProbabilidade
-                ? 'Muito provável'
-                : 'Pouco provável',
-            isAltaProbabilidade: isAltaProbabilidade,
+          return GestureDetector(
+            onTap: () => context.push(
+              '/precedents/details/${item['id']}',
+              extra: item,
+            ),
+            child: PrecedentResultCard(
+              tribunal: _nomeTribunal(item['tribunal'] as String),
+              siglaTribunal: item['tribunal'] as String,
+              codigoPrecedente: item['name'] as String,
+              descricao: item['description'] as String,
+              situacao: item['situation'] as String,
+              probabilidade: isAltaProbabilidade ? 'Muito provável' : 'Pouco provável',
+              isAltaProbabilidade: isAltaProbabilidade,
+            ),
           );
         },
       ),
