@@ -80,10 +80,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
 
   void _showSnackError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.detailsColor,
-      ),
+      SnackBar(content: Text(message), backgroundColor: AppColors.detailsColor),
     );
   }
 
@@ -111,7 +108,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppColors.mainDarkColor, width: 1.5),
+        borderSide: const BorderSide(
+          color: AppColors.mainDarkColor,
+          width: 1.5,
+        ),
       ),
     );
   }
@@ -152,17 +152,22 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
               onSelected: (String selection) {
                 setState(() => _tipoAcao = selection);
               },
-              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                return TextFormField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  style: textTheme.bodyMedium,
-                  onChanged: (value) => _tipoAcao = value,
-                  decoration: _customInputDecoration('Tipo de ação', textTheme),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Campo obrigatório' : null,
-                );
-              },
+              fieldViewBuilder:
+                  (context, controller, focusNode, onFieldSubmitted) {
+                    return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      style: textTheme.bodyMedium,
+                      onChanged: (value) => _tipoAcao = value,
+                      decoration: _customInputDecoration(
+                        'Tipo de ação',
+                        textTheme,
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo obrigatório'
+                          : null,
+                    );
+                  },
             ),
             const SizedBox(height: 16),
 
@@ -199,8 +204,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
             const SizedBox(height: 16),
 
             InputDecorator(
-              decoration: _customInputDecoration('Pedidos', textTheme)
-                  .copyWith(contentPadding: const EdgeInsets.all(12)),
+              decoration: _customInputDecoration(
+                'Pedidos',
+                textTheme,
+              ).copyWith(contentPadding: const EdgeInsets.all(12)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
