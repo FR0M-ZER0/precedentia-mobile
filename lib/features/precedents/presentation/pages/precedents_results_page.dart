@@ -41,7 +41,7 @@ class PrecedentsResultsPage extends StatelessWidget {
         separatorBuilder: (_, _) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
           final item = results[index] as Map<String, dynamic>;
-          final double score = (item['similarity_score'] as num).toDouble();
+          final double score = (item['score'] as num).toDouble();
           final bool isAltaProbabilidade = score >= 0.55;
 
           return GestureDetector(
@@ -53,6 +53,7 @@ class PrecedentsResultsPage extends StatelessWidget {
               codigoPrecedente: item['name'] as String,
               descricao: item['description'] as String,
               situacao: item['situation'] as String,
+              species: item['species'] as String,
               probabilidade: isAltaProbabilidade
                   ? 'Muito provável'
                   : 'Pouco provável',
@@ -71,6 +72,7 @@ class PrecedentResultCard extends StatelessWidget {
   final String codigoPrecedente;
   final String situacao;
   final String descricao;
+  final String species;
   final String probabilidade;
   final bool isAltaProbabilidade;
 
@@ -81,6 +83,7 @@ class PrecedentResultCard extends StatelessWidget {
     required this.codigoPrecedente,
     required this.situacao,
     required this.descricao,
+    required this.species,
     required this.probabilidade,
     required this.isAltaProbabilidade,
   });
@@ -162,6 +165,24 @@ class PrecedentResultCard extends StatelessWidget {
                       codigoPrecedente,
                       style: textTheme.bodySmall?.copyWith(
                         color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.altLightColor,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: AppColors.altDarkColor.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        species,
+                        style: textTheme.labelSmall?.copyWith(
+                          color: AppColors.altDarkColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(height: 8),

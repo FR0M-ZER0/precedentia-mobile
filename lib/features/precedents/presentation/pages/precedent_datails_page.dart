@@ -44,17 +44,20 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
     // --- MOCK DE DADOS ---
     final item = widget.data;
-    final double score = (item['similarity_score'] as num).toDouble();
+    final double score = (item['score'] as num).toDouble();
 
     final precedent = Precedent(
       id: item['id'].toString(),
       name: item['name'],
       court: _nomeTribunal(item['tribunal'] as String),
       courtAcronym: item['tribunal'] as String,
-      creationDate: DateTime(2025, 1, 1), // mockado
+      creationDate: DateTime(2025, 1, 1),
       subject: item['name'] as String,
-      summary: item['description'] as String,
-      score: score * 100, // converte 0.63 → 63%
+      description: item['description'] as String,
+      summary: item['summary'] as String,
+      species: item['species'] as String,
+      situation: item['situation'] as String,
+      score: score * 100,
       compatibility: score >= 0.55
           ? Compatibility.muitoProvavel
           : Compatibility.poucoProvavel,
@@ -73,34 +76,52 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabeçalho: Tribunal e Data
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   precedent.court,
-                  style: textTheme.headlineMedium, // IBM Plex Sans Medium 16px
+                  style: textTheme.headlineMedium,
                 ),
                 Text(
                   DateFormat('dd/MM/yyyy').format(precedent.creationDate),
-                  style: textTheme.bodySmall, // IBM Plex Sans Regular 12px
+                  style: textTheme.bodySmall,
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.altLightColor,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppColors.altDarkColor.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  precedent.species,
+                  style: textTheme.labelSmall?.copyWith(
+                    color: AppColors.altDarkColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: 24),
 
-            // Texto do Precedente com Lógica de Expansão
             Text(
-              precedent.summary,
+              precedent.description,
               style: textTheme
-                  .bodyMedium, // IBM Plex Sans Regular 16px, height 1.875
+                  .bodyMedium,
               maxLines: _isExpanded ? null : 5,
               overflow: _isExpanded
                   ? TextOverflow.visible
                   : TextOverflow.ellipsis,
             ),
 
-            // Botão Ver Tudo
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -123,7 +144,6 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
             const SizedBox(height: 32),
 
-            // Seção de Compatibilidade Centralizada
             Center(
               child: Column(
                 children: [
@@ -139,7 +159,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                     style: GoogleFonts.ibmPlexSans(
                       fontSize: 48,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.accentColor, // Verde Neon
+                      color: AppColors.accentColor,
                     ),
                   ),
                   Text(
@@ -152,7 +172,6 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
             const SizedBox(height: 32),
 
-            // Resumo da IA
             RichText(
               text: TextSpan(
                 style: textTheme.bodyMedium?.copyWith(
@@ -180,7 +199,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
-                      AppColors.altLightColor, // Azulzinho muito claro
+                      AppColors.altLightColor,
                   foregroundColor: AppColors.mainDarkColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
