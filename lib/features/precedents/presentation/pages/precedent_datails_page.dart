@@ -79,10 +79,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  precedent.court,
-                  style: textTheme.headlineMedium,
-                ),
+                Text(precedent.court, style: textTheme.headlineMedium),
                 Text(
                   DateFormat('dd/MM/yyyy').format(precedent.creationDate),
                   style: textTheme.bodySmall,
@@ -94,11 +91,16 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.altLightColor,
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.altDarkColor.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppColors.altDarkColor.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Text(
                   precedent.species,
@@ -114,8 +116,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
             Text(
               precedent.description,
-              style: textTheme
-                  .bodyMedium,
+              style: textTheme.bodyMedium,
               maxLines: _isExpanded ? null : 5,
               overflow: _isExpanded
                   ? TextOverflow.visible
@@ -198,8 +199,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                   // Aqui entrará a lógica de abrir a URL externa
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      AppColors.altLightColor,
+                  backgroundColor: AppColors.altLightColor,
                   foregroundColor: AppColors.mainDarkColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(

@@ -169,11 +169,16 @@ class PrecedentResultCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.altLightColor,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: AppColors.altDarkColor.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: AppColors.altDarkColor.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Text(
                         species,
