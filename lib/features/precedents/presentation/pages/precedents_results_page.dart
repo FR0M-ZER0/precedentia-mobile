@@ -41,17 +41,17 @@ class PrecedentsResultsPage extends StatelessWidget {
           final bool isAltaProbabilidade = score >= 0.55;
 
           return GestureDetector(
-            onTap: () => context.push(
-              '/precedents/details/${item['id']}',
-              extra: item,
-            ),
+            onTap: () =>
+                context.push('/precedents/details/${item['id']}', extra: item),
             child: PrecedentResultCard(
               tribunal: _nomeTribunal(item['tribunal'] as String),
               siglaTribunal: item['tribunal'] as String,
               codigoPrecedente: item['name'] as String,
               descricao: item['description'] as String,
               situacao: item['situation'] as String,
-              probabilidade: isAltaProbabilidade ? 'Muito provável' : 'Pouco provável',
+              probabilidade: isAltaProbabilidade
+                  ? 'Muito provável'
+                  : 'Pouco provável',
               isAltaProbabilidade: isAltaProbabilidade,
             ),
           );

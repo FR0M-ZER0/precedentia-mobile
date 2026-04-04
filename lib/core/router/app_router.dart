@@ -30,10 +30,7 @@ class AppRouter {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           final item = state.extra as Map<String, dynamic>;
-          return PrecedentDetailPage(
-            precedentId: id,
-            data: item,
-          );
+          return PrecedentDetailPage(precedentId: id, data: item);
         },
       ),
       GoRoute(

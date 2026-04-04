@@ -10,7 +10,11 @@ class PrecedentDetailPage extends StatefulWidget {
   final String precedentId;
   final Map<String, dynamic> data;
 
-  const PrecedentDetailPage({super.key, required this.precedentId, required this.data});
+  const PrecedentDetailPage({
+    super.key,
+    required this.precedentId,
+    required this.data,
+  });
 
   @override
   State<PrecedentDetailPage> createState() => _PrecedentDetailPageState();
@@ -51,7 +55,9 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       subject: item['name'] as String,
       summary: item['description'] as String,
       score: score * 100, // converte 0.63 → 63%
-      compatibility: score >= 0.55 ? Compatibility.muitoProvavel : Compatibility.poucoProvavel,
+      compatibility: score >= 0.55
+          ? Compatibility.muitoProvavel
+          : Compatibility.poucoProvavel,
     );
 
     return BasePageTemplate(
