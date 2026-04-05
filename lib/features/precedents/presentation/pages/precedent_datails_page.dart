@@ -5,6 +5,7 @@ import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import 'package:precedentia_mobile/features/precedents/domain/entities/precedent.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PrecedentDetailPage extends StatefulWidget {
   final String precedentId;
@@ -103,9 +104,17 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       situation: item['situation'] as String,
       score: displayScore,
       compatibility: compatibility,
+      url: item['url'] as String,
     );
 
     final compatibilityColor = _getCompatibilityColor(precedent.compatibility);
+
+    Future<void> openUrl(String url) async {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    }
 
     return BasePageTemplate(
       title: precedent.name,
@@ -266,9 +275,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               width: double.infinity,
               height: 54,
               child: ElevatedButton(
-                onPressed: () {
-                  // Aqui entrará a lógica de abrir a URL externa
-                },
+                onPressed: () => openUrl(precedent.url),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.altLightColor,
                   foregroundColor: AppColors.mainDarkColor,

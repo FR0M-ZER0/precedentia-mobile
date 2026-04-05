@@ -18,6 +18,7 @@ class Precedent {
   final String situation;
   final double score;
   final Compatibility compatibility;
+  final String url;
 
   const Precedent({
     required this.id,
@@ -32,5 +33,6 @@ class Precedent {
     required this.situation,
     required this.score,
     required this.compatibility,
+    required this.url,
   });
 }
