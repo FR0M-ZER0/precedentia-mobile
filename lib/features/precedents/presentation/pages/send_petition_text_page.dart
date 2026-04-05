@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
@@ -21,6 +22,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
 
   String _tipoAcao = '';
   String? _selectedTribunal;
+  final FocusNode _pedidosFocusNode = FocusNode();
   final List<String> _pedidos = [];
 
   late final SendPetitionTextUseCase _sendPetitionTextUseCase =
@@ -50,6 +52,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       setState(() => _pedidos.add(value.trim()));
       _pedidosInputController.clear();
     }
+    _pedidosFocusNode.requestFocus();
   }
 
   void _removePedido(String pedido) {
@@ -120,6 +123,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
   void dispose() {
     _resumoController.dispose();
     _pedidosInputController.dispose();
+    _pedidosFocusNode.dispose();
     super.dispose();
   }
 
@@ -232,22 +236,32 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                       );
                     }).toList(),
                   ),
-                  TextField(
-                    controller: _pedidosInputController,
-                    style: textTheme.bodyMedium,
-                    decoration: InputDecoration(
-                      hintText: _pedidos.isEmpty
-                          ? 'Digite um pedido e aperte Enter'
-                          : 'Adicionar outro...',
-                      hintStyle: textTheme.bodyMedium?.copyWith(
-                        color: AppColors.altDarkColor.withValues(alpha: 0.6),
+                  KeyboardListener(
+                    focusNode: FocusNode(),
+                    onKeyEvent: (KeyEvent event) {
+                      if (event is KeyDownEvent &&
+                          event.logicalKey == LogicalKeyboardKey.enter) {
+                        _addPedido(_pedidosInputController.text);
+                      }
+                    },
+                    child: TextField(
+                      controller: _pedidosInputController,
+                      focusNode: _pedidosFocusNode,
+                      style: textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        hintText: _pedidos.isEmpty
+                            ? 'Digite um pedido e aperte Enter'
+                            : 'Adicionar outro...',
+                        hintStyle: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.altDarkColor.withValues(alpha: 0.6),
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.only(top: 8),
                       ),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.only(top: 8),
+                      onSubmitted: _addPedido,
+                      textInputAction: TextInputAction.done,
                     ),
-                    onSubmitted: _addPedido,
-                    textInputAction: TextInputAction.done,
                   ),
                 ],
               ),
