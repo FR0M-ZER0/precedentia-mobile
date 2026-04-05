@@ -22,6 +22,7 @@ class PrecedentDetailPage extends StatefulWidget {
 
 class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
   bool _isExpanded = false;
+  bool _summaryLoaded = false;
 
   String _nomeTribunal(String sigla) {
     const nomes = {
@@ -62,6 +63,16 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       case Compatibility.muitoPoucoProvavel:
         return Colors.red.shade700;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(
+      const Duration(seconds: 2), () {
+        if (mounted) setState(() => _summaryLoaded = true);
+      }
+    );
   }
 
   @override
@@ -211,19 +222,44 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
             const SizedBox(height: 32),
 
-            RichText(
-              text: TextSpan(
-                style: textTheme.bodyMedium?.copyWith(
-                  color: AppColors.mainDarkColor,
-                ),
-                children: [
-                  const TextSpan(
-                    text: 'Resumo da IA: ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(text: precedent.summary),
-                ],
-              ),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              child: _summaryLoaded
+                  ? RichText(
+                      key: const ValueKey('summary'),
+                      text: TextSpan(
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.mainDarkColor,
+                        ),
+                        children: [
+                          const TextSpan(
+                            text: 'Resumo da IA: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: precedent.summary),
+                        ],
+                      ),
+                    )
+                  : Container(
+                      key: const ValueKey('loading'),
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Column(
+                        children: [
+                          CircularProgressIndicator(
+                            color: AppColors.altDarkColor,
+                            strokeWidth: 2,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Gerando resumo da IA...',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.altDarkColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
             ),
 
             const SizedBox(height: 40),
