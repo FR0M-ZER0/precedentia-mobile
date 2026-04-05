@@ -135,7 +135,7 @@ class PrecedentsResultsPage extends StatelessWidget {
 
     return BasePageTemplate(
       title: 'Precedentes jurídicos',
-      onBackPress: () => context.go('/enviar-peticao'),
+      onBackPress: () => context.pop(),
       body: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
