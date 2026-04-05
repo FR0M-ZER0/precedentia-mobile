@@ -38,13 +38,40 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
     return nomes[sigla] ?? sigla;
   }
 
+  String _getCompatibilityText(Compatibility comp) {
+    switch (comp) {
+      case Compatibility.muitoProvavel:      return 'Muito provável';
+      case Compatibility.provavel:           return 'Provável';
+      case Compatibility.poucoProvavel:      return 'Pouco provável';
+      case Compatibility.muitoPoucoProvavel: return 'Muito pouco provável';
+    }
+  }
+
+  Color _getCompatibilityColor(Compatibility comp) {
+    switch (comp) {
+      case Compatibility.muitoProvavel:      return AppColors.accentColor;
+      case Compatibility.provavel:           return Colors.green.shade600;
+      case Compatibility.poucoProvavel:      return AppColors.detailsColor;
+      case Compatibility.muitoPoucoProvavel: return Colors.red.shade700;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    // --- MOCK DE DADOS ---
     final item = widget.data;
     final double score = (item['score'] as num).toDouble();
+    final double rawScore = score * 100;
+    final double displayScore = rawScore >= 100 ? 99 : rawScore;
+
+    final compatibility = score >= 0.85
+        ? Compatibility.muitoProvavel
+        : score >= 0.60
+            ? Compatibility.provavel
+            : score >= 0.40
+                ? Compatibility.poucoProvavel
+                : Compatibility.muitoPoucoProvavel;
 
     final precedent = Precedent(
       id: item['id'].toString(),
@@ -57,11 +84,11 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       summary: item['summary'] as String,
       species: item['species'] as String,
       situation: item['situation'] as String,
-      score: score * 100,
-      compatibility: score >= 0.55
-          ? Compatibility.muitoProvavel
-          : Compatibility.poucoProvavel,
+      score: displayScore,
+      compatibility: compatibility,
     );
+
+    final compatibilityColor = _getCompatibilityColor(precedent.compatibility);
 
     return BasePageTemplate(
       title: precedent.name,
@@ -91,10 +118,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.altLightColor,
                   borderRadius: BorderRadius.circular(4),
@@ -118,9 +142,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               precedent.description,
               style: textTheme.bodyMedium,
               maxLines: _isExpanded ? null : 5,
-              overflow: _isExpanded
-                  ? TextOverflow.visible
-                  : TextOverflow.ellipsis,
+              overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
             ),
 
             Align(
@@ -133,7 +155,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  _isExpanded ? "Ver menos" : "Ver tudo",
+                  _isExpanded ? 'Ver menos' : 'Ver tudo',
                   style: textTheme.labelSmall?.copyWith(
                     color: AppColors.altDarkColor,
                     decoration: TextDecoration.underline,
@@ -149,23 +171,26 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               child: Column(
                 children: [
                   Text(
-                    "Compatibilidade",
+                    'Compatibilidade',
                     style: textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "${precedent.score.toInt()}%",
+                    '${precedent.score.toInt()}%',
                     style: GoogleFonts.ibmPlexSans(
                       fontSize: 48,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.accentColor,
+                      color: compatibilityColor,
                     ),
                   ),
                   Text(
                     _getCompatibilityText(precedent.compatibility),
-                    style: textTheme.titleMedium, // Merriweather Bold 24px
+                    style: textTheme.titleMedium?.copyWith(
+                      color: compatibilityColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -175,12 +200,10 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
             RichText(
               text: TextSpan(
-                style: textTheme.bodyMedium?.copyWith(
-                  color: AppColors.mainDarkColor,
-                ),
+                style: textTheme.bodyMedium?.copyWith(color: AppColors.mainDarkColor),
                 children: [
                   const TextSpan(
-                    text: "Resumo da IA: ",
+                    text: 'Resumo da IA: ',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   TextSpan(text: precedent.summary),
@@ -190,7 +213,6 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
             const SizedBox(height: 40),
 
-            // Botão Visitar Link
             SizedBox(
               width: double.infinity,
               height: 54,
@@ -207,7 +229,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                   ),
                 ),
                 child: Text(
-                  "Visitar link",
+                  'Visitar link',
                   style: textTheme.displayMedium?.copyWith(
                     color: AppColors.mainDarkColor,
                     fontWeight: FontWeight.w600,
@@ -220,16 +242,5 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
         ),
       ),
     );
-  }
-
-  String _getCompatibilityText(Compatibility comp) {
-    switch (comp) {
-      case Compatibility.muitoProvavel:
-        return "Muito provável";
-      case Compatibility.provavel:
-        return "Provável";
-      case Compatibility.poucoProvavel:
-        return "Pouco provável";
-    }
   }
 }

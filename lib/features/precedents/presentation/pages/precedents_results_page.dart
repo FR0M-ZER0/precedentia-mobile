@@ -23,6 +23,20 @@ class PrecedentsResultsPage extends StatelessWidget {
     return nomes[sigla] ?? sigla;
   }
 
+  String _getProbabilidade(double score) {
+    if (score >= 0.85) return 'Muito provável';
+    if (score >= 0.60) return 'Provável';
+    if (score >= 0.40) return 'Pouco provável';
+    return 'Muito pouco provável';
+  }
+
+  Color _getProbabilidadeColor(double score) {
+    if (score >= 0.85) return AppColors.accentColor;
+    if (score >= 0.60) return Colors.green.shade600;
+    if (score >= 0.40) return AppColors.detailsColor;
+    return Colors.red.shade700;
+  }
+
   @override
   Widget build(BuildContext context) {
     final results = (data['results'] as List<dynamic>?) ?? [];
@@ -42,7 +56,6 @@ class PrecedentsResultsPage extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = results[index] as Map<String, dynamic>;
           final double score = (item['score'] as num).toDouble();
-          final bool isAltaProbabilidade = score >= 0.55;
 
           return GestureDetector(
             onTap: () =>
@@ -54,10 +67,8 @@ class PrecedentsResultsPage extends StatelessWidget {
               descricao: item['description'] as String,
               situacao: item['situation'] as String,
               species: item['species'] as String,
-              probabilidade: isAltaProbabilidade
-                  ? 'Muito provável'
-                  : 'Pouco provável',
-              isAltaProbabilidade: isAltaProbabilidade,
+              probabilidade: _getProbabilidade(score),
+              probabilidadeColor: _getProbabilidadeColor(score),
             ),
           );
         },
@@ -74,7 +85,7 @@ class PrecedentResultCard extends StatelessWidget {
   final String descricao;
   final String species;
   final String probabilidade;
-  final bool isAltaProbabilidade;
+  final Color probabilidadeColor;
 
   const PrecedentResultCard({
     super.key,
@@ -85,7 +96,7 @@ class PrecedentResultCard extends StatelessWidget {
     required this.descricao,
     required this.species,
     required this.probabilidade,
-    required this.isAltaProbabilidade,
+    required this.probabilidadeColor,
   });
 
   @override
@@ -207,9 +218,7 @@ class PrecedentResultCard extends StatelessWidget {
                         probabilidade,
                         style: textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: isAltaProbabilidade
-                              ? AppColors.accentColor
-                              : AppColors.detailsColor,
+                          color: probabilidadeColor,
                         ),
                       ),
                     ),
