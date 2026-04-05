@@ -1,4 +1,9 @@
-enum Compatibility { muitoProvavel, provavel, poucoProvavel, muitoPoucoProvavel }
+enum Compatibility {
+  muitoProvavel,
+  provavel,
+  poucoProvavel,
+  muitoPoucoProvavel,
+}
 
 class Precedent {
   final String id;

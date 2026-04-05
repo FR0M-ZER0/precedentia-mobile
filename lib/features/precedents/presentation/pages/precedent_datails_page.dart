@@ -40,19 +40,27 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
   String _getCompatibilityText(Compatibility comp) {
     switch (comp) {
-      case Compatibility.muitoProvavel:      return 'Muito provável';
-      case Compatibility.provavel:           return 'Provável';
-      case Compatibility.poucoProvavel:      return 'Pouco provável';
-      case Compatibility.muitoPoucoProvavel: return 'Muito pouco provável';
+      case Compatibility.muitoProvavel:
+        return 'Muito provável';
+      case Compatibility.provavel:
+        return 'Provável';
+      case Compatibility.poucoProvavel:
+        return 'Pouco provável';
+      case Compatibility.muitoPoucoProvavel:
+        return 'Muito pouco provável';
     }
   }
 
   Color _getCompatibilityColor(Compatibility comp) {
     switch (comp) {
-      case Compatibility.muitoProvavel:      return AppColors.accentColor;
-      case Compatibility.provavel:           return Colors.green.shade600;
-      case Compatibility.poucoProvavel:      return AppColors.detailsColor;
-      case Compatibility.muitoPoucoProvavel: return Colors.red.shade700;
+      case Compatibility.muitoProvavel:
+        return AppColors.accentColor;
+      case Compatibility.provavel:
+        return Colors.green.shade600;
+      case Compatibility.poucoProvavel:
+        return AppColors.detailsColor;
+      case Compatibility.muitoPoucoProvavel:
+        return Colors.red.shade700;
     }
   }
 
@@ -68,10 +76,10 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
     final compatibility = score >= 0.85
         ? Compatibility.muitoProvavel
         : score >= 0.60
-            ? Compatibility.provavel
-            : score >= 0.40
-                ? Compatibility.poucoProvavel
-                : Compatibility.muitoPoucoProvavel;
+        ? Compatibility.provavel
+        : score >= 0.40
+        ? Compatibility.poucoProvavel
+        : Compatibility.muitoPoucoProvavel;
 
     final precedent = Precedent(
       id: item['id'].toString(),
@@ -118,7 +126,10 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.altLightColor,
                   borderRadius: BorderRadius.circular(4),
@@ -142,7 +153,9 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               precedent.description,
               style: textTheme.bodyMedium,
               maxLines: _isExpanded ? null : 5,
-              overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+              overflow: _isExpanded
+                  ? TextOverflow.visible
+                  : TextOverflow.ellipsis,
             ),
 
             Align(
@@ -200,7 +213,9 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
             RichText(
               text: TextSpan(
-                style: textTheme.bodyMedium?.copyWith(color: AppColors.mainDarkColor),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppColors.mainDarkColor,
+                ),
                 children: [
                   const TextSpan(
                     text: 'Resumo da IA: ',
