@@ -45,8 +45,8 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     'TJPE', 'TJPI', 'TJRJ', 'TJRN', 'TJRS', 'TJRO', 'TJRR', 'TJSC',
     'TJSP', 'TJSE', 'TJTO',
     // Tribunais Regionais do Trabalho
-    'TRT1',  'TRT2',  'TRT3',  'TRT4',  'TRT5',  'TRT6',  'TRT7',
-    'TRT8',  'TRT9',  'TRT10', 'TRT11', 'TRT12', 'TRT13', 'TRT14',
+    'TRT1', 'TRT2', 'TRT3', 'TRT4', 'TRT5', 'TRT6', 'TRT7',
+    'TRT8', 'TRT9', 'TRT10', 'TRT11', 'TRT12', 'TRT13', 'TRT14',
     'TRT15', 'TRT16', 'TRT17', 'TRT18', 'TRT19', 'TRT20', 'TRT21',
     'TRT22', 'TRT23', 'TRT24',
     // Tribunais Regionais Eleitorais
@@ -256,21 +256,19 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
               onSelected: (String selection) {
                 setState(() => _selectedTribunal = selection);
               },
-              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                return TextFormField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  style: textTheme.bodyMedium,
-                  onChanged: (value) => _selectedTribunal = value,
-                  decoration: _customInputDecoration(
-                    'Tribunal',
-                    textTheme,
-                  ),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Campo obrigatório'
-                      : null,
-                );
-              },
+              fieldViewBuilder:
+                  (context, controller, focusNode, onFieldSubmitted) {
+                    return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      style: textTheme.bodyMedium,
+                      onChanged: (value) => _selectedTribunal = value,
+                      decoration: _customInputDecoration('Tribunal', textTheme),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo obrigatório'
+                          : null,
+                    );
+                  },
             ),
 
             const SizedBox(height: 16),
