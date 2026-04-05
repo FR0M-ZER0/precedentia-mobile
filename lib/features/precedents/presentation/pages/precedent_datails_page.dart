@@ -68,11 +68,9 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(
-      const Duration(seconds: 2), () {
-        if (mounted) setState(() => _summaryLoaded = true);
-      }
-    );
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _summaryLoaded = true);
+    });
   }
 
   @override
