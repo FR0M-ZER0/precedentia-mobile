@@ -132,7 +132,10 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Situação: ${precedent.situation}", style: textTheme.headlineMedium),
+                Text(
+                  "Situação: ${precedent.situation}",
+                  style: textTheme.headlineMedium,
+                ),
                 Text(precedent.lastUpdate, style: textTheme.bodySmall),
               ],
             ),
