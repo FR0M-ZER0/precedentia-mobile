@@ -145,7 +145,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               "Descrição",
               style: textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-              )
+              ),
             ),
 
             const SizedBox(height: 4),
@@ -200,7 +200,9 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                             label: 'Similaridade',
                             value: '${precedent.score.toInt()}%',
                             icon: Icons.percent_rounded,
-                            backgroundColor: compatibilityColor.withValues(alpha: 0.12),
+                            backgroundColor: compatibilityColor.withValues(
+                              alpha: 0.12,
+                            ),
                             iconColor: compatibilityColor,
                             valueColor: compatibilityColor,
                           ),
