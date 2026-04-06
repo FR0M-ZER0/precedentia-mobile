@@ -7,6 +7,7 @@ import 'package:precedentia_mobile/features/precedents/presentation/pages/send_p
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_datails_page.dart';
+import 'package:precedentia_mobile/features/home/presentation/pages/not_found_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -55,6 +56,11 @@ class AppRouter {
         path: '/enviar-peticao-texto',
         name: 'send_petition_text',
         builder: (context, state) => const SendPetitionTextPage(),
+      ),
+      GoRoute(
+        path: '/not-found',
+        name: 'not_found',
+        builder: (context, state) => const NotFoundPage(),
       ),
     ],
   );
