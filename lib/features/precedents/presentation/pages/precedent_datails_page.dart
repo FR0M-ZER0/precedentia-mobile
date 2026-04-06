@@ -133,10 +133,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(precedent.court, style: textTheme.headlineMedium),
-                Text(
-                  precedent.lastUpdate,
-                  style: textTheme.bodySmall,
-                ),
+                Text(precedent.lastUpdate, style: textTheme.bodySmall),
               ],
             ),
             const SizedBox(height: 8),
