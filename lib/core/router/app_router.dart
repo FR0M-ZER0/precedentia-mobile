@@ -6,7 +6,6 @@ import 'package:precedentia_mobile/features/precedents/presentation/pages/preced
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
-import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_datails_page.dart';
 
 class AppRouter {
@@ -26,18 +25,12 @@ class AppRouter {
         name: 'searchManual',
         builder: (context, state) => const SearchManualPage(),
       ),
-
-      GoRoute(
-        path: '/precedents',
-        builder: (context, state) => const PrecedentListPage(),
-      ),
       GoRoute(
         path: '/precedents/details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          return PrecedentDetailPage(
-            precedentId: id,
-          ); // Agora o erro deve sumir
+          final item = state.extra as Map<String, dynamic>;
+          return PrecedentDetailPage(precedentId: id, data: item);
         },
       ),
       GoRoute(
@@ -48,12 +41,15 @@ class AppRouter {
       GoRoute(
         path: '/carregando-precedentes',
         name: 'loading_precedents',
-        builder: (context, state) => const LoadingPrecedentsPage(),
+        builder: (context, state) => LoadingPrecedentsPage(
+          extractFuture: state.extra as Future<Map<String, dynamic>>,
+        ),
       ),
       GoRoute(
         path: '/resultados-precedentes',
         name: 'precedents_results',
-        builder: (context, state) => const PrecedentsResultsPage(),
+        builder: (context, state) =>
+            PrecedentsResultsPage(data: state.extra as Map<String, dynamic>),
       ),
       GoRoute(
         path: '/enviar-peticao-texto',

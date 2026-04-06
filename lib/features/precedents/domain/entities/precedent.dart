@@ -1,23 +1,38 @@
-enum Compatibility { muitoProvavel, provavel, poucoProvavel }
+enum Compatibility {
+  muitoProvavel,
+  provavel,
+  poucoProvavel,
+  muitoPoucoProvavel,
+}
 
 class Precedent {
-  final String id; // Número indicador
-  final String court; // Superior Tribunal de Justiça
-  final String courtAcronym; // STJ
-  final DateTime creationDate; // 01/02/2035
-  final String subject; // Herança familiar
-  final String summary; // Lorem ipsum... (4 linhas max)
-  final double score; // 80.0
-  final Compatibility compatibility; // Gerado a partir do score
+  final String id;
+  final String name;
+  final String court;
+  final String courtAcronym;
+  final DateTime creationDate;
+  final String subject;
+  final String summary;
+  final String description;
+  final String species;
+  final String situation;
+  final double score;
+  final Compatibility compatibility;
+  final String url;
 
-  Precedent({
+  const Precedent({
     required this.id,
+    required this.name,
     required this.court,
     required this.courtAcronym,
     required this.creationDate,
     required this.subject,
     required this.summary,
+    required this.description,
+    required this.species,
+    required this.situation,
     required this.score,
     required this.compatibility,
+    required this.url,
   });
 }

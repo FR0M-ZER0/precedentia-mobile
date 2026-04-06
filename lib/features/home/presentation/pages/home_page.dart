@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
-import 'package:precedentia_mobile/core/widgets/speed_dial.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -28,28 +27,50 @@ class HomePage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              
+
               // Opção 1: Arquivo PDF
               ListTile(
-                leading: Icon(Icons.upload_file, color: colorScheme.primary, size: 32),
-                title: Text("Enviar arquivo PDF", style: textTheme.headlineMedium),
-                subtitle: Text("Faça o upload do documento em .pdf", style: textTheme.bodySmall),
+                leading: Icon(
+                  Icons.upload_file,
+                  color: colorScheme.primary,
+                  size: 32,
+                ),
+                title: Text(
+                  "Enviar arquivo PDF",
+                  style: textTheme.headlineMedium,
+                ),
+                subtitle: Text(
+                  "Faça o upload do documento em .pdf",
+                  style: textTheme.bodySmall,
+                ),
                 onTap: () {
                   Navigator.pop(bottomSheetContext); // Fecha o modal
                   context.push('/enviar-peticao'); // Vai para a tela de PDF
                 },
               ),
-              
+
               const Divider(height: 32),
-              
+
               // Opção 2: Inserção de Texto
               ListTile(
-                leading: Icon(Icons.edit_document, color: colorScheme.primary, size: 32),
-                title: Text("Digitar dados manualmente", style: textTheme.headlineMedium),
-                subtitle: Text("Preencha os campos de texto no aplicativo", style: textTheme.bodySmall),
+                leading: Icon(
+                  Icons.edit_document,
+                  color: colorScheme.primary,
+                  size: 32,
+                ),
+                title: Text(
+                  "Digitar dados manualmente",
+                  style: textTheme.headlineMedium,
+                ),
+                subtitle: Text(
+                  "Preencha os campos de texto no aplicativo",
+                  style: textTheme.bodySmall,
+                ),
                 onTap: () {
                   Navigator.pop(bottomSheetContext); // Fecha o modal
-                  context.push('/enviar-peticao-texto'); // Vai para a tela de Texto
+                  context.push(
+                    '/enviar-peticao-texto',
+                  ); // Vai para a tela de Texto
                 },
               ),
             ],
