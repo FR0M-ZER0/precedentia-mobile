@@ -550,127 +550,165 @@ class PrecedentResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final isSuspended = situacao.toLowerCase() == 'suspenso';
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.mainWhiteColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return Opacity(
+      opacity: isSuspended ? 0.55 : 1.0,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.mainWhiteColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSuspended ? Colors.grey.shade400 : Colors.grey.shade300,
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: IntrinsicHeight(
-        child: Row(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 120,
-              color: AppColors.altLightColor,
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        tribunal,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.altDarkColor,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        siglaTribunal,
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.mainDarkColor,
-                        ),
-                      ),
-                      Container(
-                        height: 4,
-                        width: double.infinity,
-                        color: AppColors.mainDarkColor,
-                        margin: const EdgeInsets.only(top: 4),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    lastUpdate,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: AppColors.altDarkColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            if (isSuspended)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                color: Colors.grey.shade400,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Icon(
+                      Icons.pause_circle_outline_rounded,
+                      size: 13,
+                      color: Colors.grey.shade800,
+                    ),
+                    const SizedBox(width: 4),
                     Text(
-                      codigoPrecedente,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.altLightColor,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: AppColors.altDarkColor.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Text(
-                        species,
-                        style: textTheme.labelSmall?.copyWith(
-                          color: AppColors.altDarkColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      descricao,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.altDarkColor,
-                        height: 1.4,
-                      ),
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text(
-                        probabilidade,
-                        style: textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: probabilidadeColor,
-                        ),
+                      'Precedente suspenso',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
+              ),
+
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 120,
+                    color: AppColors.altLightColor,
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tribunal,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: AppColors.altDarkColor,
+                                height: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              siglaTribunal,
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.mainDarkColor,
+                              ),
+                            ),
+                            Container(
+                              height: 4,
+                              width: double.infinity,
+                              color: AppColors.mainDarkColor,
+                              margin: const EdgeInsets.only(top: 4),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          lastUpdate,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppColors.altDarkColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            codigoPrecedente,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.altLightColor,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: AppColors.altDarkColor.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              species,
+                              style: textTheme.labelSmall?.copyWith(
+                                color: AppColors.altDarkColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            descricao,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.altDarkColor,
+                              height: 1.4,
+                            ),
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Text(
+                              probabilidade,
+                              style: textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: probabilidadeColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
