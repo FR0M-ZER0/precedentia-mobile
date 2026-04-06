@@ -57,13 +57,15 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
       if (_dateSort == _DateSort.newest) {
         _filteredResults.sort(
-          (a, b) => _parseDate(b['last_update'] as String)
-              .compareTo(_parseDate(a['last_update'] as String)),
+          (a, b) => _parseDate(
+            b['last_update'] as String,
+          ).compareTo(_parseDate(a['last_update'] as String)),
         );
       } else if (_dateSort == _DateSort.oldest) {
         _filteredResults.sort(
-          (a, b) => _parseDate(a['last_update'] as String)
-              .compareTo(_parseDate(b['last_update'] as String)),
+          (a, b) => _parseDate(
+            a['last_update'] as String,
+          ).compareTo(_parseDate(b['last_update'] as String)),
         );
       }
     });
@@ -156,9 +158,9 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                   Text(
                     'Ordenar por data',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -175,7 +177,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                         icon: Icons.arrow_upward_rounded,
                         selected: tempDateSort == _DateSort.newest,
                         onTap: () => setSheetState(
-                            () => tempDateSort = _DateSort.newest),
+                          () => tempDateSort = _DateSort.newest,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       _DateSortChip(
@@ -183,7 +186,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                         icon: Icons.arrow_downward_rounded,
                         selected: tempDateSort == _DateSort.oldest,
                         onTap: () => setSheetState(
-                            () => tempDateSort = _DateSort.oldest),
+                          () => tempDateSort = _DateSort.oldest,
+                        ),
                       ),
                     ],
                   ),
@@ -373,9 +377,9 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               '${_filteredResults.length} de ${_allResults.length} precedentes',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
             ),
           ),
 
@@ -447,8 +451,10 @@ class _FilterDropdown extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
       ),
       items: [
         const DropdownMenuItem(value: null, child: Text('Todos')),
@@ -495,18 +501,20 @@ class _DateSortChip extends StatelessWidget {
               Icon(
                 icon,
                 size: 14,
-                color: selected ? AppColors.mainWhiteColor : AppColors.altDarkColor,
+                color: selected
+                    ? AppColors.mainWhiteColor
+                    : AppColors.altDarkColor,
               ),
               const SizedBox(width: 4),
             ],
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: selected
-                        ? AppColors.mainWhiteColor
-                        : AppColors.altDarkColor,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: selected
+                    ? AppColors.mainWhiteColor
+                    : AppColors.altDarkColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
