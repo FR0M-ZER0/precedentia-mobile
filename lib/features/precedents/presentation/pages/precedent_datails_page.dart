@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import 'package:precedentia_mobile/features/precedents/domain/entities/precedent.dart';
@@ -104,6 +103,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       situation: item['situation'] as String,
       score: displayScore,
       compatibility: compatibility,
+      lastUpdate: item['last_update'] as String,
       url: item['url'] as String,
     );
 
@@ -134,7 +134,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               children: [
                 Text(precedent.court, style: textTheme.headlineMedium),
                 Text(
-                  DateFormat('dd/MM/yyyy').format(precedent.creationDate),
+                  precedent.lastUpdate,
                   style: textTheme.bodySmall,
                 ),
               ],

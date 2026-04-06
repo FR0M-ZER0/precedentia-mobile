@@ -155,6 +155,7 @@ class PrecedentsResultsPage extends StatelessWidget {
               descricao: item['description'] as String,
               situacao: item['situation'] as String,
               species: item['species'] as String,
+              lastUpdate: item['last_update'] as String,
               probabilidade: _getProbabilidade(score),
               probabilidadeColor: _getProbabilidadeColor(score),
             ),
@@ -172,6 +173,7 @@ class PrecedentResultCard extends StatelessWidget {
   final String situacao;
   final String descricao;
   final String species;
+  final String lastUpdate;
   final String probabilidade;
   final Color probabilidadeColor;
 
@@ -183,6 +185,7 @@ class PrecedentResultCard extends StatelessWidget {
     required this.situacao,
     required this.descricao,
     required this.species,
+    required this.lastUpdate,
     required this.probabilidade,
     required this.probabilidadeColor,
   });
@@ -245,7 +248,7 @@ class PrecedentResultCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '01/01/2025', // TODO: Adicionar data vindo da API
+                    lastUpdate,
                     style: textTheme.bodySmall?.copyWith(
                       color: AppColors.altDarkColor,
                     ),
