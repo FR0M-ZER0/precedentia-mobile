@@ -82,19 +82,12 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return BasePageTemplate(
-      title: "Página Inicial",
-      subtitle: "Bem-vindo ao PrecedentIA",
-      detailText: "v1.0.0",
+      title: "Procure precedentes",
+      subtitle: "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
-            style: textTheme.titleSmall,
-          ),
           const SizedBox(height: 30),
 
           // Botão que agora abre o modal de seleção
