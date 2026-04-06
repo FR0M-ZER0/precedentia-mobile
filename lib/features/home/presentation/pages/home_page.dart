@@ -84,7 +84,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BasePageTemplate(
       title: "Procure precedentes",
-      subtitle: "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
+      subtitle:
+          "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
