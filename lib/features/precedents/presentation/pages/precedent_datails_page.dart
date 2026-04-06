@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import 'package:precedentia_mobile/features/precedents/domain/entities/precedent.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PrecedentDetailPage extends StatefulWidget {
@@ -139,33 +138,17 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                 Text(precedent.lastUpdate, style: textTheme.bodySmall),
               ],
             ),
-            const SizedBox(height: 8),
-
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.altLightColor,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: AppColors.altDarkColor.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  precedent.species,
-                  style: textTheme.labelSmall?.copyWith(
-                    color: AppColors.altDarkColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
 
             const SizedBox(height: 24),
+
+            Text(
+              "Descrição",
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              )
+            ),
+
+            const SizedBox(height: 4),
 
             Text(
               precedent.description,
@@ -207,15 +190,48 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${precedent.score.toInt()}%',
-                    style: GoogleFonts.ibmPlexSans(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w700,
-                      color: compatibilityColor,
+                  const SizedBox(height: 12),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _InfoBadge(
+                            label: 'Similaridade',
+                            value: '${precedent.score.toInt()}%',
+                            icon: Icons.percent_rounded,
+                            backgroundColor: compatibilityColor.withValues(alpha: 0.12),
+                            iconColor: compatibilityColor,
+                            valueColor: compatibilityColor,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _InfoBadge(
+                            label: 'Tribunal',
+                            value: precedent.courtAcronym,
+                            icon: Icons.account_balance_rounded,
+                            backgroundColor: const Color(0xFFEEF2FF),
+                            iconColor: const Color(0xFF4F6BE8),
+                            valueColor: const Color(0xFF4F6BE8),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _InfoBadge(
+                            label: 'Espécie',
+                            value: precedent.species,
+                            icon: Icons.gavel_rounded,
+                            backgroundColor: const Color(0xFFFFF3E0),
+                            iconColor: const Color(0xFFE07B00),
+                            valueColor: const Color(0xFFE07B00),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
+                  const SizedBox(height: 10),
                   Text(
                     _getCompatibilityText(precedent.compatibility),
                     style: textTheme.titleMedium?.copyWith(
@@ -296,6 +312,64 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             const SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InfoBadge extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color backgroundColor;
+  final Color iconColor;
+  final Color? valueColor;
+
+  const _InfoBadge({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.backgroundColor,
+    required this.iconColor,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: iconColor, size: 22),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: textTheme.labelSmall?.copyWith(
+              color: iconColor.withValues(alpha: 0.75),
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: valueColor ?? AppColors.mainDarkColor,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
