@@ -1,16 +1,18 @@
-FROM curlimages/curl:latest AS download
-WORKDIR /app
-RUN curl -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.0-stable.tar.xz | tar -xJ
+FROM ghcr.io/cirruslabs/flutter:stable AS build
 
-FROM ubuntu:22.04 AS build
-COPY --from=download /app/flutter /opt/flutter
-ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
+
+USER root
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY . .
-RUN flutter doctor
+
+RUN git config --global --add safe.directory /sdks/flutter
+RUN flutter config --no-analytics
 RUN flutter pub get
-RUN flutter build web
+RUN flutter build web --release
 
 FROM nginx:alpine
 COPY --from=build /app/build/web /usr/share/nginx/html
 EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
