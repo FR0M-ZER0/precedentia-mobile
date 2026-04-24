@@ -17,7 +17,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   late List<Map<String, dynamic>> _filteredResults;
 
   String? _situacaoFilter;
-  String? _speciesFilter;
+  String? _typeFilter;
   String? _tribunalFilter;
   _DateSort _dateSort = _DateSort.none;
 
@@ -48,11 +48,10 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _filteredResults = _allResults.where((item) {
         final situacaoOk =
             _situacaoFilter == null || item['situation'] == _situacaoFilter;
-        final speciesOk =
-            _speciesFilter == null || item['species'] == _speciesFilter;
+        final typeOk = _typeFilter == null || item['type'] == _typeFilter;
         final tribunalOk =
             _tribunalFilter == null || item['tribunal'] == _tribunalFilter;
-        return situacaoOk && speciesOk && tribunalOk;
+        return situacaoOk && typeOk && tribunalOk;
       }).toList();
 
       if (_dateSort == _DateSort.newest) {
@@ -74,7 +73,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   void _clearFilters() {
     setState(() {
       _situacaoFilter = null;
-      _speciesFilter = null;
+      _typeFilter = null;
       _tribunalFilter = null;
       _dateSort = _DateSort.none;
       _filteredResults = List.from(_allResults);
@@ -87,13 +86,13 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
   bool get _hasActiveFilters =>
       _situacaoFilter != null ||
-      _speciesFilter != null ||
+      _typeFilter != null ||
       _tribunalFilter != null ||
       _dateSort != _DateSort.none;
 
   void _showFilterBottomSheet(BuildContext context) {
     String? tempSituacao = _situacaoFilter;
-    String? tempSpecies = _speciesFilter;
+    String? tempType = _typeFilter;
     String? tempTribunal = _tribunalFilter;
     _DateSort tempDateSort = _dateSort;
 
@@ -141,9 +140,9 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
                   _FilterDropdown(
                     label: 'Espécie',
-                    value: tempSpecies,
-                    options: _uniqueValues('species'),
-                    onChanged: (v) => setSheetState(() => tempSpecies = v),
+                    value: tempType,
+                    options: _uniqueValues('type'),
+                    onChanged: (v) => setSheetState(() => tempType = v),
                   ),
                   const SizedBox(height: 12),
 
@@ -200,7 +199,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                       onPressed: () {
                         setState(() {
                           _situacaoFilter = tempSituacao;
-                          _speciesFilter = tempSpecies;
+                          _typeFilter = tempType;
                           _tribunalFilter = tempTribunal;
                           _dateSort = tempDateSort;
                         });
@@ -324,10 +323,10 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   }
 
   String _getProbabilidade(double score) {
-    if (score >= 0.85) return 'Muito provável';
-    if (score >= 0.60) return 'Provável';
-    if (score >= 0.40) return 'Pouco provável';
-    return 'Muito pouco provável';
+    if (score >= 0.85) return 'Aplicável';
+    if (score >= 0.60) return 'Pouco aplicável';
+    if (score >= 0.40) return 'Pouco aplicável';
+    return 'Muito pouco aplicável';
   }
 
   Color _getProbabilidadeColor(double score) {
@@ -411,7 +410,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     codigoPrecedente: item['name'] as String,
                     descricao: item['description'] as String,
                     situacao: item['situation'] as String,
-                    species: item['species'] as String,
+                    type: item['type'] as String,
                     lastUpdate: item['last_update'] as String,
                     probabilidade: _getProbabilidade(score),
                     probabilidadeColor: _getProbabilidadeColor(score),
@@ -529,7 +528,7 @@ class PrecedentResultCard extends StatelessWidget {
   final String codigoPrecedente;
   final String situacao;
   final String descricao;
-  final String species;
+  final String type;
   final String lastUpdate;
   final String probabilidade;
   final Color probabilidadeColor;
@@ -541,7 +540,7 @@ class PrecedentResultCard extends StatelessWidget {
     required this.codigoPrecedente,
     required this.situacao,
     required this.descricao,
-    required this.species,
+    required this.type,
     required this.lastUpdate,
     required this.probabilidade,
     required this.probabilidadeColor,
@@ -674,7 +673,7 @@ class PrecedentResultCard extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              species,
+                              type,
                               style: textTheme.labelSmall?.copyWith(
                                 color: AppColors.altDarkColor,
                                 fontWeight: FontWeight.w600,
