@@ -1,9 +1,4 @@
-enum Compatibility {
-  muitoProvavel,
-  provavel,
-  poucoProvavel,
-  muitoPoucoProvavel,
-}
+enum Compatibility { aplicavel, poucoAplicavel, muitoPoucoAplicavel }
 
 class Precedent {
   final String id;
@@ -14,7 +9,7 @@ class Precedent {
   final String subject;
   final String summary;
   final String description;
-  final String species;
+  final String type;
   final String situation;
   final double score;
   final Compatibility compatibility;
@@ -30,7 +25,7 @@ class Precedent {
     required this.subject,
     required this.summary,
     required this.description,
-    required this.species,
+    required this.type,
     required this.situation,
     required this.score,
     required this.compatibility,

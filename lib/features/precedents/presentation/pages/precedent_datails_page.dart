@@ -40,26 +40,22 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
   String _getCompatibilityText(Compatibility comp) {
     switch (comp) {
-      case Compatibility.muitoProvavel:
-        return 'Muito provável';
-      case Compatibility.provavel:
-        return 'Provável';
-      case Compatibility.poucoProvavel:
-        return 'Pouco provável';
-      case Compatibility.muitoPoucoProvavel:
-        return 'Muito pouco provável';
+      case Compatibility.aplicavel:
+        return 'Aplicável';
+      case Compatibility.poucoAplicavel:
+        return 'Pouco aplicável';
+      case Compatibility.muitoPoucoAplicavel:
+        return 'Muito pouco aplicável';
     }
   }
 
   Color _getCompatibilityColor(Compatibility comp) {
     switch (comp) {
-      case Compatibility.muitoProvavel:
+      case Compatibility.aplicavel:
         return AppColors.accentColor;
-      case Compatibility.provavel:
-        return Colors.green.shade600;
-      case Compatibility.poucoProvavel:
+      case Compatibility.poucoAplicavel:
         return AppColors.detailsColor;
-      case Compatibility.muitoPoucoProvavel:
+      case Compatibility.muitoPoucoAplicavel:
         return Colors.red.shade700;
     }
   }
@@ -82,12 +78,12 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
     final double displayScore = rawScore >= 100 ? 99 : rawScore;
 
     final compatibility = score >= 0.85
-        ? Compatibility.muitoProvavel
+        ? Compatibility.aplicavel
         : score >= 0.60
-        ? Compatibility.provavel
+        ? Compatibility.poucoAplicavel
         : score >= 0.40
-        ? Compatibility.poucoProvavel
-        : Compatibility.muitoPoucoProvavel;
+        ? Compatibility.muitoPoucoAplicavel
+        : Compatibility.muitoPoucoAplicavel;
 
     final precedent = Precedent(
       id: item['id'].toString(),
@@ -98,7 +94,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       subject: item['name'] as String,
       description: item['description'] as String,
       summary: item['summary'] as String,
-      species: item['species'] as String,
+      type: item['type'] as String,
       situation: item['situation'] as String,
       score: displayScore,
       compatibility: compatibility,
@@ -221,8 +217,8 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: _InfoBadge(
-                            label: 'Espécie',
-                            value: precedent.species,
+                            label: 'Tipo de precedente',
+                            value: precedent.type,
                             icon: Icons.gavel_rounded,
                             backgroundColor: const Color(0xFFFFF3E0),
                             iconColor: const Color(0xFFE07B00),
