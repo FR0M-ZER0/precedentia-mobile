@@ -20,8 +20,7 @@ class LoginPage extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               
-              // Aqui está corrigido (sem o "]" no final)
-              Image.asset('assets/images/logo.png', height: 48),
+              Image.asset('../../../assets/logo.png', height: 48),
 
               // Dica: Se quiser usar o arquivo .png no futuro...
               const SizedBox(height: 48),
