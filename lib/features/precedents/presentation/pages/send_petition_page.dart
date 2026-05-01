@@ -27,17 +27,17 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
-        withData: false,
+        withData: true, // Alterado para true para capturar os bytes (Essencial para Web/Multipart)
         withReadStream: false,
       );
 
       if (result == null) return;
 
       final file = result.files.first;
-      final filePath = file.path;
 
-      if (filePath == null) {
-        _showError('Não foi possível obter o caminho do arquivo.');
+      // Na Web, o file.path é sempre nulo. Então verificamos se temos path OU bytes.
+      if (file.path == null && file.bytes == null) {
+        _showError('Não foi possível obter os dados do arquivo.');
         return;
       }
 
@@ -52,7 +52,8 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
 
       setState(() => _isUploading = true);
 
-      final future = _extractPetitionUseCase(filePath);
+      // Passando o objeto 'file' (PlatformFile) inteiro em vez de apenas a String do caminho
+      final future = _extractPetitionUseCase(file);
 
       if (!mounted) return;
       context.push('/carregando-precedentes', extra: future);
