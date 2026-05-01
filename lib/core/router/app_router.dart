@@ -4,6 +4,7 @@ import 'package:precedentia_mobile/features/precedents/presentation/pages/send_p
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
+import 'package:precedentia_mobile/features/profile/presentation/pages/user_page.dart';
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_datails_page.dart';
@@ -55,6 +56,11 @@ class AppRouter {
         path: '/enviar-peticao-texto',
         name: 'send_petition_text',
         builder: (context, state) => const SendPetitionTextPage(),
+      ),
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (context, state) => const UserPage(),
       ),
     ],
   );
