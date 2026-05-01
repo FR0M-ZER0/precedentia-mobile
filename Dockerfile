@@ -10,7 +10,8 @@ RUN git config --global --add safe.directory /sdks/flutter
 RUN flutter config --no-analytics
 RUN flutter pub get
 
-RUN flutter build web --web-renderer html --release --no-source-maps -v
+
+RUN flutter build web --release --no-source-maps -v
 
 FROM nginx:alpine
 COPY --from=build /app/build/web /usr/share/nginx/html
