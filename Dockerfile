@@ -1,6 +1,5 @@
 FROM ghcr.io/cirruslabs/flutter:stable AS build
 
-
 USER root
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
@@ -10,7 +9,8 @@ COPY . .
 RUN git config --global --add safe.directory /sdks/flutter
 RUN flutter config --no-analytics
 RUN flutter pub get
-RUN flutter build web --release --no-source-maps
+
+RUN flutter build web --web-renderer html --release --no-source-maps -v
 
 FROM nginx:alpine
 COPY --from=build /app/build/web /usr/share/nginx/html
