@@ -1,4 +1,4 @@
-FROM ghcr.io/cirruslabs/flutter:stable AS build
+FROM --platform=linux/amd64 ghcr.io/cirruslabs/flutter:stable AS build
 
 USER root
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
@@ -10,10 +10,10 @@ RUN git config --global --add safe.directory /sdks/flutter
 RUN flutter config --no-analytics
 RUN flutter pub get
 
-
 RUN flutter build web --release --no-source-maps -v
 
-FROM nginx:alpine
+
+FROM --platform=linux/arm64 nginx:alpine
 COPY --from=build /app/build/web /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
