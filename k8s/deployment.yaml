@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: docker.io/gabguimaraes/precedentia-web:617f415
+        image: docker.io/gabguimaraes/precedentia-web:79342ceb699bcba840442c8fd5f56e2d250a66b3
         ports:
         - containerPort: 80
         resources:
