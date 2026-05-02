@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 ghcr.io/cirruslabs/flutter:stable AS build
+FROM --platform=linux/arm64 public.ecr.aws/docker/library/nginx:alpine
 
 USER root
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
