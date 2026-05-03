@@ -27,7 +27,8 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
-        withData: true, // Alterado para true para capturar os bytes (Essencial para Web/Multipart)
+        withData:
+            true, // Alterado para true para capturar os bytes (Essencial para Web/Multipart)
         withReadStream: false,
       );
 

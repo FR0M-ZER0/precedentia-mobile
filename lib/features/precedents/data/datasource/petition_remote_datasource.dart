@@ -12,14 +12,13 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
   @override
   Future<Map<String, dynamic>> extractPetition(PlatformFile file) async {
     if (file.bytes == null) {
-      throw Exception('Os bytes do arquivo estão nulos. Verifique o FilePicker.');
+      throw Exception(
+        'Os bytes do arquivo estão nulos. Verifique o FilePicker.',
+      );
     }
 
     final formData = FormData.fromMap({
-      'file': MultipartFile.fromBytes(
-        file.bytes!,
-        filename: file.name,
-      ),
+      'file': MultipartFile.fromBytes(file.bytes!, filename: file.name),
     });
 
     final response = await _dio.post('/documents/extract', data: formData);

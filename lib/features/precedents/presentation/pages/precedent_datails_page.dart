@@ -252,29 +252,29 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               duration: const Duration(milliseconds: 400),
               child: _summaryLoaded
                   ? precedent.summary.isNotEmpty
-                      ? RichText(
-                          key: const ValueKey('summary'),
-                          text: TextSpan(
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: AppColors.mainDarkColor,
-                            ),
-                            children: [
-                              const TextSpan(
-                                text: 'Resumo da IA: ',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                        ? RichText(
+                            key: const ValueKey('summary'),
+                            text: TextSpan(
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: AppColors.mainDarkColor,
                               ),
-                              TextSpan(text: precedent.summary),
-                            ],
-                          ),
-                        )
-                      : Text(
-                          key: const ValueKey('summary_empty'),
-                          'Resumo não disponível para este precedente.',
-                          style: textTheme.bodySmall?.copyWith(
-                            color: Colors.grey.shade500,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        )
+                              children: [
+                                const TextSpan(
+                                  text: 'Resumo da IA: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: precedent.summary),
+                              ],
+                            ),
+                          )
+                        : Text(
+                            key: const ValueKey('summary_empty'),
+                            'Resumo não disponível para este precedente.',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade500,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          )
                   : Container(
                       key: const ValueKey('loading'),
                       width: double.infinity,
