@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import 'package:precedentia_mobile/features/precedents/domain/entities/precedent.dart';
@@ -22,6 +24,8 @@ class PrecedentDetailPage extends StatefulWidget {
 class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
   bool _isExpanded = false;
   bool _summaryLoaded = false;
+  String _aiSummary = '';
+  String? _summaryError;
 
   String _nomeTribunal(String sigla) {
     const nomes = {
@@ -67,9 +71,44 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _summaryLoaded = true);
-    });
+    _fetchAiSummary();
+  }
+
+  Future<void> _fetchAiSummary() async {
+    final description = widget.data['description'] as String? ?? '';
+    final facts = widget.data['query_facts'] as String? ?? '';
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:5050/api/analyze-precedent'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'precedente': description,
+          'peticao': facts,
+        }),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _aiSummary = data['analise'] ?? '';
+          _summaryLoaded = true;
+        });
+      } else {
+        setState(() {
+          _summaryError = 'Erro ao gerar análise (${response.statusCode}).';
+          _summaryLoaded = true;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _summaryError = 'Não foi possível conectar ao servidor.';
+        _summaryLoaded = true;
+      });
+    }
   }
 
   @override
@@ -251,30 +290,41 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 400),
               child: _summaryLoaded
-                  ? precedent.summary.isNotEmpty
-                        ? RichText(
-                            key: const ValueKey('summary'),
-                            text: TextSpan(
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: AppColors.mainDarkColor,
-                              ),
-                              children: [
-                                const TextSpan(
-                                  text: 'Resumo da IA: ',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: precedent.summary),
-                              ],
-                            ),
-                          )
-                        : Text(
-                            key: const ValueKey('summary_empty'),
-                            'Resumo não disponível para este precedente.',
+                  ? _summaryError != null
+                        ? Text(
+                            key: const ValueKey('summary_error'),
+                            _summaryError!,
                             style: textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade500,
+                              color: Colors.red.shade400,
                               fontStyle: FontStyle.italic,
                             ),
                           )
+                        : _aiSummary.isNotEmpty
+                              ? RichText(
+                                  key: const ValueKey('summary'),
+                                  text: TextSpan(
+                                    style: textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.mainDarkColor,
+                                    ),
+                                    children: [
+                                      const TextSpan(
+                                        text: 'Análise da IA: ',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      TextSpan(text: _aiSummary),
+                                    ],
+                                  ),
+                                )
+                              : Text(
+                                  key: const ValueKey('summary_empty'),
+                                  'Análise não disponível para este precedente.',
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey.shade500,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                )
                   : Container(
                       key: const ValueKey('loading'),
                       width: double.infinity,
@@ -287,7 +337,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Gerando resumo da IA...',
+                            'Analisando precedente...',
                             style: textTheme.bodySmall?.copyWith(
                               color: AppColors.altDarkColor,
                             ),

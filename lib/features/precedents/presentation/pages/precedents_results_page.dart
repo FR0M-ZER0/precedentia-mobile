@@ -408,7 +408,10 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                 return GestureDetector(
                   onTap: () => context.push(
                     '/precedents/details/${item['id']}',
-                    extra: item,
+                    extra: {
+                      ...item,
+                      'query_facts': widget.data['query']?['facts'] ?? '',
+                    },
                   ),
                   child: PrecedentResultCard(
                     tribunal: _nomeTribunal(item['tribunal'] as String),
