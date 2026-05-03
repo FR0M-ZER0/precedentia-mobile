@@ -82,10 +82,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       final response = await http.post(
         Uri.parse('http://localhost:5050/api/analyze-precedent'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'precedente': description,
-          'peticao': facts,
-        }),
+        body: jsonEncode({'precedente': description, 'peticao': facts}),
       );
 
       if (!mounted) return;
@@ -300,31 +297,29 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                             ),
                           )
                         : _aiSummary.isNotEmpty
-                              ? RichText(
-                                  key: const ValueKey('summary'),
-                                  text: TextSpan(
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      color: AppColors.mainDarkColor,
-                                    ),
-                                    children: [
-                                      const TextSpan(
-                                        text: 'Análise da IA: ',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      TextSpan(text: _aiSummary),
-                                    ],
-                                  ),
-                                )
-                              : Text(
-                                  key: const ValueKey('summary_empty'),
-                                  'Análise não disponível para este precedente.',
-                                  style: textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey.shade500,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                )
+                        ? RichText(
+                            key: const ValueKey('summary'),
+                            text: TextSpan(
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: AppColors.mainDarkColor,
+                              ),
+                              children: [
+                                const TextSpan(
+                                  text: 'Análise da IA: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: _aiSummary),
+                              ],
+                            ),
+                          )
+                        : Text(
+                            key: const ValueKey('summary_empty'),
+                            'Análise não disponível para este precedente.',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade500,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          )
                   : Container(
                       key: const ValueKey('loading'),
                       width: double.infinity,
