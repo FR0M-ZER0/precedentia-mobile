@@ -91,18 +91,18 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
     final precedent = Precedent(
       id: item['id'].toString(),
-      name: item['name'],
+      name: item['name'] as String,
       court: _nomeTribunal(item['tribunal'] as String),
       courtAcronym: item['tribunal'] as String,
       creationDate: DateTime(2025, 1, 1),
       subject: item['name'] as String,
       description: item['description'] as String,
-      summary: item['summary'] as String,
+      summary: (item['summary'] as String?) ?? '',
       species: item['species'] as String,
       situation: item['situation'] as String,
       score: displayScore,
       compatibility: compatibility,
-      lastUpdate: item['last_update'] as String,
+      lastUpdate: (item['last_update'] as String?) ?? '',
       url: item['url'] as String,
     );
 
@@ -135,7 +135,8 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                   "Situação: ${precedent.situation}",
                   style: textTheme.headlineMedium,
                 ),
-                Text(precedent.lastUpdate, style: textTheme.bodySmall),
+                if (precedent.lastUpdate.isNotEmpty)
+                  Text(precedent.lastUpdate, style: textTheme.bodySmall),
               ],
             ),
 
@@ -250,21 +251,30 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 400),
               child: _summaryLoaded
-                  ? RichText(
-                      key: const ValueKey('summary'),
-                      text: TextSpan(
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: AppColors.mainDarkColor,
-                        ),
-                        children: [
-                          const TextSpan(
-                            text: 'Resumo da IA: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                  ? precedent.summary.isNotEmpty
+                      ? RichText(
+                          key: const ValueKey('summary'),
+                          text: TextSpan(
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: AppColors.mainDarkColor,
+                            ),
+                            children: [
+                              const TextSpan(
+                                text: 'Resumo da IA: ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(text: precedent.summary),
+                            ],
                           ),
-                          TextSpan(text: precedent.summary),
-                        ],
-                      ),
-                    )
+                        )
+                      : Text(
+                          key: const ValueKey('summary_empty'),
+                          'Resumo não disponível para este precedente.',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade500,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        )
                   : Container(
                       key: const ValueKey('loading'),
                       width: double.infinity,

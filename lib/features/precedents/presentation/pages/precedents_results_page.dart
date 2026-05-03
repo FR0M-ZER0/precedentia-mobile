@@ -58,14 +58,14 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       if (_dateSort == _DateSort.newest) {
         _filteredResults.sort(
           (a, b) => _parseDate(
-            b['last_update'] as String,
-          ).compareTo(_parseDate(a['last_update'] as String)),
+            (b['last_update'] as String?) ?? '',
+          ).compareTo(_parseDate((a['last_update'] as String?) ?? '')),
         );
       } else if (_dateSort == _DateSort.oldest) {
         _filteredResults.sort(
           (a, b) => _parseDate(
-            a['last_update'] as String,
-          ).compareTo(_parseDate(b['last_update'] as String)),
+            (a['last_update'] as String?) ?? '',
+          ).compareTo(_parseDate((b['last_update'] as String?) ?? '')),
         );
       }
     });
@@ -82,7 +82,12 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   }
 
   List<String> _uniqueValues(String key) {
-    return _allResults.map((e) => e[key] as String).toSet().toList()..sort();
+    return _allResults
+        .map((e) => e[key] as String?)
+        .whereType<String>()
+        .toSet()
+        .toList()
+      ..sort();
   }
 
   bool get _hasActiveFilters =>
@@ -412,7 +417,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     descricao: item['description'] as String,
                     situacao: item['situation'] as String,
                     species: item['species'] as String,
-                    lastUpdate: item['last_update'] as String,
+                    lastUpdate: (item['last_update'] as String?) ?? '',
                     probabilidade: _getProbabilidade(score),
                     probabilidadeColor: _getProbabilidadeColor(score),
                   ),
@@ -637,12 +642,13 @@ class PrecedentResultCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          lastUpdate,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: AppColors.altDarkColor,
+                        if (lastUpdate.isNotEmpty)
+                          Text(
+                            lastUpdate,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.altDarkColor,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
