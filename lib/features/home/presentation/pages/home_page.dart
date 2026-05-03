@@ -27,28 +27,50 @@ class HomePage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              
+
               // Opção 1: Arquivo PDF
               ListTile(
-                leading: Icon(Icons.upload_file, color: colorScheme.primary, size: 32),
-                title: Text("Enviar arquivo PDF", style: textTheme.headlineMedium),
-                subtitle: Text("Faça o upload do documento em .pdf", style: textTheme.bodySmall),
+                leading: Icon(
+                  Icons.upload_file,
+                  color: colorScheme.primary,
+                  size: 32,
+                ),
+                title: Text(
+                  "Enviar arquivo PDF",
+                  style: textTheme.headlineMedium,
+                ),
+                subtitle: Text(
+                  "Faça o upload do documento em .pdf",
+                  style: textTheme.bodySmall,
+                ),
                 onTap: () {
                   Navigator.pop(bottomSheetContext); // Fecha o modal
                   context.push('/enviar-peticao'); // Vai para a tela de PDF
                 },
               ),
-              
+
               const Divider(height: 32),
-              
+
               // Opção 2: Inserção de Texto
               ListTile(
-                leading: Icon(Icons.edit_document, color: colorScheme.primary, size: 32),
-                title: Text("Digitar dados manualmente", style: textTheme.headlineMedium),
-                subtitle: Text("Preencha os campos de texto no aplicativo", style: textTheme.bodySmall),
+                leading: Icon(
+                  Icons.edit_document,
+                  color: colorScheme.primary,
+                  size: 32,
+                ),
+                title: Text(
+                  "Digitar dados manualmente",
+                  style: textTheme.headlineMedium,
+                ),
+                subtitle: Text(
+                  "Preencha os campos de texto no aplicativo",
+                  style: textTheme.bodySmall,
+                ),
                 onTap: () {
                   Navigator.pop(bottomSheetContext); // Fecha o modal
-                  context.push('/enviar-peticao-texto'); // Vai para a tela de Texto
+                  context.push(
+                    '/enviar-peticao-texto',
+                  ); // Vai para a tela de Texto
                 },
               ),
             ],
@@ -60,19 +82,13 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return BasePageTemplate(
-      title: "Página Inicial",
-      subtitle: "Bem-vindo ao PrecedentIA",
-      detailText: "v1.0.0",
+      title: "Procure precedentes",
+      subtitle:
+          "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
-            style: textTheme.titleSmall,
-          ),
           const SizedBox(height: 30),
 
           // Botão que agora abre o modal de seleção

@@ -10,8 +10,8 @@ class App extends StatelessWidget {
     return MaterialApp.router(
       title: 'PrecedentIA',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
       routerConfig: AppRouter.router,
+      theme: AppTheme.lightTheme,
     );
   }
 }

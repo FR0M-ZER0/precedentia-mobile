@@ -18,4 +18,10 @@ class AppColors {
   static const Color background = mainDarkColor;
   static const Color surface = altDarkColor;
   static const Color error = detailsColor;
+
+  // Cores Específicas para Card Precedente
+  static const Color primaryColor = mainDarkColor; // Para o Divider
+  static const Color backgroundBlueCard = altLightColor; // Para o fundo lateral
+  static const Color successColor = accentColor; // Para "Muito Provável"
+  static const Color warningColor = Color(0xFFC3423F); // Para "Pouco Provável"
 }

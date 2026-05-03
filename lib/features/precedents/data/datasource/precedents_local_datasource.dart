@@ -13,7 +13,7 @@ class PrecedentsLocalDataSourceImpl implements PrecedentsLocalDataSource {
 
   @override
   Future<void> saveAccessedPrecedent(PrecedentModel precedent) async {
-    // Usamos o ID do precedente como chave. 
+    // Usamos o ID do precedente como chave.
     // Assim, se ele abrir o mesmo precedente duas vezes, apenas atualiza (não duplica no histórico).
     await precedentBox.put(precedent.id, precedent);
   }

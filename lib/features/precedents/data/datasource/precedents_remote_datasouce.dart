@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../models/precedent_model.dart';
 
-//Fiz isso com algumas boas recomendações do gemini qualquer coisa me mande 
+//Fiz isso com algumas boas recomendações do gemini qualquer coisa me mande
 //uma mensagem
 
 // 1. O Contrato: Define O QUE essa fonte de dados deve fazer
@@ -24,12 +24,14 @@ class PrecedentsRemoteDataSourceImpl implements PrecedentsRemoteDataSource {
       if (response.statusCode == 200) {
         // Aqui você vai converter o JSON da API para o seu PrecedentModel
         // Exemplo: return PrecedentModel.fromJson(response.data);
-        
+
         // Temporário até termos o fromJson no modelo:
-        throw UnimplementedError('Precisamos criar o fromJson no PrecedentModel');
+        throw UnimplementedError(
+          'Precisamos criar o fromJson no PrecedentModel',
+        );
       } else {
         // Lança uma exceção que será capturada pelo Repositório
-        throw Exception('Erro no servidor'); 
+        throw Exception('Erro no servidor');
       }
     } catch (e) {
       throw Exception('Erro de conexão ou servidor: $e');
