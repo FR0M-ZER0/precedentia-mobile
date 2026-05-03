@@ -41,13 +41,13 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
   String _getCompatibilityText(Compatibility comp) {
     switch (comp) {
       case Compatibility.muitoProvavel:
-        return 'Muito provável';
+        return 'Aplicável';
       case Compatibility.provavel:
-        return 'Provável';
+        return 'Possivelmente aplicável';
       case Compatibility.poucoProvavel:
-        return 'Pouco provável';
+        return 'Pouco aplicável';
       case Compatibility.muitoPoucoProvavel:
-        return 'Muito pouco provável';
+        return 'Não aplicável';
     }
   }
 
@@ -143,7 +143,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             const SizedBox(height: 24),
 
             Text(
-              "Descrição",
+              "Resumo dos fatos",
               style: textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -222,7 +222,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: _InfoBadge(
-                            label: 'Espécie',
+                            label: 'Tipo de precedente',
                             value: precedent.species,
                             icon: Icons.gavel_rounded,
                             backgroundColor: const Color(0xFFFFF3E0),

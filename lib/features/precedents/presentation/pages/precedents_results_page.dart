@@ -145,7 +145,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                   const SizedBox(height: 12),
 
                   _FilterDropdown(
-                    label: 'Espécie',
+                    label: 'Tipo de precedente',
                     value: tempSpecies,
                     options: _uniqueValues('species'),
                     onChanged: (v) => setSheetState(() => tempSpecies = v),
@@ -329,10 +329,10 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   }
 
   String _getProbabilidade(double score) {
-    if (score >= 0.85) return 'Muito provável';
-    if (score >= 0.60) return 'Provável';
+    if (score >= 0.85) return 'Aplicável';
+    if (score >= 0.60) return 'Possivelmente aplicável';
     if (score >= 0.40) return 'Pouco provável';
-    return 'Muito pouco provável';
+    return 'Não aplicável';
   }
 
   Color _getProbabilidadeColor(double score) {
