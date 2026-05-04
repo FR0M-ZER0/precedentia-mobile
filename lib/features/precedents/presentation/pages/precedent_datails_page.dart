@@ -89,6 +89,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       subject: item['name'] as String,
       description: item['description'] as String,
       summary: (item['summary'] as String?) ?? '',
+      question: (item['question'] as String?) ?? '',
       species: item['species'] as String,
       situation: item['situation'] as String,
       score: displayScore,
@@ -170,6 +171,21 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                 ),
               ),
             ),
+
+            if (precedent.question.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                "Questão",
+                style: textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                precedent.question,
+                style: textTheme.bodyMedium,
+              ),
+            ],
 
             const SizedBox(height: 32),
 
