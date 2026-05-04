@@ -100,6 +100,7 @@ flutter doctor -v
 
 ``` bash
 flutter pub get
+dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### 3️⃣ Instale as dependências do node
