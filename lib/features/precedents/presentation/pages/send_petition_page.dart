@@ -1,11 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 import '../../data/datasource/petition_remote_datasource.dart';
 import '../../data/repositories/petition_repository_impl.dart';
 import '../../domain/usecases/extract_petition_usecase.dart';
+import '../../../petitions/data/models/petition_model.dart';
 
 class SendPetitionPage extends StatefulWidget {
   const SendPetitionPage({super.key});
@@ -27,8 +31,7 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
-        withData:
-            true, // Alterado para true para capturar os bytes (Essencial para Web/Multipart)
+        withData: true,
         withReadStream: false,
       );
 
@@ -36,7 +39,6 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
 
       final file = result.files.first;
 
-      // Na Web, o file.path é sempre nulo. Então verificamos se temos path OU bytes.
       if (file.path == null && file.bytes == null) {
         _showError('Não foi possível obter os dados do arquivo.');
         return;
@@ -53,8 +55,22 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
 
       setState(() => _isUploading = true);
 
-      // Passando o objeto 'file' (PlatformFile) inteiro em vez de apenas a String do caminho
-      final future = _extractPetitionUseCase(file);
+      final Future<Map<String, dynamic>> future = _extractPetitionUseCase(file);
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
+      final savedFile = await File(
+        '${appDir.path}/$fileName',
+      ).writeAsBytes(file.bytes!);
+
+      final box = Hive.box<PetitionModel>('petitions');
+      await box.add(
+        PetitionModel(
+          name: file.name,
+          filePath: savedFile.path,
+          sentAt: DateTime.now(),
+        ),
+      );
 
       if (!mounted) return;
       context.push('/carregando-precedentes', extra: future);
