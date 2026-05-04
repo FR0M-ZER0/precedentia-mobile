@@ -38,12 +38,22 @@ class HistoryCard extends StatelessWidget {
                   bottomLeft: Radius.circular(8),
                 ),
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.insert_drive_file_outlined,
-                  color: Colors.white,
-                  size: 32,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.insert_drive_file_outlined,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Ver',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(
