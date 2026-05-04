@@ -49,9 +49,9 @@ class HistoryCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Ver',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.white,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelSmall?.copyWith(color: Colors.white),
                   ),
                 ],
               ),
