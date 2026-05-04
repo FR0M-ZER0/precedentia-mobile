@@ -328,18 +328,30 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
     return nomes[sigla] ?? sigla;
   }
 
-  String _getProbabilidade(double score) {
-    if (score >= 0.85) return 'Aplicável';
-    if (score >= 0.60) return 'Possivelmente aplicável';
-    if (score >= 0.40) return 'Pouco provável';
-    return 'Não aplicável';
+  String _getProbabilidade(String applicability) {
+    switch (applicability) {
+      case 'applicable':
+        return 'Aplicável';
+      case 'possible_applicability':
+        return 'Possivelmente aplicável';
+      case 'low_applicability':
+        return 'Pouco aplicável';
+      default:
+        return 'Não aplicável';
+    }
   }
 
-  Color _getProbabilidadeColor(double score) {
-    if (score >= 0.85) return AppColors.accentColor;
-    if (score >= 0.60) return Colors.green.shade600;
-    if (score >= 0.40) return AppColors.detailsColor;
-    return Colors.red.shade700;
+  Color _getProbabilidadeColor(String applicability) {
+    switch (applicability) {
+      case 'applicable':
+        return AppColors.accentColor;
+      case 'possible_applicability':
+        return Colors.green.shade600;
+      case 'low_applicability':
+        return AppColors.detailsColor;
+      default:
+        return Colors.red.shade700;
+    }
   }
 
   @override
@@ -403,7 +415,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
               separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final item = _filteredResults[index];
-                final double score = (item['score'] as num).toDouble();
+                final String applicability =
+                    (item['applicability'] as String?) ?? '';
 
                 return GestureDetector(
                   onTap: () => context.push(
@@ -421,8 +434,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     situacao: item['situation'] as String,
                     species: item['species'] as String,
                     lastUpdate: (item['last_update'] as String?) ?? '',
-                    probabilidade: _getProbabilidade(score),
-                    probabilidadeColor: _getProbabilidadeColor(score),
+                    probabilidade: _getProbabilidade(applicability),
+                    probabilidadeColor: _getProbabilidadeColor(applicability),
                   ),
                 );
               },

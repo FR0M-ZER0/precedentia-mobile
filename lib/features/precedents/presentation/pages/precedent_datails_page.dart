@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
-import 'package:precedentia_mobile/features/precedents/domain/entities/precedent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PrecedentDetailPage extends StatefulWidget {
@@ -22,43 +21,44 @@ class PrecedentDetailPage extends StatefulWidget {
 class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
   bool _isExpanded = false;
 
-  String _nomeTribunal(String sigla) {
-    const nomes = {
-      'STF': 'Supremo Tribunal Federal',
-      'STJ': 'Superior Tribunal de Justiça',
-      'STM': 'Superior Tribunal Militar',
-      'TST': 'Tribunal Superior do Trabalho',
-      'TRF1': 'Tribunal Regional Federal 1ª Região',
-      'TRF2': 'Tribunal Regional Federal 2ª Região',
-      'TRF3': 'Tribunal Regional Federal 3ª Região',
-      'TRF4': 'Tribunal Regional Federal 4ª Região',
-      'TRF5': 'Tribunal Regional Federal 5ª Região',
-    };
-    return nomes[sigla] ?? sigla;
-  }
+  // String _nomeTribunal(String sigla) {
+  //   const nomes = {
+  //     'STF': 'Supremo Tribunal Federal',
+  //     'STJ': 'Superior Tribunal de Justiça',
+  //     'STM': 'Superior Tribunal Militar',
+  //     'TST': 'Tribunal Superior do Trabalho',
+  //     'TRF1': 'Tribunal Regional Federal 1ª Região',
+  //     'TRF2': 'Tribunal Regional Federal 2ª Região',
+  //     'TRF3': 'Tribunal Regional Federal 3ª Região',
+  //     'TRF4': 'Tribunal Regional Federal 4ª Região',
+  //     'TRF5': 'Tribunal Regional Federal 5ª Região',
+  //   };
+  //   return nomes[sigla] ?? sigla;
+  // }
 
-  String _getCompatibilityText(Compatibility comp) {
-    switch (comp) {
-      case Compatibility.muitoProvavel:
+  // MUDANÇA: agora recebe String applicability em vez de Compatibility enum
+  String _getCompatibilityText(String applicability) {
+    switch (applicability) {
+      case 'applicable':
         return 'Aplicável';
-      case Compatibility.provavel:
+      case 'possible_applicability':
         return 'Possivelmente aplicável';
-      case Compatibility.poucoProvavel:
+      case 'low_applicability':
         return 'Pouco aplicável';
-      case Compatibility.muitoPoucoProvavel:
+      default:
         return 'Não aplicável';
     }
   }
 
-  Color _getCompatibilityColor(Compatibility comp) {
-    switch (comp) {
-      case Compatibility.muitoProvavel:
+  Color _getCompatibilityColor(String applicability) {
+    switch (applicability) {
+      case 'applicable':
         return AppColors.accentColor;
-      case Compatibility.provavel:
+      case 'possible_applicability':
         return Colors.green.shade600;
-      case Compatibility.poucoProvavel:
+      case 'low_applicability':
         return AppColors.detailsColor;
-      case Compatibility.muitoPoucoProvavel:
+      default:
         return Colors.red.shade700;
     }
   }
@@ -72,33 +72,9 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
     final double rawScore = score * 100;
     final double displayScore = rawScore >= 100 ? 99 : rawScore;
 
-    final compatibility = score >= 0.85
-        ? Compatibility.muitoProvavel
-        : score >= 0.60
-        ? Compatibility.provavel
-        : score >= 0.40
-        ? Compatibility.poucoProvavel
-        : Compatibility.muitoPoucoProvavel;
-
-    final precedent = Precedent(
-      id: item['id'].toString(),
-      name: item['name'] as String,
-      court: _nomeTribunal(item['tribunal'] as String),
-      courtAcronym: item['tribunal'] as String,
-      creationDate: DateTime(2025, 1, 1),
-      subject: item['name'] as String,
-      description: item['description'] as String,
-      summary: (item['summary'] as String?) ?? '',
-      question: (item['question'] as String?) ?? '',
-      species: item['species'] as String,
-      situation: item['situation'] as String,
-      score: displayScore,
-      compatibility: compatibility,
-      lastUpdate: (item['last_update'] as String?) ?? '',
-      url: item['url'] as String,
-    );
-
-    final compatibilityColor = _getCompatibilityColor(precedent.compatibility);
+    // MUDANÇA: lê applicability direto do item
+    final String applicability = (item['applicability'] as String?) ?? '';
+    final compatibilityColor = _getCompatibilityColor(applicability);
 
     Future<void> openUrl(String url) async {
       final uri = Uri.parse(url);
@@ -107,8 +83,19 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
       }
     }
 
+    final String name = item['name'] as String;
+    final String courtAcronym = item['tribunal'] as String;
+    // final String court = _nomeTribunal(courtAcronym);
+    final String description = item['description'] as String;
+    final String summary = (item['summary'] as String?) ?? '';
+    final String question = (item['question'] as String?) ?? '';
+    final String species = item['species'] as String;
+    final String situation = item['situation'] as String;
+    final String lastUpdate = (item['last_update'] as String?) ?? '';
+    final String url = item['url'] as String;
+
     return BasePageTemplate(
-      title: precedent.name,
+      title: name,
       onBackPress: () {
         if (context.canPop()) {
           context.pop();
@@ -124,11 +111,11 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Situação: ${precedent.situation}",
+                  "Situação: $situation",
                   style: textTheme.headlineMedium,
                 ),
-                if (precedent.lastUpdate.isNotEmpty)
-                  Text(precedent.lastUpdate, style: textTheme.bodySmall),
+                if (lastUpdate.isNotEmpty)
+                  Text(lastUpdate, style: textTheme.bodySmall),
               ],
             ),
 
@@ -144,7 +131,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
             const SizedBox(height: 4),
 
             Text(
-              precedent.description,
+              description,
               style: textTheme.bodyMedium,
               maxLines: _isExpanded ? null : 5,
               overflow: _isExpanded
@@ -172,7 +159,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               ),
             ),
 
-            if (precedent.question.isNotEmpty) ...[
+            if (question.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
                 "Questão",
@@ -181,7 +168,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(precedent.question, style: textTheme.bodyMedium),
+              Text(question, style: textTheme.bodyMedium),
             ],
 
             const SizedBox(height: 32),
@@ -203,7 +190,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                         Expanded(
                           child: _InfoBadge(
                             label: 'Similaridade',
-                            value: '${precedent.score.toInt()}%',
+                            value: '${displayScore.toInt()}%',
                             icon: Icons.percent_rounded,
                             backgroundColor: compatibilityColor.withValues(
                               alpha: 0.12,
@@ -216,7 +203,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                         Expanded(
                           child: _InfoBadge(
                             label: 'Tribunal',
-                            value: precedent.courtAcronym,
+                            value: courtAcronym,
                             icon: Icons.account_balance_rounded,
                             backgroundColor: const Color(0xFFEEF2FF),
                             iconColor: const Color(0xFF4F6BE8),
@@ -227,7 +214,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                         Expanded(
                           child: _InfoBadge(
                             label: 'Tipo de precedente',
-                            value: precedent.species,
+                            value: species,
                             icon: Icons.gavel_rounded,
                             backgroundColor: const Color(0xFFFFF3E0),
                             iconColor: const Color(0xFFE07B00),
@@ -240,7 +227,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
                   const SizedBox(height: 10),
                   Text(
-                    _getCompatibilityText(precedent.compatibility),
+                    _getCompatibilityText(applicability),
                     style: textTheme.titleMedium?.copyWith(
                       color: compatibilityColor,
                       fontWeight: FontWeight.w600,
@@ -252,7 +239,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
 
             const SizedBox(height: 32),
 
-            if (precedent.summary.isNotEmpty)
+            if (summary.isNotEmpty)
               RichText(
                 text: TextSpan(
                   style: textTheme.bodyMedium?.copyWith(
@@ -263,7 +250,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                       text: 'Resumo: ',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    TextSpan(text: precedent.summary),
+                    TextSpan(text: summary),
                   ],
                 ),
               ),
@@ -274,7 +261,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
               width: double.infinity,
               height: 54,
               child: ElevatedButton(
-                onPressed: () => openUrl(precedent.url),
+                onPressed: () => openUrl(url),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.altLightColor,
                   foregroundColor: AppColors.mainDarkColor,
@@ -328,7 +315,8 @@ class _InfoBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, color: iconColor, size: 22),
