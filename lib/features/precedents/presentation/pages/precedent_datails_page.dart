@@ -181,10 +181,7 @@ class _PrecedentDetailPageState extends State<PrecedentDetailPage> {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                precedent.question,
-                style: textTheme.bodyMedium,
-              ),
+              Text(precedent.question, style: textTheme.bodyMedium),
             ],
 
             const SizedBox(height: 32),
