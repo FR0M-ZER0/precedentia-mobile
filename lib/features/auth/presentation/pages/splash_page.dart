@@ -22,7 +22,7 @@ class _SplashPageState extends State<SplashPage> {
 
     if (mounted) {
       // Simula um usuário que acabou de baixar o app -> Vai pro Tutorial
-      context.go('/tutorial'); 
+      context.go('/tutorial');
     }
   }
 
@@ -34,7 +34,7 @@ class _SplashPageState extends State<SplashPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.balance, size: 100, color: AppColors.accentColor), 
+            Icon(Icons.balance, size: 100, color: AppColors.accentColor),
             SizedBox(height: 24),
             Text(
               'PrecedentIA',
@@ -45,9 +45,7 @@ class _SplashPageState extends State<SplashPage> {
               ),
             ),
             SizedBox(height: 48),
-            CircularProgressIndicator(
-              color: AppColors.accentColor,
-            ),
+            CircularProgressIndicator(color: AppColors.accentColor),
           ],
         ),
       ),

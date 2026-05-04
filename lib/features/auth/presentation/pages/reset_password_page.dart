@@ -23,22 +23,41 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           backgroundColor: AppColors.accentColor,
         ),
       );
-      
+
       // Volta direto para a tela de Login
       context.go('/login');
     }
   }
 
-  InputDecoration _inputDecoration(String label, bool isObscure, VoidCallback toggle, TextTheme textTheme) {
+  InputDecoration _inputDecoration(
+    String label,
+    bool isObscure,
+    VoidCallback toggle,
+    TextTheme textTheme,
+  ) {
     return InputDecoration(
       labelText: label,
-      labelStyle: textTheme.bodyMedium?.copyWith(color: AppColors.mainDarkColor),
+      labelStyle: textTheme.bodyMedium?.copyWith(
+        color: AppColors.mainDarkColor,
+      ),
       filled: true,
       fillColor: AppColors.altLightColor,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.mainDarkColor, width: 1.5)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(
+          color: AppColors.mainDarkColor,
+          width: 1.5,
+        ),
+      ),
       suffixIcon: IconButton(
-        icon: Icon(isObscure ? Icons.visibility_off : Icons.visibility, color: AppColors.altDarkColor),
+        icon: Icon(
+          isObscure ? Icons.visibility_off : Icons.visibility,
+          color: AppColors.altDarkColor,
+        ),
         onPressed: toggle,
       ),
     );
@@ -77,8 +96,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     text: TextSpan(
                       style: textTheme.titleLarge?.copyWith(fontSize: 32),
                       children: const [
-                        TextSpan(text: 'Precedent', style: TextStyle(color: AppColors.mainDarkColor)),
-                        TextSpan(text: 'IA', style: TextStyle(color: AppColors.accentColor)),
+                        TextSpan(
+                          text: 'Precedent',
+                          style: TextStyle(color: AppColors.mainDarkColor),
+                        ),
+                        TextSpan(
+                          text: 'IA',
+                          style: TextStyle(color: AppColors.accentColor),
+                        ),
                       ],
                     ),
                   ),
@@ -93,7 +118,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 const SizedBox(height: 16),
                 Text(
                   'Sua nova senha deve ser diferente da senha utilizada anteriormente.',
-                  style: textTheme.bodyMedium?.copyWith(color: AppColors.altDarkColor),
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.altDarkColor,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
@@ -103,10 +130,17 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   controller: _passwordController,
                   obscureText: _obscurePassword1,
                   style: textTheme.bodyMedium,
-                  decoration: _inputDecoration('Nova Senha', _obscurePassword1, () {
-                    setState(() => _obscurePassword1 = !_obscurePassword1);
-                  }, textTheme),
-                  validator: (value) => value == null || value.length < 6 ? 'Mínimo de 6 caracteres' : null,
+                  decoration: _inputDecoration(
+                    'Nova Senha',
+                    _obscurePassword1,
+                    () {
+                      setState(() => _obscurePassword1 = !_obscurePassword1);
+                    },
+                    textTheme,
+                  ),
+                  validator: (value) => value == null || value.length < 6
+                      ? 'Mínimo de 6 caracteres'
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -114,12 +148,21 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 TextFormField(
                   obscureText: _obscurePassword2,
                   style: textTheme.bodyMedium,
-                  decoration: _inputDecoration('Confirmar Nova Senha', _obscurePassword2, () {
-                    setState(() => _obscurePassword2 = !_obscurePassword2);
-                  }, textTheme),
+                  decoration: _inputDecoration(
+                    'Confirmar Nova Senha',
+                    _obscurePassword2,
+                    () {
+                      setState(() => _obscurePassword2 = !_obscurePassword2);
+                    },
+                    textTheme,
+                  ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Confirme a senha';
-                    if (value != _passwordController.text) return 'As senhas não coincidem';
+                    if (value == null || value.isEmpty) {
+                      return 'Confirme a senha';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'As senhas não coincidem';
+                    }
                     return null;
                   },
                 ),
@@ -133,9 +176,17 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.mainDarkColor,
                       foregroundColor: AppColors.mainWhiteColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                    child: const Text('Redefinir Senha', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    child: const Text(
+                      'Redefinir Senha',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
               ],

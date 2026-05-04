@@ -23,21 +23,23 @@ class AppRouter {
   static final authNotifier = ValueNotifier<bool>(false);
 
   static final router = GoRouter(
-    initialLocation: '/splash', // O app agora sempre inicia na Splash para checar os dados
-    refreshListenable: authNotifier, // O roteador "escuta" quando o usuário loga/desloga
-
+    initialLocation:
+        '/splash', // O app agora sempre inicia na Splash para checar os dados
+    refreshListenable:
+        authNotifier, // O roteador "escuta" quando o usuário loga/desloga
     // Lógica de proteção de rotas (Middleware)
     redirect: (context, state) {
       final isLoggedIn = authNotifier.value;
 
       // Definimos quais rotas o usuário pode acessar sem estar logado
-      final isGoingToAuth = state.matchedLocation == '/login' ||
-                            state.matchedLocation == '/cadastro' ||
-                            state.matchedLocation == '/splash' ||
-                            state.matchedLocation == '/tutorial' ||
-                            state.matchedLocation == '/2fa' ||
-                            state.matchedLocation == '/esqueci-senha' || 
-                            state.matchedLocation == '/redefinir-senha'; 
+      final isGoingToAuth =
+          state.matchedLocation == '/login' ||
+          state.matchedLocation == '/cadastro' ||
+          state.matchedLocation == '/splash' ||
+          state.matchedLocation == '/tutorial' ||
+          state.matchedLocation == '/2fa' ||
+          state.matchedLocation == '/esqueci-senha' ||
+          state.matchedLocation == '/redefinir-senha';
 
       // 1. Se NÃO estiver logado e tentar acessar rota protegida (ex: Home) -> vai pro Login
       if (!isLoggedIn && !isGoingToAuth) {

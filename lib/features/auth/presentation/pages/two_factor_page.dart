@@ -12,7 +12,10 @@ class TwoFactorPage extends StatefulWidget {
 }
 
 class _TwoFactorPageState extends State<TwoFactorPage> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   @override
@@ -38,7 +41,7 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
 
   void _verifyCode() {
     String code = _controllers.map((c) => c.text).join();
-    
+
     if (code.length == 6) {
       // Feedback de Sucesso
       ScaffoldMessenger.of(context).showSnackBar(
@@ -89,8 +92,14 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                   text: TextSpan(
                     style: textTheme.titleLarge?.copyWith(fontSize: 32),
                     children: const [
-                      TextSpan(text: 'Precedent', style: TextStyle(color: AppColors.mainDarkColor)),
-                      TextSpan(text: 'IA', style: TextStyle(color: AppColors.accentColor)),
+                      TextSpan(
+                        text: 'Precedent',
+                        style: TextStyle(color: AppColors.mainDarkColor),
+                      ),
+                      TextSpan(
+                        text: 'IA',
+                        style: TextStyle(color: AppColors.accentColor),
+                      ),
                     ],
                   ),
                 ),
@@ -105,7 +114,9 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               const SizedBox(height: 16),
               Text(
                 'Introduza o código de 6 dígitos enviado para o seu e-mail.',
-                style: textTheme.bodyMedium?.copyWith(color: AppColors.altDarkColor),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppColors.altDarkColor,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
@@ -121,7 +132,9 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                       focusNode: _focusNodes[index],
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
-                      style: textTheme.titleMedium?.copyWith(color: AppColors.mainDarkColor),
+                      style: textTheme.titleMedium?.copyWith(
+                        color: AppColors.mainDarkColor,
+                      ),
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(1),
                         FilteringTextInputFormatter.digitsOnly,
@@ -135,7 +148,10 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: AppColors.mainDarkColor, width: 2),
+                          borderSide: const BorderSide(
+                            color: AppColors.mainDarkColor,
+                            width: 2,
+                          ),
                         ),
                       ),
                       onChanged: (value) => _onChanged(value, index),
@@ -153,9 +169,14 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.mainDarkColor,
                     foregroundColor: AppColors.mainWhiteColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: const Text('Verificar Código', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  child: const Text(
+                    'Verificar Código',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),

@@ -19,13 +19,13 @@ class LoginPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 20),
-              
+
               // Aqui está corrigido (sem o "]" no final)
               Image.asset('assets/images/logo.png', height: 48),
 
               // Dica: Se quiser usar o arquivo .png no futuro...
               const SizedBox(height: 48),
-              
+
               // Cabeçalho
               Text(
                 'Acesse sua conta',
@@ -69,7 +69,10 @@ class LoginPage extends StatelessWidget {
                   onPressed: () {
                     context.push('/esqueci-senha'); // <-- NAVEGAÇÃO ADICIONADA
                   },
-                  child: Text('Esqueci minha senha', style: textTheme.bodySmall),
+                  child: Text(
+                    'Esqueci minha senha',
+                    style: textTheme.bodySmall,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -113,10 +116,7 @@ class LoginPage extends StatelessWidget {
               // Botões Sociais
               OutlinedButton.icon(
                 onPressed: () {},
-                icon: const Icon(
-                  Icons.g_mobiledata,
-                  size: 32,
-                ), 
+                icon: const Icon(Icons.g_mobiledata, size: 32),
                 label: const Text('Continuar com Google'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -125,10 +125,7 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 16),
               OutlinedButton.icon(
                 onPressed: () {},
-                icon: const Icon(
-                  Icons.facebook,
-                  size: 28,
-                ), 
+                icon: const Icon(Icons.facebook, size: 28),
                 label: const Text('Continuar com Facebook'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -145,7 +142,7 @@ class LoginPage extends StatelessWidget {
                   TextButton(
                     // CORRIGIDO: Chama a navegação diretamente!
                     onPressed: () {
-                      context.push('/cadastro'); 
+                      context.push('/cadastro');
                     },
                     child: const Text(
                       'Cadastre-se',

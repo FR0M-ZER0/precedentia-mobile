@@ -18,17 +18,21 @@ class _TutorialPageState extends State<TutorialPage> {
     {
       "icon": Icons.balance_outlined,
       "title": "Bem-vindo ao PrecedentIA",
-      "description": "A inteligência artificial que revoluciona a forma como você encontra jurisprudências e precedentes jurídicos."
+      "description":
+          "A inteligência artificial que revoluciona a forma como você encontra jurisprudências e precedentes jurídicos.",
     },
     {
       "icon": Icons.upload_file_outlined,
       "title": "Envie sua Petição",
-      "description": "Faça o upload do seu documento em PDF ou digite os dados fundamentais para iniciar a análise."
+      "description":
+          "Faça o upload do seu documento em PDF ou digite os dados fundamentais para iniciar a análise.",
     },
     {
-      "icon": Icons.smart_toy_outlined, // Substituir pelo seu robô do Figma futuramente
+      "icon": Icons
+          .smart_toy_outlined, // Substituir pelo seu robô do Figma futuramente
       "title": "Análise Inteligente",
-      "description": "Nossa IA cruza seus dados com milhares de decisões dos tribunais e entrega os resultados mais prováveis em segundos."
+      "description":
+          "Nossa IA cruza seus dados com milhares de decisões dos tribunais e entrega os resultados mais prováveis em segundos.",
     },
   ];
 
@@ -109,7 +113,7 @@ class _TutorialPageState extends State<TutorialPage> {
                           ),
                         ),
                         const SizedBox(height: 48),
-                        
+
                         // Título
                         Text(
                           _tutorialData[index]["title"],
@@ -117,7 +121,7 @@ class _TutorialPageState extends State<TutorialPage> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Descrição
                         Text(
                           _tutorialData[index]["description"],
@@ -164,13 +168,18 @@ class _TutorialPageState extends State<TutorialPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.mainDarkColor,
                       foregroundColor: AppColors.mainWhiteColor,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: Text(
-                      _currentPage == _tutorialData.length - 1 ? "Começar" : "Próximo",
+                      _currentPage == _tutorialData.length - 1
+                          ? "Começar"
+                          : "Próximo",
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

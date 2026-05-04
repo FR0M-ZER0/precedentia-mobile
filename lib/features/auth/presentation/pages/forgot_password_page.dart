@@ -56,8 +56,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     text: TextSpan(
                       style: textTheme.titleLarge?.copyWith(fontSize: 32),
                       children: const [
-                        TextSpan(text: 'Precedent', style: TextStyle(color: AppColors.mainDarkColor)),
-                        TextSpan(text: 'IA', style: TextStyle(color: AppColors.accentColor)),
+                        TextSpan(
+                          text: 'Precedent',
+                          style: TextStyle(color: AppColors.mainDarkColor),
+                        ),
+                        TextSpan(
+                          text: 'IA',
+                          style: TextStyle(color: AppColors.accentColor),
+                        ),
                       ],
                     ),
                   ),
@@ -72,7 +78,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 const SizedBox(height: 16),
                 Text(
                   'Digite o e-mail cadastrado e enviaremos as instruções para você criar uma nova senha.',
-                  style: textTheme.bodyMedium?.copyWith(color: AppColors.altDarkColor),
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.altDarkColor,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
@@ -83,13 +91,26 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'E-mail',
-                    labelStyle: textTheme.bodyMedium?.copyWith(color: AppColors.mainDarkColor),
+                    labelStyle: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.mainDarkColor,
+                    ),
                     filled: true,
                     fillColor: AppColors.altLightColor,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.mainDarkColor, width: 1.5)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: AppColors.mainDarkColor,
+                        width: 1.5,
+                      ),
+                    ),
                   ),
-                  validator: (value) => value == null || !value.contains('@') ? 'Insira um e-mail válido' : null,
+                  validator: (value) => value == null || !value.contains('@')
+                      ? 'Insira um e-mail válido'
+                      : null,
                 ),
                 const SizedBox(height: 32),
 
@@ -101,9 +122,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.mainDarkColor,
                       foregroundColor: AppColors.mainWhiteColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                    child: const Text('Enviar Instruções', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    child: const Text(
+                      'Enviar Instruções',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
               ],
