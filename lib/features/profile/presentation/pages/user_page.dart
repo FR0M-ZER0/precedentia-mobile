@@ -1,9 +1,11 @@
-// lib/features/profile/presentation/pages/user_page.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
+import '../../../petitions/data/models/petition_model.dart';
 import '../widgets/history_card.dart';
 
 class UserPage extends StatefulWidget {
@@ -14,33 +16,44 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  DateTime selectedDate = DateTime(2035, 4, 13);
+  DateTime? selectedDate;
 
-  // Função para abrir o DatePicker do Flutter
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDate: selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.mainDarkColor, // Cor do cabeçalho do picker
+              primary: AppColors.mainDarkColor,
               onPrimary: Colors.white,
-              onSurface: AppColors.mainDarkColor, // Cor dos dias
+              onSurface: AppColors.mainDarkColor,
             ),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
+    if (picked != null) {
+      setState(() => selectedDate = picked);
     }
+  }
+
+  Future<void> _openPdf(String path) async {
+    await OpenFilex.open(path);
+  }
+
+  List<PetitionModel> _filteredPetitions(List<PetitionModel> all) {
+    if (selectedDate == null) return all;
+    return all.where((p) {
+      final d = p.sentAt;
+      return d.year == selectedDate!.year &&
+          d.month == selectedDate!.month &&
+          d.day == selectedDate!.day;
+    }).toList();
   }
 
   @override
@@ -49,7 +62,7 @@ class _UserPageState extends State<UserPage> {
 
     return BasePageTemplate(
       title: "",
-      onBackPress: () => context.pop(),
+      onBackPress: () => context.go('/'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,8 +124,6 @@ class _UserPageState extends State<UserPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
-                // Campo de Data clicável
                 InkWell(
                   onTap: () => _selectDate(context),
                   child: Container(
@@ -127,7 +138,9 @@ class _UserPageState extends State<UserPage> {
                     child: Row(
                       children: [
                         Text(
-                          DateFormat('dd/MM/yyyy').format(selectedDate),
+                          selectedDate != null
+                              ? DateFormat('dd/MM/yyyy').format(selectedDate!)
+                              : 'Filtrar data',
                           style: textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -138,6 +151,17 @@ class _UserPageState extends State<UserPage> {
                           size: 14,
                           color: AppColors.altDarkColor,
                         ),
+                        if (selectedDate != null) ...[
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () => setState(() => selectedDate = null),
+                            child: const Icon(
+                              Icons.close,
+                              size: 14,
+                              color: AppColors.altDarkColor,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -146,11 +170,47 @@ class _UserPageState extends State<UserPage> {
             ),
             const SizedBox(height: 16),
 
-            // Lista de Cards
-            const HistoryCard(title: "Assunto XYZ", fileName: "file.pdf"),
-            const HistoryCard(title: "Assunto XYZ", fileName: "file.pdf"),
-            const HistoryCard(title: "Assunto XYZ", fileName: "file.pdf"),
-            const HistoryCard(title: "Assunto XYZ", fileName: "file.pdf"),
+            // Lista de Petições do Hive
+            ValueListenableBuilder(
+              valueListenable: Hive.box<PetitionModel>(
+                'petitions',
+              ).listenable(),
+              builder: (context, Box<PetitionModel> box, _) {
+                final all = box.values.toList()
+                  ..sort((a, b) => b.sentAt.compareTo(a.sentAt));
+                final petitions = _filteredPetitions(all);
+
+                if (petitions.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Text(
+                        'Nenhuma petição encontrada.',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade500,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: petitions
+                      .map(
+                        (petition) => HistoryCard(
+                          title: petition.name,
+                          fileName: DateFormat(
+                            'dd/MM/yyyy HH:mm',
+                          ).format(petition.sentAt),
+                          onTap: () => _openPdf(petition.filePath),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+            ),
+
             const SizedBox(height: 30),
           ],
         ),
