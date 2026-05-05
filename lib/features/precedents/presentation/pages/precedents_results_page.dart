@@ -58,14 +58,14 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       if (_dateSort == _DateSort.newest) {
         _filteredResults.sort(
           (a, b) => _parseDate(
-            b['last_update'] as String,
-          ).compareTo(_parseDate(a['last_update'] as String)),
+            (b['last_update'] as String?) ?? '',
+          ).compareTo(_parseDate((a['last_update'] as String?) ?? '')),
         );
       } else if (_dateSort == _DateSort.oldest) {
         _filteredResults.sort(
           (a, b) => _parseDate(
-            a['last_update'] as String,
-          ).compareTo(_parseDate(b['last_update'] as String)),
+            (a['last_update'] as String?) ?? '',
+          ).compareTo(_parseDate((b['last_update'] as String?) ?? '')),
         );
       }
     });
@@ -82,7 +82,12 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   }
 
   List<String> _uniqueValues(String key) {
-    return _allResults.map((e) => e[key] as String).toSet().toList()..sort();
+    return _allResults
+        .map((e) => e[key] as String?)
+        .whereType<String>()
+        .toSet()
+        .toList()
+      ..sort();
   }
 
   bool get _hasActiveFilters =>
@@ -140,7 +145,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                   const SizedBox(height: 12),
 
                   _FilterDropdown(
-                    label: 'Espécie',
+                    label: 'Tipo de precedente',
                     value: tempSpecies,
                     options: _uniqueValues('species'),
                     onChanged: (v) => setSheetState(() => tempSpecies = v),
@@ -323,18 +328,30 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
     return nomes[sigla] ?? sigla;
   }
 
-  String _getProbabilidade(double score) {
-    if (score >= 0.85) return 'Muito provável';
-    if (score >= 0.60) return 'Provável';
-    if (score >= 0.40) return 'Pouco provável';
-    return 'Muito pouco provável';
+  String _getProbabilidade(String applicability) {
+    switch (applicability) {
+      case 'applicable':
+        return 'Aplicável';
+      case 'possible_applicability':
+        return 'Possivelmente aplicável';
+      case 'low_applicability':
+        return 'Pouco aplicável';
+      default:
+        return 'Não aplicável';
+    }
   }
 
-  Color _getProbabilidadeColor(double score) {
-    if (score >= 0.85) return AppColors.accentColor;
-    if (score >= 0.60) return Colors.green.shade600;
-    if (score >= 0.40) return AppColors.detailsColor;
-    return Colors.red.shade700;
+  Color _getProbabilidadeColor(String applicability) {
+    switch (applicability) {
+      case 'applicable':
+        return AppColors.accentColor;
+      case 'possible_applicability':
+        return Colors.green.shade600;
+      case 'low_applicability':
+        return AppColors.detailsColor;
+      default:
+        return Colors.red.shade700;
+    }
   }
 
   @override
@@ -398,12 +415,16 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
               separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final item = _filteredResults[index];
-                final double score = (item['score'] as num).toDouble();
+                final String applicability =
+                    (item['applicability'] as String?) ?? '';
 
                 return GestureDetector(
                   onTap: () => context.push(
                     '/precedents/details/${item['id']}',
-                    extra: item,
+                    extra: {
+                      ...item,
+                      'query_facts': widget.data['query']?['facts'] ?? '',
+                    },
                   ),
                   child: PrecedentResultCard(
                     tribunal: _nomeTribunal(item['tribunal'] as String),
@@ -412,9 +433,9 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     descricao: item['description'] as String,
                     situacao: item['situation'] as String,
                     species: item['species'] as String,
-                    lastUpdate: item['last_update'] as String,
-                    probabilidade: _getProbabilidade(score),
-                    probabilidadeColor: _getProbabilidadeColor(score),
+                    lastUpdate: (item['last_update'] as String?) ?? '',
+                    probabilidade: _getProbabilidade(applicability),
+                    probabilidadeColor: _getProbabilidadeColor(applicability),
                   ),
                 );
               },
@@ -637,12 +658,13 @@ class PrecedentResultCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          lastUpdate,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: AppColors.altDarkColor,
+                        if (lastUpdate.isNotEmpty)
+                          Text(
+                            lastUpdate,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.altDarkColor,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),

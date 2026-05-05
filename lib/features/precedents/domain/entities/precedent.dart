@@ -13,6 +13,7 @@ class Precedent {
   final DateTime creationDate;
   final String subject;
   final String summary;
+  final String question;
   final String description;
   final String species;
   final String situation;
@@ -29,6 +30,7 @@ class Precedent {
     required this.creationDate,
     required this.subject,
     required this.summary,
+    required this.question,
     required this.description,
     required this.species,
     required this.situation,

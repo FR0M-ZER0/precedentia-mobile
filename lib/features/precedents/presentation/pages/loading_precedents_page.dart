@@ -115,36 +115,36 @@ class _LoadingPrecedentsPageState extends State<LoadingPrecedentsPage> {
               ),
               const SizedBox(height: 16),
 
-              Container(
-                height: 16,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.altLightColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        width: constraints.maxWidth * _progress,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          gradient: const LinearGradient(
-                            colors: [
-                              AppColors.detailsColor,
-                              AppColors.mainDarkColor,
-                            ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              // Container(
+              //   height: 16,
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(
+              //     color: AppColors.altLightColor,
+              //     borderRadius: BorderRadius.circular(10),
+              //   ),
+              //   child: LayoutBuilder(
+              //     builder: (context, constraints) {
+              //       return Align(
+              //         alignment: Alignment.centerLeft,
+              //         child: AnimatedContainer(
+              //           duration: const Duration(milliseconds: 150),
+              //           width: constraints.maxWidth * _progress,
+              //           decoration: BoxDecoration(
+              //             borderRadius: BorderRadius.circular(10),
+              //             gradient: const LinearGradient(
+              //               colors: [
+              //                 AppColors.detailsColor,
+              //                 AppColors.mainDarkColor,
+              //               ],
+              //               begin: Alignment.centerLeft,
+              //               end: Alignment.centerRight,
+              //             ),
+              //           ),
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),
             ],
           ),
         ),
