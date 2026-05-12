@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class DioClient {
   DioClient._();
   static final String precedentiaApiUrl =
-    dotenv.env['PRECEDENTIA_API_URL'] ?? '';
+      dotenv.env['PRECEDENTIA_API_URL'] ?? '';
 
   static final Dio instance = Dio(
     BaseOptions(
