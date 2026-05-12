@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // IMPORT DO GOOGLE
+import 'package:precedentia_mobile/core/router/app_router.dart'; // IMPORT PARA O LOGOUT
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import '../../../petitions/data/models/petition_model.dart';
@@ -17,6 +19,31 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   DateTime? selectedDate;
+  
+  // Instância do Google e variável para guardar o usuário
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  GoogleSignInAccount? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGoogleUser();
+  }
+
+  // Função que carrega os dados do Google
+  Future<void> _loadGoogleUser() async {
+    // Tenta pegar o usuário atual. Se o app foi reiniciado, tenta logar silenciosamente
+    var user = _googleSignIn.currentUser ?? await _googleSignIn.signInSilently();
+    setState(() {
+      _currentUser = user;
+    });
+  }
+
+  // Função para deslogar
+  Future<void> _handleLogout() async {
+    await _googleSignIn.signOut();
+    AppRouter.authNotifier.value = false; // Isso faz o GoRouter redirecionar pro Login
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -67,25 +94,41 @@ class _UserPageState extends State<UserPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Perfil
+            // Perfil Dinâmico do Google
             Center(
               child: Column(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 55,
                     backgroundColor: AppColors.altLightColor,
-                    child: Icon(
-                      Icons.person_outline,
-                      size: 55,
-                      color: AppColors.mainDarkColor,
-                    ),
+                    // Se o usuário tiver foto no Google, mostramos. Se não, icone padrão.
+                    backgroundImage: _currentUser?.photoUrl != null
+                        ? NetworkImage(_currentUser!.photoUrl!)
+                        : null,
+                    child: _currentUser?.photoUrl == null
+                        ? const Icon(
+                            Icons.person_outline,
+                            size: 55,
+                            color: AppColors.mainDarkColor,
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 16),
-                  Text("Fulano da Silva", style: textTheme.titleMedium),
+                  
+                  // Nome do Google
+                  Text(
+                    _currentUser?.displayName ?? "Carregando...", 
+                    style: textTheme.titleMedium
+                  ),
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("fulano@email.com", style: textTheme.titleSmall),
+                      // E-mail do Google
+                      Text(
+                        _currentUser?.email ?? "", 
+                        style: textTheme.titleSmall
+                      ),
                       const SizedBox(width: 8),
                       const Icon(
                         Icons.edit_outlined,
@@ -108,9 +151,10 @@ class _UserPageState extends State<UserPage> {
               ),
             ),
             const SizedBox(height: 12),
-            _buildPrefItem("Tema do aplicativo"),
-            _buildPrefItem("Alterar senha"),
-            _buildPrefItem("Sair", isError: true),
+            _buildPrefItem("Tema do aplicativo", onTap: () {}),
+            _buildPrefItem("Alterar senha", onTap: () {}),
+            // Passamos a função de logout para o botão Sair
+            _buildPrefItem("Sair", isError: true, onTap: _handleLogout),
 
             const SizedBox(height: 40),
 
@@ -218,13 +262,19 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
-  Widget _buildPrefItem(String label, {bool isError = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: isError ? AppColors.error : AppColors.mainDarkColor,
+  // Atualizei esse widget para aceitar ações de clique (onTap)
+  Widget _buildPrefItem(String label, {bool isError = false, VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: isError ? AppColors.error : AppColors.mainDarkColor,
+            fontWeight: isError ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
     );
