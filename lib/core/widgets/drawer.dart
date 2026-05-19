@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:precedentia_mobile/core/auth/auth_session.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -87,9 +88,12 @@ class CustomDrawer extends StatelessWidget {
         title,
         style: textTheme.titleSmall?.copyWith(color: textColor),
       ),
-      onTap: () {
-        context.pop(); // Fecha o drawer (GoRouter way)
-        context.go(route); // Navega para a rota usando GoRouter
+      onTap: () async {
+        context.pop();
+        if (isDestructive) {
+          await AuthSession.instance.signOut();
+        }
+        context.go(route);
       },
     );
   }

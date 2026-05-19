@@ -17,21 +17,18 @@ import 'package:precedentia_mobile/features/auth/presentation/pages/registration
 import 'package:precedentia_mobile/features/auth/presentation/pages/two_factor_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:precedentia_mobile/core/auth/auth_session.dart';
 
 class AppRouter {
-  // Estado global para simular a autenticação (false = deslogado, true = logado)
-  static final authNotifier = ValueNotifier<bool>(false);
+  static ValueNotifier<bool> get authNotifier =>
+      AuthSession.instance.authNotifier;
 
   static final router = GoRouter(
-    initialLocation:
-        '/splash', // O app agora sempre inicia na Splash para checar os dados
-    refreshListenable:
-        authNotifier, // O roteador "escuta" quando o usuário loga/desloga
-    // Lógica de proteção de rotas (Middleware)
+    initialLocation: '/splash',
+    refreshListenable: authNotifier,
     redirect: (context, state) {
       final isLoggedIn = authNotifier.value;
 
-      // Definimos quais rotas o usuário pode acessar sem estar logado
       final isGoingToAuth =
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/cadastro' ||
@@ -41,17 +38,14 @@ class AppRouter {
           state.matchedLocation == '/esqueci-senha' ||
           state.matchedLocation == '/redefinir-senha';
 
-      // 1. Se NÃO estiver logado e tentar acessar rota protegida (ex: Home) -> vai pro Login
       if (!isLoggedIn && !isGoingToAuth) {
         return '/login';
       }
 
-      // 2. Se JÁ estiver logado e tentar acessar Login/Cadastro/Splash -> vai direto pra Home
       if (isLoggedIn && isGoingToAuth) {
         return '/';
       }
 
-      // 3. Se estiver tudo certo, permite seguir o fluxo normal
       return null;
     },
 
@@ -90,7 +84,10 @@ class AppRouter {
       GoRoute(
         path: '/2fa',
         name: 'two_factor',
-        builder: (context, state) => const TwoFactorPage(),
+        builder: (context, state) {
+          final email = state.extra as String? ?? '';
+          return TwoFactorPage(email: email);
+        },
       ),
 
       GoRoute(

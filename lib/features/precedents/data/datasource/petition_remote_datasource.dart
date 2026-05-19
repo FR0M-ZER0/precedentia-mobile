@@ -21,7 +21,14 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
       'file': MultipartFile.fromBytes(file.bytes!, filename: file.name),
     });
 
-    final response = await _dio.post('/documents/extract', data: formData);
+    final response = await _dio.post(
+      '/documents/extract',
+      data: formData,
+      options: Options(
+        contentType: 'multipart/form-data',
+        responseType: ResponseType.json,
+      ),
+    );
     return response.data as Map<String, dynamic>;
   }
 }

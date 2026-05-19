@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:precedentia_mobile/core/auth/auth_session.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import '../../../petitions/data/models/petition_model.dart';
@@ -110,7 +111,16 @@ class _UserPageState extends State<UserPage> {
             const SizedBox(height: 12),
             _buildPrefItem("Tema do aplicativo"),
             _buildPrefItem("Alterar senha"),
-            _buildPrefItem("Sair", isError: true),
+            _buildPrefItem(
+              'Sair',
+              isError: true,
+              onTap: () async {
+                await AuthSession.instance.signOut();
+                if (context.mounted) {
+                  context.go('/login');
+                }
+              },
+            ),
 
             const SizedBox(height: 40),
 
@@ -218,13 +228,20 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
-  Widget _buildPrefItem(String label, {bool isError = false}) {
+  Widget _buildPrefItem(
+    String label, {
+    bool isError = false,
+    VoidCallback? onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: isError ? AppColors.error : AppColors.mainDarkColor,
+      child: InkWell(
+        onTap: onTap,
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: isError ? AppColors.error : AppColors.mainDarkColor,
+          ),
         ),
       ),
     );

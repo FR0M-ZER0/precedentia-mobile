@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../../core/auth/auth_session.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/router/app_router.dart';
+import '../../data/auth_remote_datasource.dart';
 
 class TwoFactorPage extends StatefulWidget {
-  const TwoFactorPage({super.key});
+  const TwoFactorPage({super.key, required this.email});
+
+  final String email;
 
   @override
   State<TwoFactorPage> createState() => _TwoFactorPageState();
 }
 
 class _TwoFactorPageState extends State<TwoFactorPage> {
+  final _authRemoteDataSource = AuthRemoteDataSource();
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
   );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -39,30 +45,60 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
     }
   }
 
-  void _verifyCode() {
-    String code = _controllers.map((c) => c.text).join();
+  Future<void> _verifyCode() async {
+    final code = _controllers.map((controller) => controller.text).join();
 
-    if (code.length == 6) {
-      // Feedback de Sucesso
+    if (widget.email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Código verificado com sucesso!'),
-          backgroundColor: AppColors.accentColor,
+          content: Text('Volte ao login para solicitar um novo código.'),
+          backgroundColor: AppColors.detailsColor,
         ),
       );
+      return;
+    }
 
-      // Simula a conclusão da autenticação
-      Future.delayed(const Duration(seconds: 1), () {
-        AppRouter.authNotifier.value = true; // Redireciona para a Home
-      });
-    } else {
-      // Feedback de Erro
+    if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, insira o código completo de 6 dígitos.'),
           backgroundColor: AppColors.detailsColor,
         ),
       );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final accessToken = await _authRemoteDataSource.verifyTwoFactor(
+        email: widget.email,
+        code: code,
+      );
+
+      await AuthSession.instance.setToken(accessToken);
+
+      if (!mounted) {
+        return;
+      }
+
+      context.go('/');
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      final message = error.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppColors.detailsColor,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -119,6 +155,17 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              if (widget.email.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  widget.email,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: AppColors.altDarkColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
               const SizedBox(height: 40),
 
               // CAMPOS DO CÓDIGO (6 DÍGITOS)
@@ -165,7 +212,7 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               SizedBox(
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _verifyCode,
+                  onPressed: _isLoading ? null : _verifyCode,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.mainDarkColor,
                     foregroundColor: AppColors.mainWhiteColor,
@@ -173,10 +220,19 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'Verificar Código',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Verificar Código',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -184,12 +240,10 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               // REENVIAR CÓDIGO
               TextButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Novo código enviado!')),
-                  );
+                  context.go('/login');
                 },
                 child: Text(
-                  'Não recebeu o código? Reenviar',
+                  'Não recebeu o código? Voltar ao login',
                   style: textTheme.bodySmall?.copyWith(
                     color: AppColors.mainDarkColor,
                     fontWeight: FontWeight.bold,
