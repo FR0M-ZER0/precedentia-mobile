@@ -4,5 +4,6 @@ abstract class PetitionTextRepository {
     required String facts,
     required String tribunal,
     required List<String> requests,
+    required int userId,
   });
 }
