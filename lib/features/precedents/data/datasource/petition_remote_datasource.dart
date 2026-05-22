@@ -10,7 +10,10 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
   final Dio _dio = DioClient.instance;
 
   @override
-  Future<Map<String, dynamic>> extractPetition(PlatformFile file, int userId) async {
+  Future<Map<String, dynamic>> extractPetition(
+    PlatformFile file,
+    int userId,
+  ) async {
     if (file.bytes == null) {
       throw Exception(
         'Os bytes do arquivo estão nulos. Verifique o FilePicker.',

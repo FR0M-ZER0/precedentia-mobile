@@ -56,7 +56,10 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
       setState(() => _isUploading = true);
 
       // TODO: Substituir o userId fixo por um valor dinâmico, possivelmente obtido do estado de autenticação do usuário.
-      final Future<Map<String, dynamic>> future = _extractPetitionUseCase(file, 4);
+      final Future<Map<String, dynamic>> future = _extractPetitionUseCase(
+        file,
+        4,
+      );
 
       final appDir = await getApplicationDocumentsDirectory();
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
