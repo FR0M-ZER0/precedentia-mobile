@@ -10,6 +10,7 @@ import 'package:precedentia_mobile/features/search/presentation/pages/search_pag
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_datails_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/history_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/petition_initial_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/splash_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/tutorial_page.dart';
@@ -153,6 +154,11 @@ class AppRouter {
         path: '/enviar-peticao-texto',
         name: 'send_petition_text',
         builder: (context, state) => const SendPetitionTextPage(),
+      ),
+      GoRoute(
+        path: '/peticao-inicial',
+        name: 'petition_initial',
+        builder: (context, state) => const PetitionInitialPage(),
       ),
       GoRoute(
         path: '/profile',
