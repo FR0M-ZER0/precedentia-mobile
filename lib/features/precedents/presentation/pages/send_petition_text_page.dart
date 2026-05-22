@@ -142,7 +142,8 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       facts: _resumoController.text,
       tribunal: _selectedTribunal!,
       requests: _pedidos,
-      userId: 1,
+      // TODO: Substituir por ID real do usuário autenticado
+      userId: 4,
     );
 
     if (!mounted) return;

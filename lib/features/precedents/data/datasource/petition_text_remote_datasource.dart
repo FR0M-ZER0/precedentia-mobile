@@ -26,11 +26,11 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
     final response = await _dio.post(
       '/analysis/send-petition',
       data: {
+        'user_id': userId,
         'type': type,
         'facts': facts,
         'tribunal': tribunal,
         'requests': requests,
-        
       },
       options: Options(
         contentType: 'application/json',
