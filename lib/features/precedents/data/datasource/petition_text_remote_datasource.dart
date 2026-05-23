@@ -8,6 +8,7 @@ abstract class PetitionRemoteDatasource {
     required String facts,
     required String tribunal,
     required List<String> requests,
+    required int userId,
   });
 }
 
@@ -20,10 +21,12 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
     required String facts,
     required String tribunal,
     required List<String> requests,
+    required int userId,
   }) async {
     final response = await _dio.post(
       '/analysis/send-petition',
       data: {
+        'user_id': userId,
         'type': type,
         'facts': facts,
         'tribunal': tribunal,

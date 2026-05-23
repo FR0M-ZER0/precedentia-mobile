@@ -10,10 +10,12 @@ class SendPetitionTextUseCase {
     required String facts,
     required String tribunal,
     required List<String> requests,
+    required int userId,
   }) => repository.sendPetitionText(
     type: type,
     facts: facts,
     tribunal: tribunal,
     requests: requests,
+    userId: userId,
   );
 }
