@@ -47,6 +47,12 @@ class CustomDrawer extends StatelessWidget {
             "Precedentes",
             "/precedents",
           ),
+          _buildMenuItem(
+            context,
+            Icons.edit,
+            "Editar Petição",
+            "/peticao-inicial-editar",
+          ),
           _buildMenuItem(context, Icons.person_outline, "Perfil", "/profile"),
 
           const Spacer(),
