@@ -11,10 +11,12 @@ class PetitionRepositoryImpl implements PetitionTextRepository {
     required String facts,
     required String tribunal,
     required List<String> requests,
+    required int userId,
   }) => datasource.sendPetitionText(
     type: type,
     facts: facts,
     tribunal: tribunal,
     requests: requests,
+    userId: userId,
   );
 }

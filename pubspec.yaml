@@ -47,6 +47,11 @@ dependencies:
   file_picker: ^10.3.10
   intl: ^0.20.2
   url_launcher: ^6.3.2
+  http: ^1.6.0
+  path_provider: ^2.1.5
+  open_filex: ^4.7.0
+  flutter_dotenv: ^6.0.1
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +85,8 @@ flutter:
     - assets/images/plane.png
     - assets/images/green_robot.gif
     - assets/images/robo.png
+    - assets/images/logo.png
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

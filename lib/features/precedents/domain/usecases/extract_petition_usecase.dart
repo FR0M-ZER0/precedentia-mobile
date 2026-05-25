@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import '../repositories/petition_repository.dart';
 
 class ExtractPetitionUseCase {
@@ -5,7 +6,7 @@ class ExtractPetitionUseCase {
 
   ExtractPetitionUseCase(this.repository);
 
-  Future<Map<String, dynamic>> call(String filePath) {
-    return repository.extractPetition(filePath);
+  Future<Map<String, dynamic>> call(PlatformFile file, int userId) async {
+    return await repository.extractPetition(file, userId);
   }
 }
