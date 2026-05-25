@@ -10,6 +10,7 @@ import 'package:precedentia_mobile/features/profile/presentation/pages/user_page
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_datails_page.dart';
+import 'package:precedentia_mobile/features/home/presentation/pages/not_found_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/history_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/petition_initial_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/splash_page.dart';
@@ -166,6 +167,11 @@ class AppRouter {
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const UserPage(),
+      ),
+      GoRoute(
+        path: '/not-found',
+        name: 'not_found',
+        builder: (context, state) => const NotFoundPage(),
       ),
     ],
   );

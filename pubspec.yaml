@@ -84,6 +84,7 @@ flutter:
   assets:
     - assets/images/plane.png
     - assets/images/green_robot.gif
+    - assets/images/robo.png
     - assets/images/logo.png
     - .env
 
