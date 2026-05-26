@@ -1,20 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
 class PrecedentsResultsPage extends StatefulWidget {
-  final Map<String, dynamic> data;
-
-  const PrecedentsResultsPage({super.key, required this.data});
+  final Stream<Map<String, dynamic>> stream;
+  const PrecedentsResultsPage({super.key, required this.stream});
 
   @override
   State<PrecedentsResultsPage> createState() => _PrecedentsResultsPageState();
 }
 
 class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
-  late List<Map<String, dynamic>> _allResults;
-  late List<Map<String, dynamic>> _filteredResults;
+  final List<Map<String, dynamic>> _allResults = [];
+  List<Map<String, dynamic>> _filteredResults = [];
+  bool _isDone = false;
+  String? _queryFacts;
+  StreamSubscription? _subscription;
 
   String? _situacaoFilter;
   String? _speciesFilter;
@@ -24,10 +28,46 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   @override
   void initState() {
     super.initState();
-    _allResults = List<Map<String, dynamic>>.from(
-      (widget.data['results'] as List<dynamic>?) ?? [],
+    _filteredResults = _allResults;
+    _listenToStream();
+  }
+
+  void _listenToStream() {
+    _subscription = widget.stream.listen(
+      (event) {
+        final eventName = event['event'] as String?;
+
+        if (eventName == 'precedent') {
+          setState(() {
+            _allResults.add(event);
+            _applyFilters();
+          });
+        } else if (eventName == 'search_complete' || eventName == 'rerank_complete') {
+          // eventos informativos — pode usar para UI futura se quiser
+        } else if (eventName == 'done') {
+          setState(() => _isDone = true);
+        } else if (eventName == 'error') {
+          setState(() => _isDone = true);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(event['message'] ?? 'Erro desconhecido')),
+            );
+          }
+        }
+      },
+      onError: (_) {
+        if (mounted) setState(() => _isDone = true);
+      },
+      onDone: () {
+        if (mounted) setState(() => _isDone = true);
+      },
     );
-    _filteredResults = List.from(_allResults);
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   DateTime _parseDate(String date) {
@@ -44,31 +84,29 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   }
 
   void _applyFilters() {
-    setState(() {
-      _filteredResults = _allResults.where((item) {
-        final situacaoOk =
-            _situacaoFilter == null || item['situation'] == _situacaoFilter;
-        final speciesOk =
-            _speciesFilter == null || item['species'] == _speciesFilter;
-        final tribunalOk =
-            _tribunalFilter == null || item['tribunal'] == _tribunalFilter;
-        return situacaoOk && speciesOk && tribunalOk;
-      }).toList();
+    _filteredResults = _allResults.where((item) {
+      final situacaoOk =
+          _situacaoFilter == null || item['situation'] == _situacaoFilter;
+      final speciesOk =
+          _speciesFilter == null || item['species'] == _speciesFilter;
+      final tribunalOk =
+          _tribunalFilter == null || item['tribunal'] == _tribunalFilter;
+      return situacaoOk && speciesOk && tribunalOk;
+    }).toList();
 
-      if (_dateSort == _DateSort.newest) {
-        _filteredResults.sort(
-          (a, b) => _parseDate(
-            (b['last_update'] as String?) ?? '',
-          ).compareTo(_parseDate((a['last_update'] as String?) ?? '')),
-        );
-      } else if (_dateSort == _DateSort.oldest) {
-        _filteredResults.sort(
-          (a, b) => _parseDate(
-            (a['last_update'] as String?) ?? '',
-          ).compareTo(_parseDate((b['last_update'] as String?) ?? '')),
-        );
-      }
-    });
+    if (_dateSort == _DateSort.newest) {
+      _filteredResults.sort(
+        (a, b) => _parseDate(
+          (b['last_update'] as String?) ?? '',
+        ).compareTo(_parseDate((a['last_update'] as String?) ?? '')),
+      );
+    } else if (_dateSort == _DateSort.oldest) {
+      _filteredResults.sort(
+        (a, b) => _parseDate(
+          (a['last_update'] as String?) ?? '',
+        ).compareTo(_parseDate((b['last_update'] as String?) ?? '')),
+      );
+    }
   }
 
   void _clearFilters() {
@@ -77,7 +115,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _speciesFilter = null;
       _tribunalFilter = null;
       _dateSort = _DateSort.none;
-      _filteredResults = List.from(_allResults);
+      _applyFilters();
     });
   }
 
@@ -135,7 +173,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
                   _FilterDropdown(
                     label: 'Situação',
                     value: tempSituacao,
@@ -143,7 +180,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     onChanged: (v) => setSheetState(() => tempSituacao = v),
                   ),
                   const SizedBox(height: 12),
-
                   _FilterDropdown(
                     label: 'Tipo de precedente',
                     value: tempSpecies,
@@ -151,7 +187,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     onChanged: (v) => setSheetState(() => tempSpecies = v),
                   ),
                   const SizedBox(height: 12),
-
                   _FilterDropdown(
                     label: 'Tribunal',
                     value: tempTribunal,
@@ -159,7 +194,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     onChanged: (v) => setSheetState(() => tempTribunal = v),
                   ),
                   const SizedBox(height: 20),
-
                   Text(
                     'Ordenar por data',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -197,7 +231,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     ],
                   ),
                   const SizedBox(height: 24),
-
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -208,8 +241,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                           _speciesFilter = tempSpecies;
                           _tribunalFilter = tempTribunal;
                           _dateSort = tempDateSort;
+                          _applyFilters();
                         });
-                        _applyFilters();
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -320,7 +353,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       'TRESC': 'Tribunal Regional Eleitoral de Santa Catarina',
       'TRESP': 'Tribunal Regional Eleitoral de São Paulo',
       'TRESE': 'Tribunal Regional Eleitoral de Sergipe',
-      'TRETO': 'Tribunal Regional Eleitoral do Tocantins',
+      'TRETO': 'Tribunal Regional Eleitoral de Tocantins',
       'TJMMG': 'Tribunal de Justiça Militar de Minas Gerais',
       'TJMRS': 'Tribunal de Justiça Militar do Rio Grande do Sul',
       'TJMSP': 'Tribunal de Justiça Militar de São Paulo',
@@ -356,8 +389,31 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_allResults.isEmpty) {
-      return const Center(child: Text('Nenhum precedente encontrado.'));
+    // Enquanto o stream não chegou nenhum resultado ainda
+    if (_allResults.isEmpty && !_isDone) {
+      return BasePageTemplate(
+        title: 'Precedentes jurídicos',
+        onBackPress: () => context.pop(),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Buscando precedentes...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Stream terminou sem nenhum resultado
+    if (_allResults.isEmpty && _isDone) {
+      return BasePageTemplate(
+        title: 'Precedentes jurídicos',
+        onBackPress: () => context.pop(),
+        body: const Center(child: Text('Nenhum precedente encontrado.')),
+      );
     }
 
     return BasePageTemplate(
@@ -394,12 +450,11 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               '${_filteredResults.length} de ${_allResults.length} precedentes',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey.shade600,
+              ),
             ),
           ),
-
           if (_filteredResults.isEmpty)
             const Center(
               child: Padding(
@@ -411,9 +466,24 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _filteredResults.length,
+              // +1 para o item de loading enquanto stream não terminou
+              itemCount: _filteredResults.length + (_isDone ? 0 : 1),
               separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
+                // Último item é o gif de loading
+                if (index == _filteredResults.length) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Image.asset(
+                        'assets/images/green_robot.gif',
+                        width: 80,
+                        height: 80,
+                      ),
+                    ),
+                  );
+                }
+
                 final item = _filteredResults[index];
                 final String applicability =
                     (item['applicability'] as String?) ?? '';
@@ -423,16 +493,18 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     '/precedents/details/${item['id']}',
                     extra: {
                       ...item,
-                      'query_facts': widget.data['query']?['facts'] ?? '',
+                      'query_facts': _queryFacts ?? '',
                     },
                   ),
                   child: PrecedentResultCard(
-                    tribunal: _nomeTribunal(item['tribunal'] as String),
-                    siglaTribunal: item['tribunal'] as String,
-                    codigoPrecedente: item['name'] as String,
-                    descricao: item['description'] as String,
-                    situacao: item['situation'] as String,
-                    species: item['species'] as String,
+                    tribunal: _nomeTribunal(
+                      (item['tribunal'] as String?) ?? '',
+                    ),
+                    siglaTribunal: (item['tribunal'] as String?) ?? '',
+                    codigoPrecedente: (item['name'] as String?) ?? '',
+                    descricao: (item['description'] as String?) ?? '',
+                    situacao: (item['situation'] as String?) ?? '',
+                    species: (item['species'] as String?) ?? '',
                     lastUpdate: (item['last_update'] as String?) ?? '',
                     probabilidade: _getProbabilidade(applicability),
                     probabilidadeColor: _getProbabilidadeColor(applicability),
@@ -448,6 +520,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
 enum _DateSort { none, newest, oldest }
 
+// _FilterDropdown, _DateSortChip e PrecedentResultCard permanecem idênticos
 class _FilterDropdown extends StatelessWidget {
   final String label;
   final String? value;
@@ -618,7 +691,6 @@ class PrecedentResultCard extends StatelessWidget {
                   ],
                 ),
               ),
-
             IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

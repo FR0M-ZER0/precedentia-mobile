@@ -143,9 +143,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/resultados-precedentes',
-        name: 'precedents_results',
-        builder: (context, state) =>
-            PrecedentsResultsPage(data: state.extra as Map<String, dynamic>),
+        builder: (context, state) {
+          final stream = state.extra as Stream<Map<String, dynamic>>;
+          return PrecedentsResultsPage(stream: stream);
+        },
       ),
       GoRoute(
         path: '/history',
