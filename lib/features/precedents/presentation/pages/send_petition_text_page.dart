@@ -137,7 +137,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       return;
     }
 
-    final future = _sendPetitionTextUseCase(
+    final stream = _sendPetitionTextUseCase(
       type: _tipoAcao,
       facts: _resumoController.text,
       tribunal: _selectedTribunal!,
@@ -147,7 +147,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     );
 
     if (!mounted) return;
-    context.push('/carregando-precedentes', extra: future);
+    context.push('/resultados-precedentes', extra: stream);
   }
 
   void _showSnackError(String message) {
