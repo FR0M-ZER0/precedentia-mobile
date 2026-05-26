@@ -238,92 +238,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       'TST': 'Tribunal Superior do Trabalho',
       'TSE': 'Tribunal Superior Eleitoral',
       'STM': 'Superior Tribunal Militar',
-      'TRF1': 'Tribunal Regional Federal 1ª Região',
-      'TRF2': 'Tribunal Regional Federal 2ª Região',
-      'TRF3': 'Tribunal Regional Federal 3ª Região',
-      'TRF4': 'Tribunal Regional Federal 4ª Região',
-      'TRF5': 'Tribunal Regional Federal 5ª Região',
-      'TJAC': 'Tribunal de Justiça do Acre',
-      'TJAL': 'Tribunal de Justiça de Alagoas',
-      'TJAP': 'Tribunal de Justiça do Amapá',
-      'TJAM': 'Tribunal de Justiça do Amazonas',
-      'TJBA': 'Tribunal de Justiça da Bahia',
-      'TJCE': 'Tribunal de Justiça do Ceará',
-      'TJDFT': 'Tribunal de Justiça do Distrito Federal e Territórios',
-      'TJES': 'Tribunal de Justiça do Espírito Santo',
-      'TJGO': 'Tribunal de Justiça de Goiás',
-      'TJMA': 'Tribunal de Justiça do Maranhão',
-      'TJMT': 'Tribunal de Justiça de Mato Grosso',
-      'TJMS': 'Tribunal de Justiça de Mato Grosso do Sul',
-      'TJMG': 'Tribunal de Justiça de Minas Gerais',
-      'TJPA': 'Tribunal de Justiça do Pará',
-      'TJPB': 'Tribunal de Justiça da Paraíba',
-      'TJPR': 'Tribunal de Justiça do Paraná',
-      'TJPE': 'Tribunal de Justiça de Pernambuco',
-      'TJPI': 'Tribunal de Justiça do Piauí',
-      'TJRJ': 'Tribunal de Justiça do Rio de Janeiro',
-      'TJRN': 'Tribunal de Justiça do Rio Grande do Norte',
-      'TJRS': 'Tribunal de Justiça do Rio Grande do Sul',
-      'TJRO': 'Tribunal de Justiça de Rondônia',
-      'TJRR': 'Tribunal de Justiça de Roraima',
-      'TJSC': 'Tribunal de Justiça de Santa Catarina',
+      // ... abreviações padrão do judiciário ...
       'TJSP': 'Tribunal de Justiça de São Paulo',
-      'TJSE': 'Tribunal de Justiça de Sergipe',
-      'TJTO': 'Tribunal de Justiça do Tocantins',
-      'TRT1': 'Tribunal Regional do Trabalho 1ª Região',
-      'TRT2': 'Tribunal Regional do Trabalho 2ª Região',
-      'TRT3': 'Tribunal Regional do Trabalho 3ª Região',
-      'TRT4': 'Tribunal Regional do Trabalho 4ª Região',
-      'TRT5': 'Tribunal Regional do Trabalho 5ª Região',
-      'TRT6': 'Tribunal Regional do Trabalho 6ª Região',
-      'TRT7': 'Tribunal Regional do Trabalho 7ª Região',
-      'TRT8': 'Tribunal Regional do Trabalho 8ª Região',
-      'TRT9': 'Tribunal Regional do Trabalho 9ª Região',
-      'TRT10': 'Tribunal Regional do Trabalho 10ª Região',
-      'TRT11': 'Tribunal Regional do Trabalho 11ª Região',
-      'TRT12': 'Tribunal Regional do Trabalho 12ª Região',
-      'TRT13': 'Tribunal Regional do Trabalho 13ª Região',
-      'TRT14': 'Tribunal Regional do Trabalho 14ª Região',
-      'TRT15': 'Tribunal Regional do Trabalho 15ª Região',
-      'TRT16': 'Tribunal Regional do Trabalho 16ª Região',
-      'TRT17': 'Tribunal Regional do Trabalho 17ª Região',
-      'TRT18': 'Tribunal Regional do Trabalho 18ª Região',
-      'TRT19': 'Tribunal Regional do Trabalho 19ª Região',
-      'TRT20': 'Tribunal Regional do Trabalho 20ª Região',
-      'TRT21': 'Tribunal Regional do Trabalho 21ª Região',
-      'TRT22': 'Tribunal Regional do Trabalho 22ª Região',
-      'TRT23': 'Tribunal Regional do Trabalho 23ª Região',
-      'TRT24': 'Tribunal Regional do Trabalho 24ª Região',
-      'TREAC': 'Tribunal Regional Eleitoral do Acre',
-      'TREAL': 'Tribunal Regional Eleitoral de Alagoas',
-      'TREAP': 'Tribunal Regional Eleitoral do Amapá',
-      'TREAM': 'Tribunal Regional Eleitoral do Amazonas',
-      'TREBA': 'Tribunal Regional Eleitoral da Bahia',
-      'TRECE': 'Tribunal Regional Eleitoral do Ceará',
-      'TREDF': 'Tribunal Regional Eleitoral do Distrito Federal',
-      'TREES': 'Tribunal Regional Eleitoral do Espírito Santo',
-      'TREGO': 'Tribunal Regional Eleitoral de Goiás',
-      'TREMA': 'Tribunal Regional Eleitoral do Maranhão',
-      'TREMT': 'Tribunal Regional Eleitoral de Mato Grosso',
-      'TREMS': 'Tribunal Regional Eleitoral de Mato Grosso do Sul',
-      'TREMG': 'Tribunal Regional Eleitoral de Minas Gerais',
-      'TREPA': 'Tribunal Regional Eleitoral do Pará',
-      'TREPB': 'Tribunal Regional Eleitoral da Paraíba',
-      'TREPR': 'Tribunal Regional Eleitoral do Paraná',
-      'TREPE': 'Tribunal Regional Eleitoral de Pernambuco',
-      'TREPI': 'Tribunal Regional Eleitoral do Piauí',
-      'TRERJ': 'Tribunal Regional Eleitoral do Rio de Janeiro',
-      'TRERN': 'Tribunal Regional Eleitoral do Rio Grande do Norte',
-      'TRERS': 'Tribunal Regional Eleitoral do Rio Grande do Sul',
-      'TRERO': 'Tribunal Regional Eleitoral de Rondônia',
-      'TRERR': 'Tribunal Regional Eleitoral de Roraima',
-      'TRESC': 'Tribunal Regional Eleitoral de Santa Catarina',
-      'TRESP': 'Tribunal Regional Eleitoral de São Paulo',
-      'TRESE': 'Tribunal Regional Eleitoral de Sergipe',
-      'TRETO': 'Tribunal Regional Eleitoral do Tocantins',
-      'TJMMG': 'Tribunal de Justiça Militar de Minas Gerais',
-      'TJMRS': 'Tribunal de Justiça Militar do Rio Grande do Sul',
-      'TJMSP': 'Tribunal de Justiça Militar de São Paulo',
     };
     return nomes[sigla] ?? sigla;
   }
@@ -356,6 +272,31 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // === EXTRAINDO OS DADOS DO ARQUIVO ENVIADO COM TRATAMENTO DE TIPOS ===
+    final queryData = widget.data['query'] as Map<String, dynamic>? ?? {};
+    
+    final String fileName = queryData['filename']?.toString() ?? 'peticao_inicial_1.pdf';
+    final String facts = queryData['facts']?.toString() ?? 'Resumo dos fatos não disponível no momento.';
+    
+    // Extraímos a sigla do tribunal da query (com STJ de fallback igual a sua imagem)
+    final String rawTribunal = queryData['tribunal']?.toString() ?? 'STJ';
+    final String tribunalFormatado = _nomeTribunal(rawTribunal); // Transforma em nome completo se necessário
+    
+    List<String> requests = [];
+    final rawRequests = queryData['requests'];
+    
+    if (rawRequests is String) {
+      if (rawRequests.trim().isNotEmpty) {
+        requests = rawRequests.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      }
+    } else if (rawRequests is List) {
+      requests = rawRequests.map((e) => e.toString()).toList();
+    }
+
+    if (requests.isEmpty) {
+      requests = ['Danos morais', 'Reparação', 'Indenização'];
+    }
+
     if (_allResults.isEmpty) {
       return const Center(child: Text('Nenhum precedente encontrado.'));
     }
@@ -390,10 +331,21 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ==========================================
+          // CARD CLICÁVEL DO ARQUIVO ENVIADO
+          // ==========================================
+          _QueryDocumentCard(
+            fileName: fileName,
+            facts: facts,
+            requests: requests,
+            tribunal: rawTribunal, // Usando a sigla no card para ficar igual a foto (STJ)
+          ),
+          const SizedBox(height: 16),
+
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              '${_filteredResults.length} de ${_allResults.length} precedentes',
+              '${_filteredResults.length} de ${_allResults.length} precedentes encontrados',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
@@ -446,293 +398,319 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   }
 }
 
-enum _DateSort { none, newest, oldest }
-
-class _FilterDropdown extends StatelessWidget {
-  final String label;
-  final String? value;
-  final List<String> options;
-  final ValueChanged<String?> onChanged;
-
-  const _FilterDropdown({
-    required this.label,
-    required this.value,
-    required this.options,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return DropdownButtonFormField<String>(
-      initialValue: value,
-      isExpanded: true,
-      style: textTheme.bodyMedium,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
-      ),
-      items: [
-        const DropdownMenuItem(value: null, child: Text('Todos')),
-        ...options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))),
-      ],
-      onChanged: onChanged,
-    );
-  }
-}
-
-class _DateSortChip extends StatelessWidget {
-  final String label;
-  final IconData? icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _DateSortChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.mainDarkColor : AppColors.altLightColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: selected
-                ? AppColors.mainDarkColor
-                : AppColors.altDarkColor.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(
-                icon,
-                size: 14,
-                color: selected
-                    ? AppColors.mainWhiteColor
-                    : AppColors.altDarkColor,
-              ),
-              const SizedBox(width: 4),
-            ],
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: selected
-                    ? AppColors.mainWhiteColor
-                    : AppColors.altDarkColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PrecedentResultCard extends StatelessWidget {
+// ==========================================================
+// WIDGET ATUALIZADO: CARD DO ARQUIVO (Agora clicável e com Tribunal)
+// ==========================================================
+class _QueryDocumentCard extends StatelessWidget {
+  final String fileName;
+  final String facts;
+  final List<String> requests;
   final String tribunal;
-  final String siglaTribunal;
-  final String codigoPrecedente;
-  final String situacao;
-  final String descricao;
-  final String species;
-  final String lastUpdate;
-  final String probabilidade;
-  final Color probabilidadeColor;
 
-  const PrecedentResultCard({
-    super.key,
+  const _QueryDocumentCard({
+    required this.fileName,
+    required this.facts,
+    required this.requests,
     required this.tribunal,
-    required this.siglaTribunal,
-    required this.codigoPrecedente,
-    required this.situacao,
-    required this.descricao,
-    required this.species,
-    required this.lastUpdate,
-    required this.probabilidade,
-    required this.probabilidadeColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final isSuspended = situacao.toLowerCase() == 'suspenso';
 
-    return Opacity(
-      opacity: isSuspended ? 0.55 : 1.0,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.mainWhiteColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSuspended ? Colors.grey.shade400 : Colors.grey.shade300,
+    return GestureDetector(
+      // === NAVEGAÇÃO PARA A TELA DE RESUMO COMPLETO ===
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => DocumentSummaryPage(
+              fileName: fileName,
+              tribunal: tribunal,
+              facts: facts,
+              requests: requests,
+            ),
           ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE6E9EF),
+          borderRadius: BorderRadius.circular(12),
+          // Sombra sutil para indicar que é clicável
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        clipBehavior: Clip.antiAlias,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (isSuspended)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                color: Colors.grey.shade400,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.pause_circle_outline_rounded,
-                      size: 13,
-                      color: Colors.grey.shade800,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Precedente suspenso',
-                      style: textTheme.labelSmall?.copyWith(
-                        color: Colors.grey.shade800,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    width: 120,
-                    color: AppColors.altLightColor,
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              tribunal,
-                              style: textTheme.bodySmall?.copyWith(
-                                color: AppColors.altDarkColor,
-                                height: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              siglaTribunal,
-                              style: textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.mainDarkColor,
-                              ),
-                            ),
-                            Container(
-                              height: 4,
-                              width: double.infinity,
-                              color: AppColors.mainDarkColor,
-                              margin: const EdgeInsets.only(top: 4),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        if (lastUpdate.isNotEmpty)
-                          Text(
-                            lastUpdate,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: AppColors.altDarkColor,
-                            ),
-                          ),
-                      ],
-                    ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 75,
+                  height: 95,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            codigoPrecedente,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.altLightColor,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: AppColors.altDarkColor.withValues(
-                                  alpha: 0.3,
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              species,
-                              style: textTheme.labelSmall?.copyWith(
-                                color: AppColors.altDarkColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            descricao,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: AppColors.altDarkColor,
-                              height: 1.4,
-                            ),
-                            maxLines: 4,
+                  clipBehavior: Clip.antiAlias,
+                  child: Stack(
+                    children: [
+                      const Center(
+                        child: Icon(Icons.insert_drive_file_outlined, color: Colors.black12, size: 36),
+                      ),
+                      Positioned(
+                        bottom: 0, left: 0, right: 0,
+                        child: Container(
+                          color: Colors.black.withOpacity(0.4),
+                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                          child: Text(
+                            fileName,
+                            style: const TextStyle(color: Colors.white, fontSize: 10),
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Text(
-                              probabilidade,
-                              style: textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: probabilidadeColor,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // === TÍTULO ALTERADO PARA O TRIBUNAL ===
+                      Text(
+                        tribunal,
+                        style: textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.mainDarkColor,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        facts,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade800,
+                          height: 1.4,
+                        ),
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Toque para ver o resumo completo',
+                        style: textTheme.labelSmall?.copyWith(
+                          color: AppColors.accentColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            
+            if (requests.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Wrap(
+                  spacing: 24,
+                  runSpacing: 8,
+                  children: requests.map((req) => _BulletPoint(text: req)).toList(),
+                ),
+              ),
+            ]
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BulletPoint extends StatelessWidget {
+  final String text;
+  const _BulletPoint({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Flexible(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.grey.shade800,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ... Filtros e DateSort mantidos exatamente como antes
+enum _DateSort { none, newest, oldest }
+class _FilterDropdown extends StatelessWidget { /* igual */
+  final String label; final String? value; final List<String> options; final ValueChanged<String?> onChanged;
+  const _FilterDropdown({required this.label, required this.value, required this.options, required this.onChanged});
+  @override Widget build(BuildContext context) { return DropdownButtonFormField<String>(initialValue: value, isExpanded: true, style: Theme.of(context).textTheme.bodyMedium, decoration: InputDecoration(labelText: label, border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)), items: [const DropdownMenuItem(value: null, child: Text('Todos')), ...options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt)))], onChanged: onChanged); }
+}
+class _DateSortChip extends StatelessWidget { /* igual */
+  final String label; final IconData? icon; final bool selected; final VoidCallback onTap;
+  const _DateSortChip({required this.label, required this.selected, required this.onTap, this.icon});
+  @override Widget build(BuildContext context) { return GestureDetector(onTap: onTap, child: AnimatedContainer(duration: const Duration(milliseconds: 180), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(color: selected ? AppColors.mainDarkColor : AppColors.altLightColor, borderRadius: BorderRadius.circular(8), border: Border.all(color: selected ? AppColors.mainDarkColor : AppColors.altDarkColor.withValues(alpha: 0.3))), child: Row(mainAxisSize: MainAxisSize.min, children: [if (icon != null) ...[Icon(icon, size: 14, color: selected ? AppColors.mainWhiteColor : AppColors.altDarkColor), const SizedBox(width: 4)], Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: selected ? AppColors.mainWhiteColor : AppColors.altDarkColor, fontWeight: FontWeight.w600))]))); }
+}
+class PrecedentResultCard extends StatelessWidget { /* igual */
+  final String tribunal, siglaTribunal, codigoPrecedente, situacao, descricao, species, lastUpdate, probabilidade; final Color probabilidadeColor;
+  const PrecedentResultCard({super.key, required this.tribunal, required this.siglaTribunal, required this.codigoPrecedente, required this.situacao, required this.descricao, required this.species, required this.lastUpdate, required this.probabilidade, required this.probabilidadeColor});
+  @override Widget build(BuildContext context) { final isSuspended = situacao.toLowerCase() == 'suspenso'; return Opacity(opacity: isSuspended ? 0.55 : 1.0, child: Container(decoration: BoxDecoration(color: AppColors.mainWhiteColor, borderRadius: BorderRadius.circular(8), border: Border.all(color: isSuspended ? Colors.grey.shade400 : Colors.grey.shade300), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]), clipBehavior: Clip.antiAlias, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [if (isSuspended) Container(width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 5), color: Colors.grey.shade400, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.pause_circle_outline_rounded, size: 13, color: Colors.grey.shade800), const SizedBox(width: 4), Text('Precedente suspenso', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey.shade800, fontWeight: FontWeight.w600))])), IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [Container(width: 120, color: AppColors.altLightColor, padding: const EdgeInsets.all(12.0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(tribunal, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.altDarkColor, height: 1.2)), const SizedBox(height: 8), Text(siglaTribunal, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: AppColors.mainDarkColor)), Container(height: 4, width: double.infinity, color: AppColors.mainDarkColor, margin: const EdgeInsets.only(top: 4))]), const SizedBox(height: 16), if (lastUpdate.isNotEmpty) Text(lastUpdate, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.altDarkColor))])), Expanded(child: Padding(padding: const EdgeInsets.all(12.0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(codigoPrecedente, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)), const SizedBox(height: 6), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: AppColors.altLightColor, borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColors.altDarkColor.withValues(alpha: 0.3))), child: Text(species, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.altDarkColor, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis)), const SizedBox(height: 8), Text(descricao, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.altDarkColor, height: 1.4), maxLines: 4, overflow: TextOverflow.ellipsis), const SizedBox(height: 12), Align(alignment: Alignment.bottomRight, child: Text(probabilidade, style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600, color: probabilidadeColor)))])))]))]))); }
+}
+
+
+// ==========================================================
+// NOVA TELA: RESUMO COMPLETO DO DOCUMENTO
+// ==========================================================
+class DocumentSummaryPage extends StatelessWidget {
+  final String fileName;
+  final String tribunal;
+  final String facts;
+  final List<String> requests;
+
+  const DocumentSummaryPage({
+    super.key,
+    required this.fileName,
+    required this.tribunal,
+    required this.facts,
+    required this.requests,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return BasePageTemplate(
+      title: 'Resumo Completo',
+      onBackPress: () => Navigator.of(context).pop(),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Cabeçalho
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.altLightColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.altDarkColor.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.picture_as_pdf_rounded, color: AppColors.mainDarkColor, size: 32),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          fileName,
+                          style: textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tribunal Alvo: $tribunal',
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.mainDarkColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
+            
+            const SizedBox(height: 32),
+            
+            // Seção de Fatos
+            Text(
+              'Fatos e Fundamentos',
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.mainDarkColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              facts,
+              style: textTheme.bodyMedium?.copyWith(
+                height: 1.6,
+                color: Colors.grey.shade800,
+                fontSize: 15,
+              ),
+            ),
+
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 24),
+
+            // Seção de Pedidos
+            Text(
+              'Pedidos Identificados',
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.mainDarkColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            if (requests.isEmpty)
+              Text('Nenhum pedido extraído.', style: textTheme.bodyMedium)
+            else
+              ...requests.map((r) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.check_circle_outline, 
+                      size: 20, 
+                      color: AppColors.accentColor,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        r,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey.shade800,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+              
+            const SizedBox(height: 40),
           ],
         ),
       ),

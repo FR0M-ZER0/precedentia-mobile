@@ -5,7 +5,6 @@ import 'package:precedentia_mobile/core/widgets/base_template.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  // Função que exibe o modal de escolha ao clicar no botão
   void _showSelectionModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -19,7 +18,7 @@ class HomePage extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Ocupa apenas o espaço necessário
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 "Como deseja enviar a petição?",
@@ -27,8 +26,6 @@ class HomePage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-
-              // Opção 1: Arquivo PDF
               ListTile(
                 leading: Icon(
                   Icons.upload_file,
@@ -44,14 +41,11 @@ class HomePage extends StatelessWidget {
                   style: textTheme.bodySmall,
                 ),
                 onTap: () {
-                  Navigator.pop(bottomSheetContext); // Fecha o modal
-                  context.push('/enviar-peticao'); // Vai para a tela de PDF
+                  Navigator.pop(bottomSheetContext);
+                  context.push('/enviar-peticao');
                 },
               ),
-
               const Divider(height: 32),
-
-              // Opção 2: Inserção de Texto
               ListTile(
                 leading: Icon(
                   Icons.edit_document,
@@ -67,10 +61,8 @@ class HomePage extends StatelessWidget {
                   style: textTheme.bodySmall,
                 ),
                 onTap: () {
-                  Navigator.pop(bottomSheetContext); // Fecha o modal
-                  context.push(
-                    '/enviar-peticao-texto',
-                  ); // Vai para a tela de Texto
+                  Navigator.pop(bottomSheetContext);
+                  context.push('/enviar-peticao-texto');
                 },
               ),
             ],
@@ -82,32 +74,140 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BasePageTemplate(
-      title: "Procure precedentes",
-      subtitle:
-          "Aqui você pode iniciar sua busca jurídica ou enviar uma nova petição.",
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 30),
+    // Pegamos a altura total da tela
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    // Descontamos um valor aproximado do seu cabeçalho (BasePageTemplate + AppBar)
+    // E dividimos o espaço que sobra por 3.
+    // O .clamp() garante que o botão nunca fique menor que 120 pixels para não espremer o GIF.
+    final double cardHeight = ((screenHeight - 250) / 3).clamp(120.0, 300.0);
 
-          // Botão que agora abre o modal de seleção
+    return BasePageTemplate(
+      title: "O que deseja fazer hoje?",
+      subtitle: "Escolha um dos modos",
+      // Removido o OverflowBox e o LayoutBuilder problemáticos
+      body: Column(
+        children: [
           SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () => _showSelectionModal(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text("Iniciar Nova Consulta"),
+            height: cardHeight,
+            child: _ActionGifCard(
+              title: "Pesquisa de\nprecedentes",
+              gifPath: "assets/images/pesquisa.gif",
+              imageAlignment: Alignment.bottomRight,
+              textAlign: TextAlign.left,
+              cardHeight: cardHeight,
+              onTap: () => _showSelectionModal(context),
+            ),
+          ),
+          const Divider(height: 1, thickness: 1, color: Colors.black12),
+          
+          SizedBox(
+            height: cardHeight,
+            child: _ActionGifCard(
+              title: "Geração de\npetição inicial",
+              gifPath: "assets/images/geracao.gif",
+              imageAlignment: Alignment.bottomLeft,
+              textAlign: TextAlign.right,
+              cardHeight: cardHeight,
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Em breve!')),
+                );
+              },
+            ),
+          ),
+          const Divider(height: 1, thickness: 1, color: Colors.black12),
+          
+          SizedBox(
+            height: cardHeight,
+            child: _ActionGifCard(
+              title: "Assistente de\nsentença",
+              gifPath: "assets/images/assistente.gif",
+              imageAlignment: Alignment.bottomRight,
+              textAlign: TextAlign.left,
+              cardHeight: cardHeight,
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Em breve!')),
+                );
+              },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionGifCard extends StatelessWidget {
+  final String title;
+  final String gifPath;
+  final Alignment imageAlignment;
+  final TextAlign textAlign;
+  final double cardHeight;
+  final VoidCallback onTap;
+
+  const _ActionGifCard({
+    required this.title,
+    required this.gifPath,
+    required this.imageAlignment,
+    required this.textAlign,
+    required this.cardHeight,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isLeftAligned = textAlign == TextAlign.left;
+    
+    // O tamanho do GIF respeita um máximo de 65% da altura do card
+    final gifHeight = cardHeight * 0.65; 
+
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        color: const Color(0xFFE9EEF5), // Azulzinho do seu Figma
+        child: Stack(
+          children: [
+            // Imagem/GIF
+            Align(
+              alignment: imageAlignment,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+                child: Image.asset(
+                  gifPath,
+                  height: gifHeight, 
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: gifHeight,
+                    width: gifHeight,
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.gif_box, size: 40, color: Colors.black26),
+                  ),
+                ),
+              ),
+            ),
+            
+            // Texto do botão
+            Align(
+              alignment: isLeftAligned ? Alignment.topLeft : Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                child: Text(
+                  title,
+                  textAlign: textAlign,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF0F172A),
+                    fontSize: cardHeight < 140 ? 18 : 22, 
+                    height: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
