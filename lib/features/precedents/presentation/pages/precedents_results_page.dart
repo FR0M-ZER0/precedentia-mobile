@@ -42,7 +42,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             _allResults.add(event);
             _applyFilters();
           });
-        } else if (eventName == 'search_complete' || eventName == 'rerank_complete') {
+        } else if (eventName == 'search_complete' ||
+            eventName == 'rerank_complete') {
           // eventos informativos — pode usar para UI futura se quiser
         } else if (eventName == 'done') {
           setState(() => _isDone = true);
@@ -450,9 +451,9 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               '${_filteredResults.length} de ${_allResults.length} precedentes',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
             ),
           ),
           if (_filteredResults.isEmpty)
@@ -491,10 +492,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                 return GestureDetector(
                   onTap: () => context.push(
                     '/precedents/details/${item['id']}',
-                    extra: {
-                      ...item,
-                      'query_facts': _queryFacts ?? '',
-                    },
+                    extra: {...item, 'query_facts': _queryFacts ?? ''},
                   ),
                   child: PrecedentResultCard(
                     tribunal: _nomeTribunal(

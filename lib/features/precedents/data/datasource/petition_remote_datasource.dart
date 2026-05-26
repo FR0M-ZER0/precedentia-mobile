@@ -22,7 +22,9 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
     int userId,
   ) async* {
     if (file.bytes == null) {
-      throw Exception('Os bytes do arquivo estão nulos. Verifique o FilePicker.');
+      throw Exception(
+        'Os bytes do arquivo estão nulos. Verifique o FilePicker.',
+      );
     }
 
     final baseUrl = _dio.options.baseUrl.replaceAll(RegExp(r'/$'), '');
@@ -30,12 +32,14 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
 
     final request = http.MultipartRequest('POST', uri)
       ..fields['user_id'] = userId.toString()
-      ..files.add(http.MultipartFile.fromBytes(
-        'file',
-        file.bytes!,
-        filename: file.name,
-        contentType: MediaType('application', 'pdf'),
-      ));
+      ..files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          file.bytes!,
+          filename: file.name,
+          contentType: MediaType('application', 'pdf'),
+        ),
+      );
 
     final dioHeaders = _dio.options.headers;
     if (dioHeaders['Authorization'] != null) {
@@ -45,8 +49,8 @@ class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
     final streamedResponse = await request.send();
 
     if (streamedResponse.statusCode != 200) {
-        final body = await streamedResponse.stream.bytesToString();
-        throw Exception('Erro ${streamedResponse.statusCode}: $body');
+      final body = await streamedResponse.stream.bytesToString();
+      throw Exception('Erro ${streamedResponse.statusCode}: $body');
     }
 
     String eventName = 'message';
