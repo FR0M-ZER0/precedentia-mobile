@@ -157,8 +157,7 @@ class AppRouter {
       GoRoute(
         path: '/enviar-peticao-texto',
         name: 'send_petition_text',
-        builder: (context, state) =>
-            const SendPetitionTextPage(),
+        builder: (context, state) => const SendPetitionTextPage(),
       ),
       GoRoute(
         path: '/petition-generation-form',
