@@ -85,9 +85,9 @@ class HomePage extends StatelessWidget {
     return BasePageTemplate(
       title: "O que deseja fazer hoje?",
       subtitle: "Escolha um dos modos",
-      // Removido o OverflowBox e o LayoutBuilder problemáticos
       body: Column(
         children: [
+          // 1º Botão: Pesquisa (GIF Direita, Texto Esquerda)
           SizedBox(
             height: cardHeight,
             child: _ActionGifCard(
@@ -101,13 +101,14 @@ class HomePage extends StatelessWidget {
           ),
           const Divider(height: 1, thickness: 1, color: Colors.black12),
           
+          // 2º Botão: Assistente de sentença (GIF Esquerda, Texto Direita)
           SizedBox(
             height: cardHeight,
             child: _ActionGifCard(
-              title: "Geração de\npetição inicial",
-              gifPath: "assets/images/geracao.gif",
-              imageAlignment: Alignment.bottomLeft,
-              textAlign: TextAlign.right,
+              title: "Assistente de\nsentença",
+              gifPath: "assets/images/assistente.gif",
+              imageAlignment: Alignment.bottomLeft, 
+              textAlign: TextAlign.right,           
               cardHeight: cardHeight,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -118,13 +119,14 @@ class HomePage extends StatelessWidget {
           ),
           const Divider(height: 1, thickness: 1, color: Colors.black12),
           
+          // 3º Botão: Geração de petição (GIF Direita, Texto Esquerda)
           SizedBox(
             height: cardHeight,
             child: _ActionGifCard(
-              title: "Assistente de\nsentença",
-              gifPath: "assets/images/assistente.gif",
-              imageAlignment: Alignment.bottomRight,
-              textAlign: TextAlign.left,
+              title: "Geração de\npetição inicial",
+              gifPath: "assets/images/geracao.gif",
+              imageAlignment: Alignment.bottomRight, 
+              textAlign: TextAlign.left,             
               cardHeight: cardHeight,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -160,14 +162,13 @@ class _ActionGifCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLeftAligned = textAlign == TextAlign.left;
     
-    // O tamanho do GIF respeita um máximo de 65% da altura do card
     final gifHeight = cardHeight * 0.65; 
 
     return InkWell(
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        color: const Color(0xFFE9EEF5), // Azulzinho do seu Figma
+        color: const Color(0xFFE9EEF5), 
         child: Stack(
           children: [
             // Imagem/GIF

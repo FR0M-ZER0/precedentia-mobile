@@ -4,12 +4,15 @@ import 'package:precedentia_mobile/features/home/presentation/pages/home_page.da
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
-import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
+import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
+    as generation_petition;
 import 'package:precedentia_mobile/features/profile/presentation/pages/user_page.dart';
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_datails_page.dart';
+import 'package:precedentia_mobile/features/home/presentation/pages/not_found_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/history_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/petition_initial_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/splash_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/tutorial_page.dart';
@@ -19,19 +22,20 @@ import 'package:precedentia_mobile/features/auth/presentation/pages/forgot_passw
 import 'package:precedentia_mobile/features/auth/presentation/pages/reset_password_page.dart';
 
 class AppRouter {
-  // Estado global para simular a autenticação (false = deslogado, true = logado)
   static final authNotifier = ValueNotifier<bool>(false);
 
   static final router = GoRouter(
-    initialLocation:
-        '/splash', // O app agora sempre inicia na Splash para checar os dados
-    refreshListenable:
-        authNotifier, // O roteador "escuta" quando o usuário loga/desloga
-    // Lógica de proteção de rotas (Middleware)
+    initialLocation: '/splash',
+    refreshListenable: authNotifier,
+    
+    // ==========================================================
+    // 1. SOLUÇÃO PARA ROTA INEXISTENTE (REDIRECIONAMENTO 404)
+    // ==========================================================
+    errorBuilder: (context, state) => const NotFoundPage(),
+
     redirect: (context, state) {
       final isLoggedIn = authNotifier.value;
 
-      // Definimos quais rotas o usuário pode acessar sem estar logado
       final isGoingToAuth =
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/cadastro' ||
@@ -41,17 +45,27 @@ class AppRouter {
           state.matchedLocation == '/esqueci-senha' ||
           state.matchedLocation == '/redefinir-senha';
 
-      // 1. Se NÃO estiver logado e tentar acessar rota protegida (ex: Home) -> vai pro Login
+      // Se NÃO estiver logado e tentar acessar rota protegida -> vai pro Login
       if (!isLoggedIn && !isGoingToAuth) {
         return '/login';
       }
 
-      // 2. Se JÁ estiver logado e tentar acessar Login/Cadastro/Splash -> vai direto pra Home
+      // ==========================================================
+      // 2. SOLUÇÃO PARA ROTAS PROTEGIDAS SEM PERMISSÃO (EXEMPLO)
+      // ==========================================================
+      // Caso você implemente níveis de acesso no futuro (Ex: Usuário comum tentando acessar área Admin):
+      // final isUserAdmin = verificarSeEhAdmin(); 
+      // final isRouteAdmin = state.matchedLocation.startsWith('/admin');
+      //
+      // if (isLoggedIn && isRouteAdmin && !isUserAdmin) {
+      //   return '/not-found'; // Bloqueia o acesso e joga para a tela de erro
+      // }
+
+      // Se JÁ estiver logado e tentar acessar Login/Cadastro/Splash -> vai direto pra Home
       if (isLoggedIn && isGoingToAuth) {
         return '/';
       }
 
-      // 3. Se estiver tudo certo, permite seguir o fluxo normal
       return null;
     },
 
@@ -74,25 +88,21 @@ class AppRouter {
         name: 'login',
         builder: (context, state) => const LoginPage(),
       ),
-
       GoRoute(
         path: '/tutorial',
         name: 'tutorial',
         builder: (context, state) => const TutorialPage(),
       ),
-
       GoRoute(
         path: '/cadastro',
         name: 'registration',
         builder: (context, state) => const RegistrationPage(),
       ),
-
       GoRoute(
         path: '/2fa',
         name: 'two_factor',
         builder: (context, state) => const TwoFactorPage(),
       ),
-
       GoRoute(
         path: '/esqueci-senha',
         name: 'forgot_password',
@@ -112,7 +122,6 @@ class AppRouter {
         name: 'searchUpload',
         builder: (context, state) => const SearchUploadPage(),
       ),
-
       GoRoute(
         path: '/search/manual',
         name: 'searchManual',
@@ -152,12 +161,23 @@ class AppRouter {
       GoRoute(
         path: '/enviar-peticao-texto',
         name: 'send_petition_text',
-        builder: (context, state) => const SendPetitionTextPage(),
+        builder: (context, state) =>
+            const generation_petition.SendPetitionTextPage(),
+      ),
+      GoRoute(
+        path: '/peticao-inicial',
+        name: 'petition_initial',
+        builder: (context, state) => const PetitionInitialPage(),
       ),
       GoRoute(
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const UserPage(),
+      ),
+      GoRoute(
+        path: '/not-found',
+        name: 'not_found',
+        builder: (context, state) => const NotFoundPage(),
       ),
     ],
   );

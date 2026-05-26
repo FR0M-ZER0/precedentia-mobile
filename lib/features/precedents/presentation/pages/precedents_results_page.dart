@@ -404,15 +404,17 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       bottomNavigationBar: _selectedPrecedentIds.isEmpty
           ? null
           : Container(
-              color: Colors.white,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -4),
+                  )
+                ],
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -4),
-                )
-              ],
               child: SafeArea(
                 child: SizedBox(
                   width: double.infinity,

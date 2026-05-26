@@ -60,15 +60,25 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: AppColors.mainDarkColor, // Fundo escuro do projeto mantido!
+    return Scaffold( // Removido o 'const' daqui para o Image.asset funcionar
+      backgroundColor: AppColors.mainDarkColor, 
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.balance, size: 100, color: AppColors.accentColor),
-            SizedBox(height: 24),
-            Text(
+            // === GIF ADICIONADO AQUI NO LUGAR DA BALANÇA ===
+            Image.asset(
+              'assets/images/wellcome.gif', // Ajuste o caminho se sua pasta for diferente
+              height: 120, // Altura que fica equivalente ao size 100 do ícone antigo
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.balance, 
+                size: 100, 
+                color: AppColors.accentColor,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
               'PrecedentIA',
               style: TextStyle(
                 fontSize: 32,
@@ -76,8 +86,8 @@ class _SplashPageState extends State<SplashPage> {
                 color: AppColors.mainWhiteColor,
               ),
             ),
-            SizedBox(height: 48),
-            CircularProgressIndicator(color: AppColors.accentColor),
+            const SizedBox(height: 48),
+            const CircularProgressIndicator(color: AppColors.accentColor),
           ],
         ),
       ),
