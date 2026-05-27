@@ -55,6 +55,7 @@ dependencies:
   flutter_markdown: ^0.6.14
   pdf: ^3.10.1
   printing: ^5.11.0
+  appflowy_editor: ^6.2.0
 
 dev_dependencies:
   flutter_test:
