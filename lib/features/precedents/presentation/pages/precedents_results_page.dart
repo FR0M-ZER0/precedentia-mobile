@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
@@ -395,13 +396,16 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       return BasePageTemplate(
         title: 'Precedentes jurídicos',
         onBackPress: () => context.pop(),
-        body: const Center(
+        body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Buscando precedentes...'),
+              Lottie.asset(
+                'assets/animations/loading.json',
+                width: 120,
+                height: 120,
+              ),
+              const Text('Buscando precedentes...'),
             ],
           ),
         ),
@@ -476,8 +480,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Center(
-                      child: Image.asset(
-                        'assets/images/green_robot.gif',
+                      child: Lottie.asset(
+                        'assets/animations/loading.json',
                         width: 80,
                         height: 80,
                       ),
