@@ -94,7 +94,10 @@ class AppRouter {
       GoRoute(
         path: '/2fa',
         name: 'two_factor',
-        builder: (context, state) => const TwoFactorPage(),
+        builder: (context, state) {
+          final email = state.extra as String?;
+          return TwoFactorPage(email: email);
+        },
       ),
 
       GoRoute(
