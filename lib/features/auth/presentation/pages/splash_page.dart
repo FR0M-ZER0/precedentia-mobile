@@ -61,7 +61,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold( // Removido o 'const' daqui para o Image.asset funcionar
-      backgroundColor: AppColors.mainDarkColor, 
+      backgroundColor: const Color(0xFF0C1B33), 
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

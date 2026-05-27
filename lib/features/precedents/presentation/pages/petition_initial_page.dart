@@ -66,34 +66,43 @@ class PetitionInitialPage extends StatelessWidget {
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 18),
+          
+          // PRIMEIRO CARD
           PrecedentResultCard(
             tribunal: 'Superior Tribunal de Justiça',
             siglaTribunal: 'STJ',
             codigoPrecedente: 'Precedente abc123',
             situacao: '',
-            descricao:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut turpis nisl, vulputate sit amet ultricies id, hendrerit id ligula.',
+            descricao: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut turpis nisl, vulputate sit amet ultricies id, hendrerit id ligula.',
             species: 'Herança familiar',
             lastUpdate: '01/02/2035',
             probabilidade: 'Muito provável',
             probabilidadeColor: AppColors.accentColor,
+            isSelected: false,
+            onSelectionChanged: (bool? checked) {},
+            onTapDetails: () {},
           ),
+          
           const SizedBox(height: 16),
+          
+          // SEGUNDO CARD
           PrecedentResultCard(
             tribunal: 'Supremo Tribunal Federal',
             siglaTribunal: 'STF',
-            codigoPrecedente: 'Precedente xyz678',
-            situacao: '',
-            descricao:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut turpis nisl, vulputate sit amet ultricies id, hendrerit id ligula.',
-            species: 'Danos morais',
-            lastUpdate: '01/02/2035',
-            probabilidade: 'Provável',
-            probabilidadeColor: AppColors.detailsColor,
+            codigoPrecedente: 'Precedente xyz987',
+            situacao: 'Suspenso',
+            descricao: 'Exemplo de um segundo precedente na tela de petição inicial.',
+            species: 'Danos Morais',
+            lastUpdate: '15/03/2035',
+            probabilidade: 'Possível',
+            probabilidadeColor: Colors.orange,
+            isSelected: false,
+            onSelectionChanged: (bool? checked) {},
+            onTapDetails: () {},
           ),
-          const SizedBox(height: 28),
-        ],
-      ),
-    );
+          
+        ], // Aqui fecha o children da Column!
+      ), // Aqui fecha a Column!
+    ); // Aqui fecha o BasePageTemplate!
   }
 }
