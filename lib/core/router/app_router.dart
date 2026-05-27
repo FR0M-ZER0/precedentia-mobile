@@ -6,6 +6,7 @@ import 'package:precedentia_mobile/features/precedents/presentation/pages/loadin
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
 import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
     as generation_petition;
+import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/profile/presentation/pages/user_page.dart';
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
@@ -143,9 +144,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/resultados-precedentes',
-        name: 'precedents_results',
-        builder: (context, state) =>
-            PrecedentsResultsPage(data: state.extra as Map<String, dynamic>),
+        builder: (context, state) {
+          final stream = state.extra as Stream<Map<String, dynamic>>;
+          return PrecedentsResultsPage(stream: stream);
+        },
       ),
       GoRoute(
         path: '/history',
@@ -155,6 +157,11 @@ class AppRouter {
       GoRoute(
         path: '/enviar-peticao-texto',
         name: 'send_petition_text',
+        builder: (context, state) => const SendPetitionTextPage(),
+      ),
+      GoRoute(
+        path: '/petition-generation-form',
+        name: 'petition_generation_form',
         builder: (context, state) =>
             const generation_petition.SendPetitionTextPage(),
       ),

@@ -6,7 +6,7 @@ class ExtractPetitionUseCase {
 
   ExtractPetitionUseCase(this.repository);
 
-  Future<Map<String, dynamic>> call(PlatformFile file, int userId) async {
-    return await repository.extractPetition(file, userId);
+  Stream<Map<String, dynamic>> call(PlatformFile file, int userId) {
+    return repository.extractPetitionStream(file, userId);
   }
 }

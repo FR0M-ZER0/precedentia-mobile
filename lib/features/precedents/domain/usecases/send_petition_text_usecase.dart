@@ -5,7 +5,7 @@ class SendPetitionTextUseCase {
 
   SendPetitionTextUseCase(this.repository);
 
-  Future<Map<String, dynamic>> call({
+  Stream<Map<String, dynamic>> call({
     required String type,
     required String facts,
     required String tribunal,
