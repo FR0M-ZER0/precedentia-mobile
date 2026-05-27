@@ -281,15 +281,15 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                         selected:
                             tempApplicabilitySort == _ApplicabilitySort.none,
                         onTap: () => setSheetState(
-                          () =>
-                              tempApplicabilitySort = _ApplicabilitySort.none,
+                          () => tempApplicabilitySort = _ApplicabilitySort.none,
                         ),
                       ),
                       const SizedBox(width: 8),
                       _DateSortChip(
                         label: 'Mais aplicável',
                         icon: Icons.sort_rounded,
-                        selected: tempApplicabilitySort ==
+                        selected:
+                            tempApplicabilitySort ==
                             _ApplicabilitySort.bestFirst,
                         onTap: () => setSheetState(
                           () => tempApplicabilitySort =
@@ -599,6 +599,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 }
 
 enum _DateSort { none, newest, oldest }
+
 enum _ApplicabilitySort { none, bestFirst }
 
 class _FilterDropdown extends StatelessWidget {
