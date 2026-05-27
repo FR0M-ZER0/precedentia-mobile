@@ -45,7 +45,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
           });
         } else if (eventName == 'search_complete' ||
             eventName == 'rerank_complete') {
-          // eventos informativos — pode usar para UI futura se quiser
         } else if (eventName == 'done') {
           setState(() => _isDone = true);
         } else if (eventName == 'error') {
@@ -391,7 +390,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Enquanto o stream não chegou nenhum resultado ainda
     if (_allResults.isEmpty && !_isDone) {
       return BasePageTemplate(
         title: 'Precedentes jurídicos',
@@ -400,6 +398,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 40),
               Lottie.asset(
                 'assets/animations/loading.json',
                 width: 120,
@@ -412,12 +411,24 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       );
     }
 
-    // Stream terminou sem nenhum resultado
     if (_allResults.isEmpty && _isDone) {
       return BasePageTemplate(
         title: 'Precedentes jurídicos',
         onBackPress: () => context.pop(),
-        body: const Center(child: Text('Nenhum precedente encontrado.')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+              Lottie.asset(
+                'assets/animations/not_found.json',
+                width: 70,
+                height: 70,
+              ),
+              const Text('Nenhum precedente encontrado'),
+            ],
+          ),
+        ),
       );
     }
 
