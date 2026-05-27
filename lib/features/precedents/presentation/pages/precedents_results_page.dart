@@ -24,6 +24,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   String? _situacaoFilter;
   String? _speciesFilter;
   String? _tribunalFilter;
+  String? _applicabilityFilter;
   _DateSort _dateSort = _DateSort.none;
 
   @override
@@ -92,7 +93,10 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
           _speciesFilter == null || item['species'] == _speciesFilter;
       final tribunalOk =
           _tribunalFilter == null || item['tribunal'] == _tribunalFilter;
-      return situacaoOk && speciesOk && tribunalOk;
+      final applicabilityOk =
+          _applicabilityFilter == null ||
+          item['applicability'] == _applicabilityFilter;
+      return situacaoOk && speciesOk && tribunalOk && applicabilityOk;
     }).toList();
 
     if (_dateSort == _DateSort.newest) {
@@ -115,6 +119,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _situacaoFilter = null;
       _speciesFilter = null;
       _tribunalFilter = null;
+      _applicabilityFilter = null;
       _dateSort = _DateSort.none;
       _applyFilters();
     });
@@ -133,12 +138,14 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _situacaoFilter != null ||
       _speciesFilter != null ||
       _tribunalFilter != null ||
+      _applicabilityFilter != null ||
       _dateSort != _DateSort.none;
 
   void _showFilterBottomSheet(BuildContext context) {
     String? tempSituacao = _situacaoFilter;
     String? tempSpecies = _speciesFilter;
     String? tempTribunal = _tribunalFilter;
+    String? tempApplicability = _applicabilityFilter;
     _DateSort tempDateSort = _dateSort;
 
     showModalBottomSheet(
@@ -194,6 +201,15 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     options: _uniqueValues('tribunal'),
                     onChanged: (v) => setSheetState(() => tempTribunal = v),
                   ),
+                  const SizedBox(height: 12),
+                  _FilterDropdown(
+                    label: 'Aplicabilidade',
+                    value: tempApplicability,
+                    options: _uniqueValues('applicability'),
+                    onChanged: (v) =>
+                        setSheetState(() => tempApplicability = v),
+                    labelBuilder: _getProbabilidade,
+                  ),
                   const SizedBox(height: 20),
                   Text(
                     'Ordenar por data',
@@ -241,6 +257,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                           _situacaoFilter = tempSituacao;
                           _speciesFilter = tempSpecies;
                           _tribunalFilter = tempTribunal;
+                          _applicabilityFilter = tempApplicability;
                           _dateSort = tempDateSort;
                           _applyFilters();
                         });
@@ -482,11 +499,9 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              // +1 para o item de loading enquanto stream não terminou
               itemCount: _filteredResults.length + (_isDone ? 0 : 1),
               separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
-                // Último item é o gif de loading
                 if (index == _filteredResults.length) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
@@ -533,18 +548,19 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
 enum _DateSort { none, newest, oldest }
 
-// _FilterDropdown, _DateSortChip e PrecedentResultCard permanecem idênticos
 class _FilterDropdown extends StatelessWidget {
   final String label;
   final String? value;
   final List<String> options;
   final ValueChanged<String?> onChanged;
+  final String Function(String)? labelBuilder;
 
   const _FilterDropdown({
     required this.label,
     required this.value,
     required this.options,
     required this.onChanged,
+    this.labelBuilder,
   });
 
   @override
@@ -565,7 +581,12 @@ class _FilterDropdown extends StatelessWidget {
       ),
       items: [
         const DropdownMenuItem(value: null, child: Text('Todos')),
-        ...options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))),
+        ...options.map(
+          (opt) => DropdownMenuItem(
+            value: opt,
+            child: Text(labelBuilder != null ? labelBuilder!(opt) : opt),
+          ),
+        ),
       ],
       onChanged: onChanged,
     );
