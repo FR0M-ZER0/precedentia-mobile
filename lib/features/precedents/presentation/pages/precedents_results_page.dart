@@ -26,6 +26,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   String? _tribunalFilter;
   String? _applicabilityFilter;
   _DateSort _dateSort = _DateSort.none;
+  _ApplicabilitySort _applicabilitySort = _ApplicabilitySort.none;
 
   @override
   void initState() {
@@ -99,6 +100,20 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       return situacaoOk && speciesOk && tribunalOk && applicabilityOk;
     }).toList();
 
+    if (_applicabilitySort == _ApplicabilitySort.bestFirst) {
+      const order = {
+        'applicable': 0,
+        'possible_applicability': 1,
+        'low_applicability': 2,
+        'not_applicable': 3,
+      };
+      _filteredResults.sort((a, b) {
+        final aVal = order[a['applicability']] ?? 99;
+        final bVal = order[b['applicability']] ?? 99;
+        return aVal.compareTo(bVal);
+      });
+    }
+
     if (_dateSort == _DateSort.newest) {
       _filteredResults.sort(
         (a, b) => _parseDate(
@@ -121,6 +136,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _tribunalFilter = null;
       _applicabilityFilter = null;
       _dateSort = _DateSort.none;
+      _applicabilitySort = _ApplicabilitySort.none;
       _applyFilters();
     });
   }
@@ -139,7 +155,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _speciesFilter != null ||
       _tribunalFilter != null ||
       _applicabilityFilter != null ||
-      _dateSort != _DateSort.none;
+      _dateSort != _DateSort.none ||
+      _applicabilitySort != _ApplicabilitySort.none;
 
   void _showFilterBottomSheet(BuildContext context) {
     String? tempSituacao = _situacaoFilter;
@@ -147,6 +164,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
     String? tempTribunal = _tribunalFilter;
     String? tempApplicability = _applicabilityFilter;
     _DateSort tempDateSort = _dateSort;
+    _ApplicabilitySort tempApplicabilitySort = _applicabilitySort;
 
     showModalBottomSheet(
       context: context,
@@ -247,6 +265,39 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Ordenar por aplicabilidade',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _DateSortChip(
+                        label: 'Padrão',
+                        selected:
+                            tempApplicabilitySort == _ApplicabilitySort.none,
+                        onTap: () => setSheetState(
+                          () =>
+                              tempApplicabilitySort = _ApplicabilitySort.none,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _DateSortChip(
+                        label: 'Mais aplicável',
+                        icon: Icons.sort_rounded,
+                        selected: tempApplicabilitySort ==
+                            _ApplicabilitySort.bestFirst,
+                        onTap: () => setSheetState(
+                          () => tempApplicabilitySort =
+                              _ApplicabilitySort.bestFirst,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
@@ -259,6 +310,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                           _tribunalFilter = tempTribunal;
                           _applicabilityFilter = tempApplicability;
                           _dateSort = tempDateSort;
+                          _applicabilitySort = tempApplicabilitySort;
                           _applyFilters();
                         });
                         Navigator.pop(context);
@@ -547,6 +599,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 }
 
 enum _DateSort { none, newest, oldest }
+enum _ApplicabilitySort { none, bestFirst }
 
 class _FilterDropdown extends StatelessWidget {
   final String label;
