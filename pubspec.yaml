@@ -89,6 +89,7 @@ flutter:
     - assets/images/plane.png
     - assets/images/green_robot.gif
     - assets/images/logo.png
+    - assets/images/sentence_assistant.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
