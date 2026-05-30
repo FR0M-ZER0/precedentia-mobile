@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:precedentia_mobile/core/auth/auth_session.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
-import '../../../petitions/data/models/petition_model.dart';
+import '../../../analysis/data/models/analysis_model.dart';
+import '../../../analysis/data/services/analysis_api_service.dart';
 import '../widgets/history_card.dart';
 
 class UserPage extends StatefulWidget {
@@ -18,6 +17,13 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   DateTime? selectedDate;
+  late Future<List<AnalysisModel>> _analysesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _analysesFuture = AnalysisApiService.getSearches();
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -43,18 +49,20 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
-  Future<void> _openPdf(String path) async {
-    await OpenFilex.open(path);
-  }
-
-  List<PetitionModel> _filteredPetitions(List<PetitionModel> all) {
+  List<AnalysisModel> _filteredAnalyses(List<AnalysisModel> all) {
     if (selectedDate == null) return all;
-    return all.where((p) {
-      final d = p.sentAt;
+    return all.where((a) {
+      final d = a.createdAt;
       return d.year == selectedDate!.year &&
           d.month == selectedDate!.month &&
           d.day == selectedDate!.day;
     }).toList();
+  }
+
+  void _refresh() {
+    setState(() {
+      _analysesFuture = AnalysisApiService.getSearches();
+    });
   }
 
   @override
@@ -180,17 +188,45 @@ class _UserPageState extends State<UserPage> {
             ),
             const SizedBox(height: 16),
 
-            // Lista de Petições do Hive
-            ValueListenableBuilder(
-              valueListenable: Hive.box<PetitionModel>(
-                'petitions',
-              ).listenable(),
-              builder: (context, Box<PetitionModel> box, _) {
-                final all = box.values.toList()
-                  ..sort((a, b) => b.sentAt.compareTo(a.sentAt));
-                final petitions = _filteredPetitions(all);
+            // Lista de Petições da API
+            FutureBuilder<List<AnalysisModel>>(
+              future: _analysesFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
 
-                if (petitions.isEmpty) {
+                if (snapshot.hasError) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Erro ao carregar petições.',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.error,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: _refresh,
+                            child: const Text('Tentar novamente'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final all = (snapshot.data ?? [])
+                  ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+                final analyses = _filteredAnalyses(all);
+
+                if (analyses.isEmpty) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Center(
@@ -206,14 +242,14 @@ class _UserPageState extends State<UserPage> {
                 }
 
                 return Column(
-                  children: petitions
+                  children: analyses
                       .map(
-                        (petition) => HistoryCard(
-                          title: petition.name,
+                        (analysis) => HistoryCard(
+                          title: analysis.type,
                           fileName: DateFormat(
                             'dd/MM/yyyy HH:mm',
-                          ).format(petition.sentAt),
-                          onTap: () => _openPdf(petition.filePath),
+                          ).format(analysis.createdAt),
+                          onTap: () {},
                         ),
                       )
                       .toList(),
