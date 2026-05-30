@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/auth/auth_session.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/network/dio_client.dart';
@@ -19,7 +17,6 @@ class TwoFactorPage extends StatefulWidget {
 }
 
 class _TwoFactorPageState extends State<TwoFactorPage> {
-  final _authRemoteDataSource = AuthRemoteDataSource();
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
@@ -57,7 +54,7 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
       try {
         final token = await AuthApiService.verifyTwoFactorCode(
           code: code,
-          email: widget.email,
+          email: widget.email ?? '',
         );
 
         await SecureStorageService.saveToken(token);
@@ -93,39 +90,6 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
         ),
       );
       return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final accessToken = await _authRemoteDataSource.verifyTwoFactor(
-        email: widget.email,
-        code: code,
-      );
-
-      await AuthSession.instance.setToken(accessToken);
-
-      if (!mounted) {
-        return;
-      }
-
-      context.go('/');
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-
-      final message = error.toString().replaceFirst('Exception: ', '');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: AppColors.detailsColor,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
     }
   }
 
@@ -182,10 +146,10 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              if (widget.email.isNotEmpty) ...[
+              if (widget.email?.isNotEmpty ?? false) ...[
                 const SizedBox(height: 8),
                 Text(
-                  widget.email,
+                  widget.email!,
                   style: textTheme.bodySmall?.copyWith(
                     color: AppColors.altDarkColor,
                     fontWeight: FontWeight.bold,
