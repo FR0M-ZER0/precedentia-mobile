@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final verificationEmail = await _authRemoteDataSource.login(
+      await _authRemoteDataSource.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
 
-      context.push('/2fa', extra: verificationEmail);
+      context.push('/2fa', extra: _emailController.text.trim());
     } catch (error) {
       if (!mounted) {
         return;
