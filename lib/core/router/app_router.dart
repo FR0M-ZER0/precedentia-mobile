@@ -4,12 +4,16 @@ import 'package:precedentia_mobile/features/home/presentation/pages/home_page.da
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
+import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
+    as generation_petition;
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/profile/presentation/pages/user_page.dart';
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_datails_page.dart';
+import 'package:precedentia_mobile/features/home/presentation/pages/not_found_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/history_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/petition_initial_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/splash_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/tutorial_page.dart';
@@ -137,9 +141,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/resultados-precedentes',
-        name: 'precedents_results',
-        builder: (context, state) =>
-            PrecedentsResultsPage(data: state.extra as Map<String, dynamic>),
+        builder: (context, state) {
+          final stream = state.extra as Stream<Map<String, dynamic>>;
+          return PrecedentsResultsPage(stream: stream);
+        },
       ),
       GoRoute(
         path: '/history',
@@ -152,9 +157,25 @@ class AppRouter {
         builder: (context, state) => const SendPetitionTextPage(),
       ),
       GoRoute(
+        path: '/petition-generation-form',
+        name: 'petition_generation_form',
+        builder: (context, state) =>
+            const generation_petition.SendPetitionTextPage(),
+      ),
+      GoRoute(
+        path: '/peticao-inicial',
+        name: 'petition_initial',
+        builder: (context, state) => const PetitionInitialPage(),
+      ),
+      GoRoute(
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const UserPage(),
+      ),
+      GoRoute(
+        path: '/not-found',
+        name: 'not_found',
+        builder: (context, state) => const NotFoundPage(),
       ),
     ],
   );

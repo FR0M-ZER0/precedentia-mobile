@@ -1,33 +1,76 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
 class PrecedentsResultsPage extends StatefulWidget {
-  final Map<String, dynamic> data;
-
-  const PrecedentsResultsPage({super.key, required this.data});
+  final Stream<Map<String, dynamic>> stream;
+  const PrecedentsResultsPage({super.key, required this.stream});
 
   @override
   State<PrecedentsResultsPage> createState() => _PrecedentsResultsPageState();
 }
 
 class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
-  late List<Map<String, dynamic>> _allResults;
-  late List<Map<String, dynamic>> _filteredResults;
+  final List<Map<String, dynamic>> _allResults = [];
+  List<Map<String, dynamic>> _filteredResults = [];
+  bool _isDone = false;
+  String? _queryFacts;
+  StreamSubscription? _subscription;
 
   String? _situacaoFilter;
   String? _speciesFilter;
   String? _tribunalFilter;
+  String? _applicabilityFilter;
   _DateSort _dateSort = _DateSort.none;
+  _ApplicabilitySort _applicabilitySort = _ApplicabilitySort.none;
 
   @override
   void initState() {
     super.initState();
-    _allResults = List<Map<String, dynamic>>.from(
-      (widget.data['results'] as List<dynamic>?) ?? [],
+    _filteredResults = _allResults;
+    _listenToStream();
+  }
+
+  void _listenToStream() {
+    _subscription = widget.stream.listen(
+      (event) {
+        final eventName = event['event'] as String?;
+
+        if (eventName == 'precedent') {
+          setState(() {
+            _allResults.add(event);
+            _applyFilters();
+          });
+        } else if (eventName == 'search_complete' ||
+            eventName == 'rerank_complete') {
+        } else if (eventName == 'done') {
+          setState(() => _isDone = true);
+        } else if (eventName == 'error') {
+          setState(() => _isDone = true);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(event['message'] ?? 'Erro desconhecido')),
+            );
+          }
+        }
+      },
+      onError: (_) {
+        if (mounted) setState(() => _isDone = true);
+      },
+      onDone: () {
+        if (mounted) setState(() => _isDone = true);
+      },
     );
-    _filteredResults = List.from(_allResults);
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   DateTime _parseDate(String date) {
@@ -44,31 +87,46 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   }
 
   void _applyFilters() {
-    setState(() {
-      _filteredResults = _allResults.where((item) {
-        final situacaoOk =
-            _situacaoFilter == null || item['situation'] == _situacaoFilter;
-        final speciesOk =
-            _speciesFilter == null || item['species'] == _speciesFilter;
-        final tribunalOk =
-            _tribunalFilter == null || item['tribunal'] == _tribunalFilter;
-        return situacaoOk && speciesOk && tribunalOk;
-      }).toList();
+    _filteredResults = _allResults.where((item) {
+      final situacaoOk =
+          _situacaoFilter == null || item['situation'] == _situacaoFilter;
+      final speciesOk =
+          _speciesFilter == null || item['species'] == _speciesFilter;
+      final tribunalOk =
+          _tribunalFilter == null || item['tribunal'] == _tribunalFilter;
+      final applicabilityOk =
+          _applicabilityFilter == null ||
+          item['applicability'] == _applicabilityFilter;
+      return situacaoOk && speciesOk && tribunalOk && applicabilityOk;
+    }).toList();
 
-      if (_dateSort == _DateSort.newest) {
-        _filteredResults.sort(
-          (a, b) => _parseDate(
-            (b['last_update'] as String?) ?? '',
-          ).compareTo(_parseDate((a['last_update'] as String?) ?? '')),
-        );
-      } else if (_dateSort == _DateSort.oldest) {
-        _filteredResults.sort(
-          (a, b) => _parseDate(
-            (a['last_update'] as String?) ?? '',
-          ).compareTo(_parseDate((b['last_update'] as String?) ?? '')),
-        );
-      }
-    });
+    if (_applicabilitySort == _ApplicabilitySort.bestFirst) {
+      const order = {
+        'applicable': 0,
+        'possible_applicability': 1,
+        'low_applicability': 2,
+        'not_applicable': 3,
+      };
+      _filteredResults.sort((a, b) {
+        final aVal = order[a['applicability']] ?? 99;
+        final bVal = order[b['applicability']] ?? 99;
+        return aVal.compareTo(bVal);
+      });
+    }
+
+    if (_dateSort == _DateSort.newest) {
+      _filteredResults.sort(
+        (a, b) => _parseDate(
+          (b['last_update'] as String?) ?? '',
+        ).compareTo(_parseDate((a['last_update'] as String?) ?? '')),
+      );
+    } else if (_dateSort == _DateSort.oldest) {
+      _filteredResults.sort(
+        (a, b) => _parseDate(
+          (a['last_update'] as String?) ?? '',
+        ).compareTo(_parseDate((b['last_update'] as String?) ?? '')),
+      );
+    }
   }
 
   void _clearFilters() {
@@ -76,8 +134,10 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _situacaoFilter = null;
       _speciesFilter = null;
       _tribunalFilter = null;
+      _applicabilityFilter = null;
       _dateSort = _DateSort.none;
-      _filteredResults = List.from(_allResults);
+      _applicabilitySort = _ApplicabilitySort.none;
+      _applyFilters();
     });
   }
 
@@ -94,13 +154,17 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _situacaoFilter != null ||
       _speciesFilter != null ||
       _tribunalFilter != null ||
-      _dateSort != _DateSort.none;
+      _applicabilityFilter != null ||
+      _dateSort != _DateSort.none ||
+      _applicabilitySort != _ApplicabilitySort.none;
 
   void _showFilterBottomSheet(BuildContext context) {
     String? tempSituacao = _situacaoFilter;
     String? tempSpecies = _speciesFilter;
     String? tempTribunal = _tribunalFilter;
+    String? tempApplicability = _applicabilityFilter;
     _DateSort tempDateSort = _dateSort;
+    _ApplicabilitySort tempApplicabilitySort = _applicabilitySort;
 
     showModalBottomSheet(
       context: context,
@@ -135,7 +199,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
                   _FilterDropdown(
                     label: 'Situação',
                     value: tempSituacao,
@@ -143,7 +206,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     onChanged: (v) => setSheetState(() => tempSituacao = v),
                   ),
                   const SizedBox(height: 12),
-
                   _FilterDropdown(
                     label: 'Tipo de precedente',
                     value: tempSpecies,
@@ -151,15 +213,22 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     onChanged: (v) => setSheetState(() => tempSpecies = v),
                   ),
                   const SizedBox(height: 12),
-
                   _FilterDropdown(
                     label: 'Tribunal',
                     value: tempTribunal,
                     options: _uniqueValues('tribunal'),
                     onChanged: (v) => setSheetState(() => tempTribunal = v),
                   ),
+                  const SizedBox(height: 12),
+                  _FilterDropdown(
+                    label: 'Aplicabilidade',
+                    value: tempApplicability,
+                    options: _uniqueValues('applicability'),
+                    onChanged: (v) =>
+                        setSheetState(() => tempApplicability = v),
+                    labelBuilder: _getProbabilidade,
+                  ),
                   const SizedBox(height: 20),
-
                   Text(
                     'Ordenar por data',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -196,8 +265,40 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Ordenar por aplicabilidade',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _DateSortChip(
+                        label: 'Padrão',
+                        selected:
+                            tempApplicabilitySort == _ApplicabilitySort.none,
+                        onTap: () => setSheetState(
+                          () => tempApplicabilitySort = _ApplicabilitySort.none,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _DateSortChip(
+                        label: 'Mais aplicável',
+                        icon: Icons.sort_rounded,
+                        selected:
+                            tempApplicabilitySort ==
+                            _ApplicabilitySort.bestFirst,
+                        onTap: () => setSheetState(
+                          () => tempApplicabilitySort =
+                              _ApplicabilitySort.bestFirst,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 24),
-
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -207,9 +308,11 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                           _situacaoFilter = tempSituacao;
                           _speciesFilter = tempSpecies;
                           _tribunalFilter = tempTribunal;
+                          _applicabilityFilter = tempApplicability;
                           _dateSort = tempDateSort;
+                          _applicabilitySort = tempApplicabilitySort;
+                          _applyFilters();
                         });
-                        _applyFilters();
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -320,7 +423,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       'TRESC': 'Tribunal Regional Eleitoral de Santa Catarina',
       'TRESP': 'Tribunal Regional Eleitoral de São Paulo',
       'TRESE': 'Tribunal Regional Eleitoral de Sergipe',
-      'TRETO': 'Tribunal Regional Eleitoral do Tocantins',
+      'TRETO': 'Tribunal Regional Eleitoral de Tocantins',
       'TJMMG': 'Tribunal de Justiça Militar de Minas Gerais',
       'TJMRS': 'Tribunal de Justiça Militar do Rio Grande do Sul',
       'TJMSP': 'Tribunal de Justiça Militar de São Paulo',
@@ -356,8 +459,46 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_allResults.isEmpty) {
-      return const Center(child: Text('Nenhum precedente encontrado.'));
+    if (_allResults.isEmpty && !_isDone) {
+      return BasePageTemplate(
+        title: 'Precedentes jurídicos',
+        onBackPress: () => context.pop(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+              Lottie.asset(
+                'assets/animations/loading.json',
+                width: 120,
+                height: 120,
+              ),
+              const Text('Buscando precedentes...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_allResults.isEmpty && _isDone) {
+      return BasePageTemplate(
+        title: 'Precedentes jurídicos',
+        onBackPress: () => context.pop(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+              Lottie.asset(
+                'assets/animations/not_found.json',
+                width: 70,
+                height: 70,
+              ),
+              const Text('Nenhum precedente encontrado'),
+            ],
+          ),
+        ),
+      );
     }
 
     return BasePageTemplate(
@@ -399,7 +540,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
               ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
             ),
           ),
-
           if (_filteredResults.isEmpty)
             const Center(
               child: Padding(
@@ -411,9 +551,22 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _filteredResults.length,
+              itemCount: _filteredResults.length + (_isDone ? 0 : 1),
               separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
+                if (index == _filteredResults.length) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Lottie.asset(
+                        'assets/animations/loading.json',
+                        width: 80,
+                        height: 80,
+                      ),
+                    ),
+                  );
+                }
+
                 final item = _filteredResults[index];
                 final String applicability =
                     (item['applicability'] as String?) ?? '';
@@ -421,18 +574,17 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                 return GestureDetector(
                   onTap: () => context.push(
                     '/precedents/details/${item['id']}',
-                    extra: {
-                      ...item,
-                      'query_facts': widget.data['query']?['facts'] ?? '',
-                    },
+                    extra: {...item, 'query_facts': _queryFacts ?? ''},
                   ),
                   child: PrecedentResultCard(
-                    tribunal: _nomeTribunal(item['tribunal'] as String),
-                    siglaTribunal: item['tribunal'] as String,
-                    codigoPrecedente: item['name'] as String,
-                    descricao: item['description'] as String,
-                    situacao: item['situation'] as String,
-                    species: item['species'] as String,
+                    tribunal: _nomeTribunal(
+                      (item['tribunal'] as String?) ?? '',
+                    ),
+                    siglaTribunal: (item['tribunal'] as String?) ?? '',
+                    codigoPrecedente: (item['name'] as String?) ?? '',
+                    descricao: (item['description'] as String?) ?? '',
+                    situacao: (item['situation'] as String?) ?? '',
+                    species: (item['species'] as String?) ?? '',
                     lastUpdate: (item['last_update'] as String?) ?? '',
                     probabilidade: _getProbabilidade(applicability),
                     probabilidadeColor: _getProbabilidadeColor(applicability),
@@ -448,17 +600,21 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
 enum _DateSort { none, newest, oldest }
 
+enum _ApplicabilitySort { none, bestFirst }
+
 class _FilterDropdown extends StatelessWidget {
   final String label;
   final String? value;
   final List<String> options;
   final ValueChanged<String?> onChanged;
+  final String Function(String)? labelBuilder;
 
   const _FilterDropdown({
     required this.label,
     required this.value,
     required this.options,
     required this.onChanged,
+    this.labelBuilder,
   });
 
   @override
@@ -479,7 +635,12 @@ class _FilterDropdown extends StatelessWidget {
       ),
       items: [
         const DropdownMenuItem(value: null, child: Text('Todos')),
-        ...options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))),
+        ...options.map(
+          (opt) => DropdownMenuItem(
+            value: opt,
+            child: Text(labelBuilder != null ? labelBuilder!(opt) : opt),
+          ),
+        ),
       ],
       onChanged: onChanged,
     );
@@ -618,7 +779,6 @@ class PrecedentResultCard extends StatelessWidget {
                   ],
                 ),
               ),
-
             IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

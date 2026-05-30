@@ -4,12 +4,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/auth_session.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../data/auth_remote_datasource.dart';
+import '../../../../core/router/app_router.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../../../core/storage/secure_storage_service.dart';
+import '../../../auth/data/auth_api_service.dart';
 
 class TwoFactorPage extends StatefulWidget {
-  const TwoFactorPage({super.key, required this.email});
+  const TwoFactorPage({super.key, this.email});
 
-  final String email;
+  final String? email;
 
   @override
   State<TwoFactorPage> createState() => _TwoFactorPageState();
@@ -46,19 +49,43 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
   }
 
   Future<void> _verifyCode() async {
-    final code = _controllers.map((controller) => controller.text).join();
+    final code = _controllers.map((c) => c.text).join();
 
-    if (widget.email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Volte ao login para solicitar um novo código.'),
-          backgroundColor: AppColors.detailsColor,
-        ),
-      );
-      return;
-    }
+    if (code.length == 6) {
+      setState(() => _isLoading = true);
 
-    if (code.length != 6) {
+      try {
+        final token = await AuthApiService.verifyTwoFactorCode(
+          code: code,
+          email: widget.email,
+        );
+
+        await SecureStorageService.saveToken(token);
+        DioClient.instance.options.headers['Authorization'] = 'Bearer $token';
+        AppRouter.authNotifier.value = true;
+
+        if (!mounted) {
+          return;
+        }
+
+        context.go('/');
+      } catch (error) {
+        if (!mounted) {
+          return;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Falha ao verificar código: $error'),
+            backgroundColor: AppColors.detailsColor,
+          ),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, insira o código completo de 6 dígitos.'),
@@ -222,9 +249,12 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                          width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.mainWhiteColor,
+                          ),
                         )
                       : const Text(
                           'Verificar Código',

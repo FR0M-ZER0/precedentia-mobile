@@ -8,7 +8,10 @@ class PetitionRepositoryImpl implements PetitionRepository {
   PetitionRepositoryImpl(this.datasource);
 
   @override
-  Future<Map<String, dynamic>> extractPetition(PlatformFile file) {
-    return datasource.extractPetition(file);
+  Stream<Map<String, dynamic>> extractPetitionStream(
+    PlatformFile file,
+    int userId,
+  ) {
+    return datasource.extractPetitionStream(file, userId);
   }
 }

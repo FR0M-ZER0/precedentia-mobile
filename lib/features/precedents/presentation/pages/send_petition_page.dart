@@ -55,7 +55,9 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
 
       setState(() => _isUploading = true);
 
-      final Future<Map<String, dynamic>> future = _extractPetitionUseCase(file);
+      // TODO: Substituir o userId fixo por um valor dinâmico, possivelmente obtido do estado de autenticação do usuário.
+      final stream = _extractPetitionUseCase(file, 4);
+      context.push('/resultados-precedentes', extra: stream);
 
       final appDir = await getApplicationDocumentsDirectory();
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
@@ -73,7 +75,7 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
       );
 
       if (!mounted) return;
-      context.push('/carregando-precedentes', extra: future);
+      // context.push('/carregando-precedentes', extra: future);
     } catch (e) {
       debugPrint('Erro ao enviar petição: $e');
       if (!mounted) return;
