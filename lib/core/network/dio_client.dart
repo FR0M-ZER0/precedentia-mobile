@@ -12,7 +12,7 @@ class DioClient {
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(minutes: 5),
       sendTimeout: const Duration(minutes: 2),
-      headers: {'Content-Type': 'multipart/form-data'},
+      headers: {'Content-Type': 'application/json'},
     ),
   );
 }

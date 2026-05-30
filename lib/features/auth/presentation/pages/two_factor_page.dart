@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../../core/auth/auth_session.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/network/dio_client.dart';
@@ -17,6 +19,7 @@ class TwoFactorPage extends StatefulWidget {
 }
 
 class _TwoFactorPageState extends State<TwoFactorPage> {
+  final _authRemoteDataSource = AuthRemoteDataSource();
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
@@ -89,6 +92,40 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
           backgroundColor: AppColors.detailsColor,
         ),
       );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final accessToken = await _authRemoteDataSource.verifyTwoFactor(
+        email: widget.email,
+        code: code,
+      );
+
+      await AuthSession.instance.setToken(accessToken);
+
+      if (!mounted) {
+        return;
+      }
+
+      context.go('/');
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      final message = error.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppColors.detailsColor,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -145,6 +182,17 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              if (widget.email.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  widget.email,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: AppColors.altDarkColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
               const SizedBox(height: 40),
 
               // CAMPOS DO CÓDIGO (6 DÍGITOS)
@@ -222,12 +270,10 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               // REENVIAR CÓDIGO
               TextButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Novo código enviado!')),
-                  );
+                  context.go('/login');
                 },
                 child: Text(
-                  'Não recebeu o código? Reenviar',
+                  'Não recebeu o código? Voltar ao login',
                   style: textTheme.bodySmall?.copyWith(
                     color: AppColors.mainDarkColor,
                     fontWeight: FontWeight.bold,

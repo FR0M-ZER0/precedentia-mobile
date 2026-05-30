@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/auth/auth_session.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -17,12 +18,11 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _initializeApp() async {
-    // Simula um tempo de carregamento
     await Future.delayed(const Duration(seconds: 3));
+    final isLoggedIn = await AuthSession.instance.initialize();
 
     if (mounted) {
-      // Simula um usuário que acabou de baixar o app -> Vai pro Tutorial
-      context.go('/tutorial');
+      context.go(isLoggedIn ? '/' : '/tutorial');
     }
   }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
+import '../../data/auth_remote_datasource.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -11,7 +13,57 @@ class RegistrationPage extends StatefulWidget {
 
 class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authRemoteDataSource = AuthRemoteDataSource();
+  bool _isLoading = false;
   bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authRemoteDataSource.register(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Conta criada com sucesso. Agora faça login.'),
+        ),
+      );
+      context.go('/login');
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      final message = error.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   InputDecoration _authInputDecoration(String label, TextTheme textTheme) {
     return InputDecoration(
@@ -83,29 +135,28 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 ),
                 const SizedBox(height: 32),
 
-                // Campo Nome Completo
-                TextFormField(
-                  style: textTheme.bodyMedium,
-                  decoration: _authInputDecoration('Nome Completo', textTheme),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Informe seu nome'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
                 // Campo E-mail
                 TextFormField(
+                  controller: _emailController,
                   style: textTheme.bodyMedium,
                   decoration: _authInputDecoration('E-mail', textTheme),
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) => value == null || !value.contains('@')
-                      ? 'E-mail inválido'
-                      : null,
+                  validator: (value) {
+                    final email = value?.trim() ?? '';
+                    if (email.isEmpty) {
+                      return 'Informe seu e-mail';
+                    }
+                    if (!email.contains('@')) {
+                      return 'E-mail inválido';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
 
                 // Campo Senha
                 TextFormField(
+                  controller: _passwordController,
                   style: textTheme.bodyMedium,
                   obscureText: _obscurePassword,
                   decoration: _authInputDecoration('Senha', textTheme).copyWith(
@@ -119,9 +170,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
-                  validator: (value) => value == null || value.length < 6
-                      ? 'Mínimo 6 caracteres'
-                      : null,
+                  validator: (value) {
+                    if ((value ?? '').length < 8) {
+                      return 'Mínimo 8 caracteres';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 24),
 
@@ -129,12 +183,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Navega para a próxima etapa (2FA)
-                        context.push('/2fa');
-                      }
-                    },
+                    onPressed: _isLoading ? null : _register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.mainDarkColor,
                       foregroundColor: AppColors.mainWhiteColor,
@@ -142,13 +191,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Cadastrar',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Cadastrar',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 32),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
+import '../../data/auth_remote_datasource.dart';
 import '../../../auth/data/auth_api_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -14,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authRemoteDataSource = AuthRemoteDataSource();
   bool _obscurePassword = true;
   bool _isLoading = false;
 
@@ -24,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _login() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -32,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await AuthApiService.login(
+      final verificationEmail = await _authRemoteDataSource.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -41,18 +45,22 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      context.push('/2fa', extra: _emailController.text.trim());
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Código de verificação enviado por e-mail.'),
+        ),
+      );
+
+      context.push('/2fa', extra: verificationEmail);
     } catch (error) {
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Falha ao autenticar: $error'),
-          backgroundColor: AppColors.detailsColor,
-        ),
-      );
+      final message = error.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -82,18 +90,11 @@ class _LoginPageState extends State<LoginPage> {
                   style: textTheme.titleMedium,
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 32),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Informe seu e-mail';
-                    }
-                    if (!value.contains('@')) {
-                      return 'E-mail inválido';
-                    }
-                    return null;
-                  },
+                  autofillHints: const [AutofillHints.email],
                   decoration: InputDecoration(
                     labelText: 'E-mail',
                     filled: true,
@@ -103,24 +104,30 @@ class _LoginPageState extends State<LoginPage> {
                       borderSide: BorderSide.none,
                     ),
                   ),
+                  validator: (value) {
+                    final email = value?.trim() ?? '';
+                    if (email.isEmpty) {
+                      return 'Informe seu e-mail';
+                    }
+                    if (!email.contains('@')) {
+                      return 'E-mail inválido';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Informe sua senha';
-                    }
-                    if (value.length < 6) {
-                      return 'Mínimo 6 caracteres';
-                    }
-                    return null;
-                  },
+                  autofillHints: const [AutofillHints.password],
                   decoration: InputDecoration(
                     labelText: 'Senha',
                     filled: true,
                     fillColor: AppColors.altLightColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -131,11 +138,13 @@ class _LoginPageState extends State<LoginPage> {
                         setState(() => _obscurePassword = !_obscurePassword);
                       },
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
                   ),
+                  validator: (value) {
+                    if ((value ?? '').isEmpty) {
+                      return 'Informe sua senha';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 8),
                 Align(
@@ -154,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _handleLogin,
+                    onPressed: _isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.mainDarkColor,
                       foregroundColor: AppColors.mainWhiteColor,
@@ -164,12 +173,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: _isLoading
                         ? const SizedBox(
-                            height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.mainWhiteColor,
-                            ),
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text(
                             'Entrar',
