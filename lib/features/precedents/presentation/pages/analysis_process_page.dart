@@ -108,10 +108,8 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
       final userId = await SecureStorageService.readUserId();
       if (userId == null) return;
 
-      final pedidos = (data['pedidos'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [];
+      final pedidos =
+          (data['pedidos'] as List?)?.map((e) => e.toString()).toList() ?? [];
 
       final body = {
         'author': data['autor'] ?? '',
@@ -121,11 +119,13 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
         'facts_summary': data['fatos'] ?? '',
         'requests': pedidos,
         'precedents': topPrecedents
-            .map((p) => {
-                  'name': p['name'] ?? '',
-                  'question': p['question'] ?? '',
-                  'description': p['description'] ?? '',
-                })
+            .map(
+              (p) => {
+                'name': p['name'] ?? '',
+                'question': p['question'] ?? '',
+                'description': p['description'] ?? '',
+              },
+            )
             .toList(),
         'contestacao': (data['contestacao'] as String?)?.isNotEmpty == true
             ? data['contestacao']
@@ -133,7 +133,10 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
         'user_id': userId,
       };
 
-      final baseUrl = DioClient.instance.options.baseUrl.replaceAll(RegExp(r'/$'), '');
+      final baseUrl = DioClient.instance.options.baseUrl.replaceAll(
+        RegExp(r'/$'),
+        '',
+      );
       final uri = Uri.parse('$baseUrl/sentences/generate');
 
       final dioHeaders = DioClient.instance.options.headers;
@@ -155,12 +158,17 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
       final content = json['content'] as String;
 
       if (!mounted) return;
-      context.push('/sentenca-inicial-editar', extra: content);
+      context.push('/sentenca-inicial-editar', extra: {
+        'content': content,
+        'sentenceId': json['id'] as int,
+      });
     } catch (e) {
       debugPrint('Erro ao gerar sentença: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao gerar sentença. Tente novamente.')),
+        const SnackBar(
+          content: Text('Erro ao gerar sentença. Tente novamente.'),
+        ),
       );
     } finally {
       if (mounted) setState(() => _isGenerating = false);
@@ -435,8 +443,9 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  disabledBackgroundColor:
-                      AppColors.altLightColor.withValues(alpha: 0.6),
+                  disabledBackgroundColor: AppColors.altLightColor.withValues(
+                    alpha: 0.6,
+                  ),
                   textStyle: textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -456,7 +465,10 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.edit_document, color: AppColors.mainDarkColor),
+                          Icon(
+                            Icons.edit_document,
+                            color: AppColors.mainDarkColor,
+                          ),
                           const SizedBox(width: 12),
                           const Text('Gerar minuta'),
                         ],

@@ -167,9 +167,13 @@ class AppRouter {
       GoRoute(
         path: '/sentenca-inicial-editar',
         name: 'initial_sentence_edit',
-        builder: (context, state) => InitialSentenceEditPage(
-          content: state.extra as String,
-        ),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return InitialSentenceEditPage(
+            content: extra['content'] as String,
+            sentenceId: extra['sentenceId'] as int,
+          );
+        },
       ),
       GoRoute(
         path: '/assistente-sentenca',

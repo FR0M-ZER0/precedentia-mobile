@@ -1,16 +1,25 @@
+import 'dart:convert';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'package:precedentia_mobile/core/network/dio_client.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
 class InitialSentenceEditPage extends StatefulWidget {
   final String content;
-  const InitialSentenceEditPage({super.key, required this.content});
+  final int sentenceId;
+
+  const InitialSentenceEditPage({
+    super.key,
+    required this.content,
+    required this.sentenceId,
+  });
 
   @override
   State<InitialSentenceEditPage> createState() =>
@@ -20,14 +29,13 @@ class InitialSentenceEditPage extends StatefulWidget {
 class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
   late EditorState _editorState;
   late TextEditingController _promptController;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _promptController = TextEditingController();
-    _editorState = EditorState(
-      document: markdownToDocument(widget.content),
-    );
+    _editorState = EditorState(document: markdownToDocument(widget.content));
   }
 
   @override
@@ -37,17 +45,12 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
     super.dispose();
   }
 
-  /// Markdown puro atual — use para enviar ao backend
   String get _currentMarkdown => documentToMarkdown(_editorState.document);
 
-  // ── Helpers de formatação inline ──────────────────────────────────
-
-  /// Aplica/remove um atributo inline na seleção atual (bold, italic, underline…)
   void _toggleInlineFormat(String attribute) {
     final selection = _editorState.selection;
     if (selection == null || selection.isCollapsed) return;
 
-    // Verifica se todos os nós selecionados já têm o atributo
     final nodes = _editorState.getNodesInSelection(selection);
     final allHave = nodes.every((node) {
       final delta = node.delta;
@@ -65,7 +68,6 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
     _editorState.apply(transaction);
   }
 
-  /// Muda o tipo do bloco onde o cursor está (heading, bulletedList, etc.)
   void _changeBlockType(String type, {Map<String, dynamic>? attributes}) {
     final selection = _editorState.selection;
     if (selection == null) return;
@@ -119,28 +121,186 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
     }
   }
 
+  Future<void> _submitEdit() async {
+    final prompt = _promptController.text.trim();
+    if (prompt.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Digite um prompt antes de enviar'),
+          backgroundColor: AppColors.detailsColor,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final baseUrl = DioClient.instance.options.baseUrl.replaceAll(
+        RegExp(r'/$'),
+        '',
+      );
+      final dioHeaders = DioClient.instance.options.headers;
+      final response = await http.post(
+        Uri.parse('$baseUrl/sentences/edit'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (dioHeaders['Authorization'] != null)
+            'Authorization': dioHeaders['Authorization'] as String,
+        },
+        body: jsonEncode({
+          'sentence_id': widget.sentenceId,
+          'content': _currentMarkdown,
+          'change': prompt,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final updatedContent = data['content'] as String;
+
+        setState(() {
+          _editorState.dispose();
+          _editorState = EditorState(
+            document: markdownToDocument(updatedContent),
+          );
+          _promptController.clear();
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Sentença atualizada com sucesso')),
+          );
+        }
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? 'Erro desconhecido');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao editar sentença: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _generatePdfAndShare() async {
     final doc = pw.Document();
+    final font = await PdfGoogleFonts.nunitoRegular();
+    final fontBold = await PdfGoogleFonts.nunitoBold();
+    final fontItalic = await PdfGoogleFonts.nunitoItalic();
+
     final lines = _currentMarkdown.split('\n');
 
     doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        build: (context) => [
-          for (final line in lines)
-            if (line.startsWith('# '))
-              pw.Header(level: 0, text: line.replaceFirst('# ', ''))
-            else if (line.startsWith('## '))
-              pw.Header(level: 1, text: line.replaceFirst('## ', ''))
-            else if (line.startsWith('### '))
-              pw.Header(level: 2, text: line.replaceFirst('### ', ''))
-            else if (line.startsWith('- '))
-              pw.Bullet(text: line.replaceFirst('- ', ''))
-            else if (RegExp(r'^\d+\. ').hasMatch(line))
-              pw.Text(line)
-            else
-              pw.Paragraph(text: line),
-        ],
+        margin: const pw.EdgeInsets.symmetric(horizontal: 64, vertical: 72),
+        theme: pw.ThemeData.withFont(
+          base: font,
+          bold: fontBold,
+          italic: fontItalic,
+        ),
+        build: (context) {
+          final widgets = <pw.Widget>[];
+
+          for (final line in lines) {
+            if (line.trim().isEmpty) {
+              widgets.add(pw.SizedBox(height: 8));
+            } else if (line.startsWith('### ')) {
+              widgets.add(
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(top: 12, bottom: 4),
+                  child: pw.Text(
+                    line.replaceFirst('### ', ''),
+                    style: pw.TextStyle(
+                      font: fontBold,
+                      fontSize: 13,
+                      color: PdfColors.grey800,
+                    ),
+                  ),
+                ),
+              );
+            } else if (line.startsWith('## ')) {
+              widgets.add(
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(top: 16, bottom: 6),
+                  child: pw.Text(
+                    line.replaceFirst('## ', ''),
+                    style: pw.TextStyle(
+                      font: fontBold,
+                      fontSize: 15,
+                      color: PdfColors.grey900,
+                    ),
+                  ),
+                ),
+              );
+            } else if (line.startsWith('# ')) {
+              widgets.add(
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(top: 20, bottom: 8),
+                  child: pw.Text(
+                    line.replaceFirst('# ', ''),
+                    style: pw.TextStyle(
+                      font: fontBold,
+                      fontSize: 18,
+                      color: PdfColors.black,
+                    ),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ),
+              );
+            } else if (line.startsWith('- ') || line.startsWith('* ')) {
+              widgets.add(
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(left: 16, bottom: 4),
+                  child: pw.Row(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text('• ',
+                          style: pw.TextStyle(font: font, fontSize: 11)),
+                      pw.Expanded(
+                        child: pw.Text(
+                          line.replaceFirst(RegExp(r'^[-*] '), ''),
+                          style: pw.TextStyle(font: font, fontSize: 11, lineSpacing: 2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            } else if (RegExp(r'^\d+\. ').hasMatch(line)) {
+              widgets.add(
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(left: 16, bottom: 4),
+                  child: pw.Text(
+                    line,
+                    style: pw.TextStyle(font: font, fontSize: 11, lineSpacing: 2),
+                  ),
+                ),
+              );
+            } else {
+              widgets.add(
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(bottom: 6),
+                  child: pw.Text(
+                    line,
+                    style: pw.TextStyle(font: font, fontSize: 11, lineSpacing: 2),
+                    textAlign: pw.TextAlign.justify,
+                  ),
+                ),
+              );
+            }
+          }
+
+          return widgets;
+        },
       ),
     );
 
@@ -179,7 +339,6 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
         children: [
           const SizedBox(height: 16),
 
-          // ── Editor WYSIWYG ────────────────────────────────────────
           SizedBox(
             width: double.infinity,
             height: 420,
@@ -190,7 +349,6 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
               ),
               child: Column(
                 children: [
-                  // Toolbar
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(
@@ -199,7 +357,6 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
                     ),
                     child: Row(
                       children: [
-                        // Headings
                         PopupMenuButton<int>(
                           tooltip: 'Título',
                           child: Padding(
@@ -232,21 +389,18 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
                             PopupMenuItem(value: 3, child: Text('H3')),
                           ],
                         ),
-                        // Bold
                         IconButton(
                           tooltip: 'Negrito',
                           onPressed: () =>
                               _toggleInlineFormat(AppFlowyRichTextKeys.bold),
                           icon: const Icon(Icons.format_bold),
                         ),
-                        // Italic
                         IconButton(
                           tooltip: 'Itálico',
                           onPressed: () =>
                               _toggleInlineFormat(AppFlowyRichTextKeys.italic),
                           icon: const Icon(Icons.format_italic),
                         ),
-                        // Underline
                         IconButton(
                           tooltip: 'Sublinhado',
                           onPressed: () => _toggleInlineFormat(
@@ -254,21 +408,18 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
                           ),
                           icon: const Icon(Icons.format_underlined),
                         ),
-                        // Bulleted list
                         IconButton(
                           tooltip: 'Lista com marcadores',
                           onPressed: () =>
                               _changeBlockType(BulletedListBlockKeys.type),
                           icon: const Icon(Icons.format_list_bulleted),
                         ),
-                        // Numbered list
                         IconButton(
                           tooltip: 'Lista numerada',
                           onPressed: () =>
                               _changeBlockType(NumberedListBlockKeys.type),
                           icon: const Icon(Icons.format_list_numbered),
                         ),
-                        // Link
                         IconButton(
                           tooltip: 'Link',
                           onPressed: _insertLink,
@@ -280,7 +431,6 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
 
                   const Divider(height: 1),
 
-                  // Editor ocupa o restante
                   Expanded(
                     child: AppFlowyEditor(
                       editorState: _editorState,
@@ -297,7 +447,6 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
 
           const SizedBox(height: 24),
 
-          // ── Campo de prompt ───────────────────────────────────────
           Container(
             height: 160,
             width: double.infinity,
@@ -312,6 +461,7 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
                   child: TextField(
                     controller: _promptController,
                     maxLines: null,
+                    enabled: !_isLoading,
                     style: textTheme.bodyMedium?.copyWith(
                       color: AppColors.mainDarkColor,
                     ),
@@ -327,29 +477,20 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
                 Positioned(
                   right: 8,
                   bottom: 8,
-                  child: IconButton(
-                    onPressed: () {
-                      if (_promptController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Digite um prompt antes de enviar'),
-                            backgroundColor: AppColors.detailsColor,
+                  child: _isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           ),
-                        );
-                        return;
-                      }
-
-                      // Markdown puro pronto para enviar ao backend:
-                      final markdownAtual = _currentMarkdown;
-                      debugPrint('Markdown:\n$markdownAtual');
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Prompt enviado (mock)')),
-                      );
-                    },
-                    icon: const Icon(Icons.send),
-                    color: AppColors.altDarkColor,
-                  ),
+                        )
+                      : IconButton(
+                          onPressed: _submitEdit,
+                          icon: const Icon(Icons.send),
+                          color: AppColors.altDarkColor,
+                        ),
                 ),
               ],
             ),
@@ -357,12 +498,11 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
 
           const SizedBox(height: 24),
 
-          // ── Botão de download ─────────────────────────────────────
           SizedBox(
             width: double.infinity,
             height: 56,
             child: ElevatedButton.icon(
-              onPressed: _generatePdfAndShare,
+              onPressed: _isLoading ? null : _generatePdfAndShare,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.altLightColor,
                 foregroundColor: AppColors.mainDarkColor,
