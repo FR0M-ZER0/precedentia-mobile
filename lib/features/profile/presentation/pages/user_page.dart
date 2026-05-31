@@ -248,10 +248,8 @@ class _UserPageState extends State<UserPage> {
                           fileName: DateFormat(
                             'dd/MM/yyyy HH:mm',
                           ).format(analysis.createdAt),
-                          onTap: () => context.push(
-                            '/peticao-inicial',
-                            extra: analysis,
-                          ),
+                          onTap: () =>
+                              context.push('/peticao-inicial', extra: analysis),
                         ),
                       )
                       .toList(),

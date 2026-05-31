@@ -141,7 +141,9 @@ class PetitionInitialPage extends StatelessWidget {
                   species: precedent.species,
                   lastUpdate: precedent.lastUpdate,
                   probabilidade: _applicabilityLabel(precedent.applicability),
-                  probabilidadeColor: _applicabilityColor(precedent.applicability),
+                  probabilidadeColor: _applicabilityColor(
+                    precedent.applicability,
+                  ),
                 ),
               ),
             ),

@@ -166,9 +166,8 @@ class AppRouter {
       GoRoute(
         path: '/peticao-inicial',
         name: 'peticao-inicial',
-          builder: (context, state) => PetitionInitialPage(
-            analysis: state.extra as AnalysisModel,
-          ),
+        builder: (context, state) =>
+            PetitionInitialPage(analysis: state.extra as AnalysisModel),
       ),
       GoRoute(
         path: '/profile',
