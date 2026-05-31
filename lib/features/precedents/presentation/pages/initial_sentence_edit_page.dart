@@ -131,10 +131,7 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
     if (node == null) return;
 
     final transaction = _editorState.transaction;
-    transaction.updateNode(node, {
-      'type': type,
-      ...?attributes,
-    });
+    transaction.updateNode(node, {'type': type, ...?attributes});
     _editorState.apply(transaction);
   }
 
@@ -154,11 +151,13 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(c),
-                child: const Text('Cancelar')),
+              onPressed: () => Navigator.pop(c),
+              child: const Text('Cancelar'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(c, ctrl.text.trim()),
-                child: const Text('OK')),
+              onPressed: () => Navigator.pop(c, ctrl.text.trim()),
+              child: const Text('OK'),
+            ),
           ],
         );
       },
@@ -253,7 +252,9 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Row(
                       children: [
                         // Headings
@@ -261,7 +262,9 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
                           tooltip: 'Título',
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 6),
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
                             child: Text(
                               'H',
                               style: textTheme.bodyMedium?.copyWith(
@@ -273,8 +276,9 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
                           onSelected: (level) {
                             final sel = _editorState.selection;
                             if (sel == null) return;
-                            final node = _editorState
-                                .getNodeAtPath(sel.start.path);
+                            final node = _editorState.getNodeAtPath(
+                              sel.start.path,
+                            );
                             if (node == null) return;
                             final tx = _editorState.transaction;
                             tx.updateNode(node, {'level': level});
@@ -304,7 +308,8 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
                         IconButton(
                           tooltip: 'Sublinhado',
                           onPressed: () => _toggleInlineFormat(
-                              AppFlowyRichTextKeys.underline),
+                            AppFlowyRichTextKeys.underline,
+                          ),
                           icon: const Icon(Icons.format_underlined),
                         ),
                         // Bulleted list
@@ -338,11 +343,9 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
                     child: AppFlowyEditor(
                       editorState: _editorState,
                       editorStyle: editorStyle,
-                      blockComponentBuilders:
-                          standardBlockComponentBuilderMap,
+                      blockComponentBuilders: standardBlockComponentBuilderMap,
                       commandShortcutEvents: standardCommandShortcutEvents,
-                      characterShortcutEvents:
-                          standardCharacterShortcutEvents,
+                      characterShortcutEvents: standardCharacterShortcutEvents,
                     ),
                   ),
                 ],
@@ -367,8 +370,9 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
                   child: TextField(
                     controller: _promptController,
                     maxLines: null,
-                    style: textTheme.bodyMedium
-                        ?.copyWith(color: AppColors.mainDarkColor),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.mainDarkColor,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Digite as alterações',
                       hintStyle: textTheme.bodyMedium?.copyWith(
@@ -386,8 +390,7 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
                       if (_promptController.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Digite um prompt antes de enviar'),
+                            content: Text('Digite um prompt antes de enviar'),
                             backgroundColor: AppColors.detailsColor,
                           ),
                         );
@@ -399,8 +402,7 @@ O valor indenizatório afigura-se razoável e proporcional ao sofrimento experim
                       debugPrint('Markdown:\n$markdownAtual');
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Prompt enviado (mock)')),
+                        const SnackBar(content: Text('Prompt enviado (mock)')),
                       );
                     },
                     icon: const Icon(Icons.send),

@@ -113,10 +113,7 @@ R\$ 6.500,00
     if (node == null) return;
 
     final transaction = _editorState.transaction;
-    transaction.updateNode(node, {
-      'type': type,
-      ...?attributes,
-    });
+    transaction.updateNode(node, {'type': type, ...?attributes});
     _editorState.apply(transaction);
   }
 
@@ -136,11 +133,13 @@ R\$ 6.500,00
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(c),
-                child: const Text('Cancelar')),
+              onPressed: () => Navigator.pop(c),
+              child: const Text('Cancelar'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(c, ctrl.text.trim()),
-                child: const Text('OK')),
+              onPressed: () => Navigator.pop(c, ctrl.text.trim()),
+              child: const Text('OK'),
+            ),
           ],
         );
       },
@@ -235,7 +234,9 @@ R\$ 6.500,00
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Row(
                       children: [
                         // Headings
@@ -243,7 +244,9 @@ R\$ 6.500,00
                           tooltip: 'Título',
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 6),
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
                             child: Text(
                               'H',
                               style: textTheme.bodyMedium?.copyWith(
@@ -255,8 +258,9 @@ R\$ 6.500,00
                           onSelected: (level) {
                             final sel = _editorState.selection;
                             if (sel == null) return;
-                            final node = _editorState
-                                .getNodeAtPath(sel.start.path);
+                            final node = _editorState.getNodeAtPath(
+                              sel.start.path,
+                            );
                             if (node == null) return;
                             final tx = _editorState.transaction;
                             tx.updateNode(node, {'level': level});
@@ -286,7 +290,8 @@ R\$ 6.500,00
                         IconButton(
                           tooltip: 'Sublinhado',
                           onPressed: () => _toggleInlineFormat(
-                              AppFlowyRichTextKeys.underline),
+                            AppFlowyRichTextKeys.underline,
+                          ),
                           icon: const Icon(Icons.format_underlined),
                         ),
                         // Bulleted list
@@ -320,11 +325,9 @@ R\$ 6.500,00
                     child: AppFlowyEditor(
                       editorState: _editorState,
                       editorStyle: editorStyle,
-                      blockComponentBuilders:
-                          standardBlockComponentBuilderMap,
+                      blockComponentBuilders: standardBlockComponentBuilderMap,
                       commandShortcutEvents: standardCommandShortcutEvents,
-                      characterShortcutEvents:
-                          standardCharacterShortcutEvents,
+                      characterShortcutEvents: standardCharacterShortcutEvents,
                     ),
                   ),
                 ],
@@ -349,8 +352,9 @@ R\$ 6.500,00
                   child: TextField(
                     controller: _promptController,
                     maxLines: null,
-                    style: textTheme.bodyMedium
-                        ?.copyWith(color: AppColors.mainDarkColor),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.mainDarkColor,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Digite as alterações',
                       hintStyle: textTheme.bodyMedium?.copyWith(
@@ -368,8 +372,7 @@ R\$ 6.500,00
                       if (_promptController.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Digite um prompt antes de enviar'),
+                            content: Text('Digite um prompt antes de enviar'),
                             backgroundColor: AppColors.detailsColor,
                           ),
                         );
@@ -381,8 +384,7 @@ R\$ 6.500,00
                       debugPrint('Markdown:\n$markdownAtual');
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Prompt enviado (mock)')),
+                        const SnackBar(content: Text('Prompt enviado (mock)')),
                       );
                     },
                     icon: const Icon(Icons.send),

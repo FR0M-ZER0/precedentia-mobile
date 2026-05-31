@@ -54,8 +54,8 @@ class _SentenceAssistantPageState extends State<SentenceAssistantPage> {
               Text(
                 'Imagem não encontrada',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.mainDarkColor.withValues(alpha: 0.5),
-                    ),
+                  color: AppColors.mainDarkColor.withValues(alpha: 0.5),
+                ),
               ),
             ],
           );
@@ -70,7 +70,8 @@ class _SentenceAssistantPageState extends State<SentenceAssistantPage> {
 
     return BasePageTemplate(
       title: 'Assistente de sentença',
-      subtitle: 'Envie o arquivo PDF do processo jurídico e gere a minuta da decisão',
+      subtitle:
+          'Envie o arquivo PDF do processo jurídico e gere a minuta da decisão',
       onBackPress: () => context.pop(),
       body: SingleChildScrollView(
         child: Column(
@@ -79,10 +80,7 @@ class _SentenceAssistantPageState extends State<SentenceAssistantPage> {
             const SizedBox(height: 32),
 
             // ── Ilustração ────────────────────────────────────────
-            SizedBox(
-              height: 300,
-              child: _buildIllustration(),
-            ),
+            SizedBox(height: 300, child: _buildIllustration()),
 
             const SizedBox(height: 32),
 
@@ -99,7 +97,9 @@ class _SentenceAssistantPageState extends State<SentenceAssistantPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  disabledBackgroundColor: AppColors.altLightColor.withValues(alpha: 0.6),
+                  disabledBackgroundColor: AppColors.altLightColor.withValues(
+                    alpha: 0.6,
+                  ),
                 ),
                 icon: _isLoading
                     ? SizedBox(

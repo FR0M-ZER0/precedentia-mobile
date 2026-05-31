@@ -5,7 +5,8 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
-import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart' show PrecedentResultCard;
+import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart'
+    show PrecedentResultCard;
 
 class AnalysisProcessPage extends StatelessWidget {
   const AnalysisProcessPage({super.key});
@@ -58,9 +59,14 @@ class AnalysisProcessPage extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'Autor: ',
-                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                        style: textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      TextSpan(text: 'Fulano da Silva', style: textTheme.bodyMedium),
+                      TextSpan(
+                        text: 'Fulano da Silva',
+                        style: textTheme.bodyMedium,
+                      ),
                     ],
                   ),
                 ),
@@ -70,9 +76,14 @@ class AnalysisProcessPage extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'Réu: ',
-                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                        style: textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      TextSpan(text: 'Siclano Jr.', style: textTheme.bodyMedium),
+                      TextSpan(
+                        text: 'Siclano Jr.',
+                        style: textTheme.bodyMedium,
+                      ),
                     ],
                   ),
                 ),
@@ -112,7 +123,10 @@ class AnalysisProcessPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -133,9 +147,7 @@ class AnalysisProcessPage extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             'Precedentes recomendados',
-            style: textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           PrecedentResultCard(
@@ -229,9 +241,7 @@ Future<void> _generatePdfAndShare(BuildContext context) async {
               'Resumo:\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et varius risus, vel vulputate nibh. Phasellus vel sapien id risus pellentesque bibendum. Cras lobortis condimentum tortor aliquam feugiat. Mauris semper pretium nisi, eget finibus lectus.',
         ),
         pw.Header(level: 1, text: 'Partes'),
-        pw.Paragraph(
-          text: 'Autor: Fulano da Silva\nRéu: Siclano Jr.',
-        ),
+        pw.Paragraph(text: 'Autor: Fulano da Silva\nRéu: Siclano Jr.'),
         pw.Header(level: 1, text: 'Recursos'),
         pw.Bullet(text: 'Recurso 1'),
         pw.Bullet(text: 'Recurso 2'),
@@ -269,9 +279,7 @@ class _BulletText extends StatelessWidget {
               backgroundColor: AppColors.mainDarkColor,
             ),
           ),
-          Expanded(
-            child: Text(text, style: textTheme.bodyMedium),
-          ),
+          Expanded(child: Text(text, style: textTheme.bodyMedium)),
         ],
       ),
     );
@@ -314,5 +322,3 @@ class _BulletText extends StatelessWidget {
 //     );
 //   }
 // }
-
-
