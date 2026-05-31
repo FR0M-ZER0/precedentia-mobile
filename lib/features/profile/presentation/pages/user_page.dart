@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:precedentia_mobile/core/auth/auth_session.dart';
+import 'package:precedentia_mobile/core/network/dio_client.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import '../../../analysis/data/models/analysis_model.dart';
@@ -18,11 +19,19 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> {
   DateTime? selectedDate;
   late Future<List<AnalysisModel>> _analysesFuture;
+  late Future<String> _emailFuture;
 
   @override
   void initState() {
     super.initState();
     _analysesFuture = AnalysisApiService.getSearches();
+    _emailFuture = _fetchEmail();
+  }
+
+  Future<String> _fetchEmail() async {
+    final response = await DioClient.instance.get('/auth/me');
+    final data = response.data as Map<String, dynamic>;
+    return data['email'] as String? ?? '—';
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -78,32 +87,38 @@ class _UserPageState extends State<UserPage> {
           children: [
             // Perfil
             Center(
-              child: Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 55,
-                    backgroundColor: AppColors.altLightColor,
-                    child: Icon(
-                      Icons.person_outline,
-                      size: 55,
-                      color: AppColors.mainDarkColor,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text("Fulano da Silva", style: textTheme.titleMedium),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+              child: FutureBuilder<String>(
+                future: _emailFuture,
+                builder: (context, snapshot) {
+                  final email = snapshot.data ?? '—';
+
+                  return Column(
                     children: [
-                      Text("fulano@email.com", style: textTheme.titleSmall),
-                      const SizedBox(width: 8),
-                      const Icon(
-                        Icons.edit_outlined,
-                        size: 18,
-                        color: AppColors.altDarkColor,
+                      const CircleAvatar(
+                        radius: 55,
+                        backgroundColor: AppColors.altLightColor,
+                        child: Icon(
+                          Icons.person_outline,
+                          size: 55,
+                          color: AppColors.mainDarkColor,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(email, style: textTheme.titleSmall),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: AppColors.altDarkColor,
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
             ),
 
