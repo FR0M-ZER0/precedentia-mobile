@@ -278,41 +278,41 @@ class _BulletText extends StatelessWidget {
   }
 }
 
-class _InfoTagCard extends StatelessWidget {
-  final List<String> items;
+// class _InfoTagCard extends StatelessWidget {
+//   final List<String> items;
 
-  const _InfoTagCard({required this.items});
+//   const _InfoTagCard({required this.items});
 
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+//   @override
+//   Widget build(BuildContext context) {
+//     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.altLightColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: items
-            .map(
-              (item) => Chip(
-                backgroundColor: Colors.white,
-                label: Text(
-                  item,
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-}
+//     return Container(
+//       width: double.infinity,
+//       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+//       decoration: BoxDecoration(
+//         color: AppColors.altLightColor,
+//         borderRadius: BorderRadius.circular(20),
+//       ),
+//       child: Wrap(
+//         spacing: 8,
+//         runSpacing: 8,
+//         children: items
+//             .map(
+//               (item) => Chip(
+//                 backgroundColor: Colors.white,
+//                 label: Text(
+//                   item,
+//                   style: textTheme.bodyMedium?.copyWith(
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//               ),
+//             )
+//             .toList(),
+//       ),
+//     );
+//   }
+// }
 
 
