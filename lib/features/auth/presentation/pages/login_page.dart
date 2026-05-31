@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../../core/theme/app_colors.dart';
 import '../../data/auth_remote_datasource.dart';
-import '../../../auth/data/auth_api_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -36,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final verificationEmail = await _authRemoteDataSource.login(
+      await _authRemoteDataSource.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -51,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
 
-      context.push('/2fa', extra: verificationEmail);
+      context.push('/2fa', extra: _emailController.text.trim());
     } catch (error) {
       if (!mounted) {
         return;

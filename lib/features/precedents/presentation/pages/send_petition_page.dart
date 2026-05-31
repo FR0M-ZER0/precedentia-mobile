@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:precedentia_mobile/core/storage/secure_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 import '../../data/datasource/petition_remote_datasource.dart';
@@ -55,8 +56,12 @@ class _SendPetitionPageState extends State<SendPetitionPage> {
 
       setState(() => _isUploading = true);
 
-      // TODO: Substituir o userId fixo por um valor dinâmico, possivelmente obtido do estado de autenticação do usuário.
-      final stream = _extractPetitionUseCase(file, 4);
+      final userId = await SecureStorageService.readUserId();
+      if (userId == null) return;
+
+      final stream = _extractPetitionUseCase(file, userId);
+
+      if (!mounted) return;
       context.push('/resultados-precedentes', extra: stream);
 
       final appDir = await getApplicationDocumentsDirectory();

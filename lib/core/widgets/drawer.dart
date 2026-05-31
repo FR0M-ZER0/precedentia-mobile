@@ -95,11 +95,15 @@ class CustomDrawer extends StatelessWidget {
         style: textTheme.titleSmall?.copyWith(color: textColor),
       ),
       onTap: () async {
+        final router = GoRouter.of(context);
+
         context.pop();
+
         if (isDestructive) {
           await AuthSession.instance.signOut();
         }
-        context.go(route);
+
+        router.go(route);
       },
     );
   }
