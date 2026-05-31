@@ -9,7 +9,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
 class InitialSentenceEditPage extends StatefulWidget {
-  const InitialSentenceEditPage({super.key});
+  final String content;
+  const InitialSentenceEditPage({super.key, required this.content});
 
   @override
   State<InitialSentenceEditPage> createState() =>
@@ -20,71 +21,12 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
   late EditorState _editorState;
   late TextEditingController _promptController;
 
-  static const String _mockSentenceMarkdown = '''# Sentença
-
-## Dados Processuais
-
-**Processo:** 0001234-56.2024.8.26.0100  
-**Juízo:** 1ª Vara Cível da Comarca de São Paulo  
-**Juiz:** Hon. Desembargador João Silva
-
----
-
-## Das Partes
-
-**Autor:** João Góes, brasileiro, estado civil, profissão  
-**Réu:** Empresa Batman Ltda., CNPJ 00.000.000/0000-00
-
----
-
-## Do Resumo dos Autos
-
-Trata-se de ação de indenização por danos materiais e morais proposta por João Góes em face de Empresa Batman Ltda., visando o recebimento de indenização pela venda e entrega de produto defeituoso.
-
----
-
-## Das Questões de Direito
-
-Restou comprovado nos autos que:
-
-1. O autor adquiriu produto fabricado pelo réu em 15 de janeiro de 2024
-2. O produto apresentava defeito grave, incompatível com seu propósito
-3. O réu recusou-se a fazer a substituição ou devolução do valor
-
-Aplicam-se ao caso os dispositivos do **Código de Defesa do Consumidor (Lei 8.078/1990)**
-
----
-
-## Do Dispositivo
-
-Pelo exposto, **JULGO PROCEDENTE** o pedido para:
-
-1. Condenar o réu ao pagamento de **R\$ 5.000,00** por danos morais
-2. Condenar o réu ao pagamento de **R\$ 1.500,00** por danos materiais
-3. Condenar o réu ao pagamento das **custas processuais e honorários advocatícios** no valor de R\$ 800,00
-
----
-
-## Fundamentação
-
-A responsabilidade civil objetiva do fornecedor está consagrada nos artigos 12 e 14 do CDC, não sendo necessária a comprovação de culpa. Resta demonstrado o defeito do produto e o nexo causal com o dano.
-
-O valor indenizatório afigura-se razoável e proporcional ao sofrimento experimentado.
-
----
-
-**Dado e passado nesta data,**  
-**São Paulo, 30 de maio de 2026**
-
-**Hon. Desembargador João Silva**
-''';
-
   @override
   void initState() {
     super.initState();
     _promptController = TextEditingController();
     _editorState = EditorState(
-      document: markdownToDocument(_mockSentenceMarkdown),
+      document: markdownToDocument(widget.content),
     );
   }
 

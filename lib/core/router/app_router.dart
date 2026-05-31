@@ -167,7 +167,9 @@ class AppRouter {
       GoRoute(
         path: '/sentenca-inicial-editar',
         name: 'initial_sentence_edit',
-        builder: (context, state) => const InitialSentenceEditPage(),
+        builder: (context, state) => InitialSentenceEditPage(
+          content: state.extra as String,
+        ),
       ),
       GoRoute(
         path: '/assistente-sentenca',

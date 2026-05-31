@@ -2,9 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:precedentia_mobile/core/network/dio_client.dart';
+import 'package:precedentia_mobile/core/storage/secure_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart'
@@ -23,6 +24,7 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
   final List<Map<String, dynamic>> _precedents = [];
   Map<String, dynamic>? _processData;
   bool _isDone = false;
+  bool _isGenerating = false;
   StreamSubscription? _subscription;
 
   @override
@@ -90,45 +92,79 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
     }
   }
 
-  Future<void> _generatePdfAndShare(BuildContext context) async {
-    final doc = pw.Document();
-    final data = _processData;
+  Future<void> _generateSentence() async {
+    setState(() => _isGenerating = true);
 
-    final pedidos =
-        (data?['pedidos'] as List?)?.map((e) => e.toString()).toList() ?? [];
+    try {
+      final data = _processData!;
 
-    doc.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        build: (context) => [
-          pw.Header(level: 0, text: 'Análise do processo'),
-          if (data?['tipo'] != null)
-            pw.Paragraph(text: 'Tipo: ${data!['tipo']}'),
-          if (data?['tribunal'] != null)
-            pw.Paragraph(text: 'Tribunal: ${data!['tribunal']}'),
-          pw.Header(level: 1, text: 'Partes'),
-          pw.Paragraph(
-            text:
-                'Autor: ${data?['autor'] ?? '-'}\nRéu: ${data?['reu'] ?? '-'}',
-          ),
-          if ((data?['fatos'] as String?)?.isNotEmpty == true) ...[
-            pw.Header(level: 1, text: 'Fatos'),
-            pw.Paragraph(text: data!['fatos']),
-          ],
-          if (pedidos.isNotEmpty) ...[
-            pw.Header(level: 1, text: 'Pedidos'),
-            ...pedidos.map((p) => pw.Bullet(text: p)),
-          ],
-          if ((data?['contestacao'] as String?)?.isNotEmpty == true) ...[
-            pw.Header(level: 1, text: 'Contestação'),
-            pw.Paragraph(text: data!['contestacao']),
-          ],
-        ],
-      ),
-    );
+      // TODO: filtrar só applicable e possible_applicability quando definido
+      // _precedents.where((p) =>
+      //   p['applicability'] == 'applicable' ||
+      //   p['applicability'] == 'possible_applicability'
+      // ).toList();
+      final topPrecedents = _precedents.take(3).toList();
 
-    final bytes = await doc.save();
-    await Printing.sharePdf(bytes: bytes, filename: 'analise_processo.pdf');
+      final userId = await SecureStorageService.readUserId();
+      if (userId == null) return;
+
+      final pedidos = (data['pedidos'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [];
+
+      final body = {
+        'author': data['autor'] ?? '',
+        'defendant': data['reu'] ?? '',
+        'action_type': data['tipo'] ?? '',
+        'tribunal': data['tribunal'] ?? '',
+        'facts_summary': data['fatos'] ?? '',
+        'requests': pedidos,
+        'precedents': topPrecedents
+            .map((p) => {
+                  'name': p['name'] ?? '',
+                  'question': p['question'] ?? '',
+                  'description': p['description'] ?? '',
+                })
+            .toList(),
+        'contestacao': (data['contestacao'] as String?)?.isNotEmpty == true
+            ? data['contestacao']
+            : null,
+        'user_id': userId,
+      };
+
+      final baseUrl = DioClient.instance.options.baseUrl.replaceAll(RegExp(r'/$'), '');
+      final uri = Uri.parse('$baseUrl/sentences/generate');
+
+      final dioHeaders = DioClient.instance.options.headers;
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (dioHeaders['Authorization'] != null)
+            'Authorization': dioHeaders['Authorization'] as String,
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Erro ${response.statusCode}: ${response.body}');
+      }
+
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      final content = json['content'] as String;
+
+      if (!mounted) return;
+      context.push('/sentenca-inicial-editar', extra: content);
+    } catch (e) {
+      debugPrint('Erro ao gerar sentença: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao gerar sentença. Tente novamente.')),
+      );
+    } finally {
+      if (mounted) setState(() => _isGenerating = false);
+    }
   }
 
   @override
@@ -391,7 +427,7 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () => _generatePdfAndShare(context),
+                onPressed: _isGenerating ? null : _generateSentence,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.altLightColor,
                   foregroundColor: AppColors.mainDarkColor,
@@ -399,19 +435,32 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  disabledBackgroundColor:
+                      AppColors.altLightColor.withValues(alpha: 0.6),
                   textStyle: textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.download, color: AppColors.mainDarkColor),
-                    const SizedBox(width: 12),
-                    const Text('Gerar minuta'),
-                  ],
-                ),
+                child: _isGenerating
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.mainDarkColor,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.edit_document, color: AppColors.mainDarkColor),
+                          const SizedBox(width: 12),
+                          const Text('Gerar minuta'),
+                        ],
+                      ),
               ),
             ),
             const SizedBox(height: 24),
