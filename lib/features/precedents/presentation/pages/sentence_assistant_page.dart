@@ -70,10 +70,7 @@ class _SentenceAssistantPageState extends State<SentenceAssistantPage> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.detailsColor,
-      ),
+      SnackBar(content: Text(message), backgroundColor: AppColors.detailsColor),
     );
   }
 
@@ -133,8 +130,9 @@ class _SentenceAssistantPageState extends State<SentenceAssistantPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  disabledBackgroundColor:
-                      AppColors.altLightColor.withValues(alpha: 0.6),
+                  disabledBackgroundColor: AppColors.altLightColor.withValues(
+                    alpha: 0.6,
+                  ),
                 ),
                 icon: _isUploading
                     ? SizedBox(

@@ -33,7 +33,9 @@ class SentenceRemoteDatasourceImpl implements SentenceRemoteDatasource {
 
     debugPrint('[SentenceDatasource] URI: $uri');
     debugPrint('[SentenceDatasource] userId: $userId');
-    debugPrint('[SentenceDatasource] file: ${file.name} (${file.bytes!.length} bytes)');
+    debugPrint(
+      '[SentenceDatasource] file: ${file.name} (${file.bytes!.length} bytes)',
+    );
 
     final request = http.MultipartRequest('POST', uri)
       ..fields['user_id'] = userId.toString()
