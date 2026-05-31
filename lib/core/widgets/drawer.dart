@@ -60,6 +60,24 @@ class CustomDrawer extends StatelessWidget {
             "Gerar Petição",
             "/enviar-peticao-texto",
           ),
+          _buildMenuItem(
+            context,
+            Icons.gavel,
+            "Editar Sentença",
+            "/sentenca-inicial-editar",
+          ),
+          _buildMenuItem(
+            context,
+            Icons.assistant,
+            "Assistente de Sentença",
+            "/assistente-sentenca",
+          ),
+          _buildMenuItem(
+            context,
+            Icons.analytics,
+            "Análise do processo",
+            "/analysis-process",
+          ),
           _buildMenuItem(context, Icons.person_outline, "Perfil", "/profile"),
 
           const Spacer(),

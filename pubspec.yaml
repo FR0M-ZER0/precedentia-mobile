@@ -92,6 +92,7 @@ flutter:
     - assets/images/green_robot.gif
     - assets/images/robo.png
     - assets/images/logo.png
+    - assets/images/sentence_assistant.png
     - assets/animations/loading.json
     - assets/animations/not_found.json
     - .env

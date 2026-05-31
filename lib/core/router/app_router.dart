@@ -9,6 +9,9 @@ import 'package:precedentia_mobile/features/petitions/presentation/pages/generat
     as generation_petition;
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_petition_edit_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_sentence_edit_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/analysis_process_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/sentence_assistant_page.dart';
 import 'package:precedentia_mobile/features/profile/presentation/pages/user_page.dart';
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
@@ -162,6 +165,21 @@ class AppRouter {
         path: '/peticao-inicial-editar',
         name: 'initial_petition_edit',
         builder: (context, state) => const InitialPetitionEditPage(),
+      ),
+      GoRoute(
+        path: '/sentenca-inicial-editar',
+        name: 'initial_sentence_edit',
+        builder: (context, state) => const InitialSentenceEditPage(),
+      ),
+      GoRoute(
+        path: '/assistente-sentenca',
+        name: 'sentence_assistant',
+        builder: (context, state) => const SentenceAssistantPage(),
+      ),
+      GoRoute(
+        path: '/analysis-process',
+        name: 'analysis_process',
+        builder: (context, state) => const AnalysisProcessPage(),
       ),
       GoRoute(
         path: '/peticao-inicial',
