@@ -21,6 +21,7 @@ class AnalysisProcessPage extends StatefulWidget {
 
 class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
   final List<Map<String, dynamic>> _precedents = [];
+  Map<String, dynamic>? _processData;
   bool _isDone = false;
   StreamSubscription? _subscription;
 
@@ -35,7 +36,9 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
       (event) {
         final eventName = event['event'] as String?;
 
-        if (eventName == 'precedent') {
+        if (eventName == 'process_data') {
+          setState(() => _processData = event);
+        } else if (eventName == 'precedent') {
           setState(() => _precedents.add(event));
         } else if (eventName == 'done' || eventName == 'error') {
           setState(() => _isDone = true);
@@ -89,27 +92,36 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
 
   Future<void> _generatePdfAndShare(BuildContext context) async {
     final doc = pw.Document();
+    final data = _processData;
+
+    final pedidos =
+        (data?['pedidos'] as List?)?.map((e) => e.toString()).toList() ?? [];
 
     doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         build: (context) => [
           pw.Header(level: 0, text: 'Análise do processo'),
-          pw.Paragraph(
-            text:
-                'Resumo:\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et varius risus, vel vulputate nibh. Phasellus vel sapien id risus pellentesque bibendum. Cras lobortis condimentum tortor aliquam feugiat. Mauris semper pretium nisi, eget finibus lectus.',
-          ),
+          if (data?['tipo'] != null)
+            pw.Paragraph(text: 'Tipo: ${data!['tipo']}'),
+          if (data?['tribunal'] != null)
+            pw.Paragraph(text: 'Tribunal: ${data!['tribunal']}'),
           pw.Header(level: 1, text: 'Partes'),
-          pw.Paragraph(text: 'Autor: Fulano da Silva\nRéu: Siclano Jr.'),
-          pw.Header(level: 1, text: 'Recursos'),
-          pw.Bullet(text: 'Recurso 1'),
-          pw.Bullet(text: 'Recurso 2'),
-          pw.Bullet(text: 'Recurso 3'),
-          pw.Header(level: 1, text: 'Manifestações'),
           pw.Paragraph(
-            text:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et varius risus, vel vulputate nibh. Phasellus vel sapien id risus pellentesque bibendum. Cras lobortis condimentum tortor aliquam feugiat. Mauris semper pretium nisi, eget finibus lectus.',
+            text: 'Autor: ${data?['autor'] ?? '-'}\nRéu: ${data?['reu'] ?? '-'}',
           ),
+          if ((data?['fatos'] as String?)?.isNotEmpty == true) ...[
+            pw.Header(level: 1, text: 'Fatos'),
+            pw.Paragraph(text: data!['fatos']),
+          ],
+          if (pedidos.isNotEmpty) ...[
+            pw.Header(level: 1, text: 'Pedidos'),
+            ...pedidos.map((p) => pw.Bullet(text: p)),
+          ],
+          if ((data?['contestacao'] as String?)?.isNotEmpty == true) ...[
+            pw.Header(level: 1, text: 'Contestação'),
+            pw.Paragraph(text: data!['contestacao']),
+          ],
         ],
       ),
     );
@@ -122,7 +134,7 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    if (_precedents.isEmpty && !_isDone) {
+    if (_processData == null && !_isDone) {
       return BasePageTemplate(
         title: 'Análise do processo',
         onBackPress: () => context.pop(),
@@ -143,7 +155,7 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
       );
     }
 
-    if (_precedents.isEmpty && _isDone) {
+    if (_processData == null && _isDone) {
       return BasePageTemplate(
         title: 'Análise do processo',
         onBackPress: () => context.pop(),
@@ -157,12 +169,16 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
                 width: 70,
                 height: 70,
               ),
-              const Text('Nenhum precedente encontrado'),
+              const Text('Não foi possível analisar o processo'),
             ],
           ),
         ),
       );
     }
+
+    final data = _processData!;
+    final pedidos =
+        (data['pedidos'] as List?)?.map((e) => e.toString()).toList() ?? [];
 
     return BasePageTemplate(
       title: 'Análise do processo',
@@ -181,23 +197,29 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Resumo',
-                  style: textTheme.titleSmall?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                if (data['tipo'] != null) ...[
+                  Text(
+                    data['tipo'] as String,
+                    style: textTheme.titleSmall?.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et varius risus, vel vulputate nibh. Phasellus vel sapien id risus pellentesque bibendum. Cras lobortis condimentum tortor aliquam feugiat. Mauris semper pretium nisi, eget finibus lectus.',
-                  style: textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 18),
+                  const SizedBox(height: 4),
+                ],
+                if (data['tribunal'] != null) ...[
+                  Text(
+                    data['tribunal'] as String,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                ],
                 Text(
                   'Partes',
                   style: textTheme.titleSmall?.copyWith(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -212,7 +234,7 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
                         ),
                       ),
                       TextSpan(
-                        text: 'Fulano da Silva',
+                        text: (data['autor'] as String?) ?? '-',
                         style: textTheme.bodyMedium,
                       ),
                     ],
@@ -229,135 +251,143 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
                         ),
                       ),
                       TextSpan(
-                        text: 'Siclano Jr.',
+                        text: (data['reu'] as String?) ?? '-',
                         style: textTheme.bodyMedium,
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 18),
-                Text(
-                  'Recursos',
-                  style: textTheme.titleSmall?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                if ((data['fatos'] as String?)?.isNotEmpty == true) ...[
+                  const SizedBox(height: 18),
+                  Text(
+                    'Fatos',
+                    style: textTheme.titleSmall?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    _BulletText(text: 'Recurso 1'),
-                    _BulletText(text: 'Recurso 2'),
-                    _BulletText(text: 'Recurso 3'),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  'Manifestações',
-                  style: textTheme.titleSmall?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 12),
+                  Text(
+                    data['fatos'] as String,
+                    style: textTheme.bodyMedium,
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et varius risus, vel vulputate nibh. Phasellus vel sapien id risus pellentesque bibendum. Cras lobortis condimentum tortor aliquam feugiat. Mauris semper pretium nisi, eget finibus lectus.',
-                  style: textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
+                ],
+                if (pedidos.isNotEmpty) ...[
+                  const SizedBox(height: 18),
+                  Text(
+                    'Pedidos',
+                    style: textTheme.titleSmall?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
+                  const SizedBox(height: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: pedidos.map((p) => _BulletText(text: p)).toList(),
                   ),
-                  child: const Wrap(
-                    spacing: 12,
-                    runSpacing: 8,
-                    children: [
-                      Text('• Danos morais'),
-                      Text('• Indenização'),
-                      Text('• Reparação'),
-                    ],
+                ],
+                if ((data['contestacao'] as String?)?.isNotEmpty == true) ...[
+                  const SizedBox(height: 18),
+                  Text(
+                    'Contestação',
+                    style: textTheme.titleSmall?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  Text(
+                    data['contestacao'] as String,
+                    style: textTheme.bodyMedium,
+                  ),
+                ],
               ],
             ),
           ),
-
           const SizedBox(height: 24),
-
           Text(
             'Precedentes recomendados',
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text(
-            '${_precedents.length} precedente(s)${_isDone ? '' : ' — buscando mais...'}',
-            style: textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
-          ),
+          if (_precedents.isNotEmpty)
+            Text(
+              '${_precedents.length} precedente(s)${_isDone ? '' : ' — buscando mais...'}',
+              style: textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+            ),
           const SizedBox(height: 16),
-
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _precedents.length + (_isDone ? 0 : 1),
-            separatorBuilder: (_, _) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              if (index == _precedents.length) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Lottie.asset(
+          if (_precedents.isEmpty && !_isDone)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Center(
+                child: Column(
+                  children: [
+                    Lottie.asset(
                       'assets/animations/loading.json',
                       width: 80,
                       height: 80,
                     ),
-                  ),
-                );
-              }
-
-              final item = _precedents[index];
-              final applicability = (item['applicability'] as String?) ?? '';
-
-              return PrecedentResultCard(
-                tribunal: (item['tribunal'] as String?) ?? '',
-                siglaTribunal: (item['tribunal'] as String?) ?? '',
-                codigoPrecedente: (item['name'] as String?) ?? '',
-                descricao: (item['description'] as String?) ?? '',
-                situacao: (item['situation'] as String?) ?? '',
-                species: (item['species'] as String?) ?? '',
-                lastUpdate: (item['last_update'] as String?) ?? '',
-                probabilidade: _getProbabilidade(applicability),
-                probabilidadeColor: _getProbabilidadeColor(applicability),
-              );
-            },
-          ),
-
-          if (_isDone) ...[
-            const SizedBox(height: 24),
-            RichText(
-              text: TextSpan(
-                style: textTheme.bodyMedium,
-                children: [
-                  TextSpan(
-                    text: 'Resumo: ',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 8),
+                    Text(
+                      'Buscando precedentes...',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: Colors.grey.shade600,
+                      ),
                     ),
-                  ),
-                  const TextSpan(
-                    text:
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus rutrum, leo id fermentum fermentum, augue lectus placerat ligula, a ornare eros odio sed ex. Etiam consequat pretium mollis. Duis purus, ultricies in maximus nec, placerat at diam.',
-                  ),
-                ],
+                  ],
+                ),
               ),
+            )
+          else if (_precedents.isEmpty && _isDone)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Center(
+                child: Text(
+                  'Nenhum precedente encontrado',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _precedents.length + (_isDone ? 0 : 1),
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                if (index == _precedents.length) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Lottie.asset(
+                        'assets/animations/loading.json',
+                        width: 80,
+                        height: 80,
+                      ),
+                    ),
+                  );
+                }
+
+                final item = _precedents[index];
+                final applicability = (item['applicability'] as String?) ?? '';
+
+                return PrecedentResultCard(
+                  tribunal: (item['tribunal'] as String?) ?? '',
+                  siglaTribunal: (item['tribunal'] as String?) ?? '',
+                  codigoPrecedente: (item['name'] as String?) ?? '',
+                  descricao: (item['description'] as String?) ?? '',
+                  situacao: (item['situation'] as String?) ?? '',
+                  species: (item['species'] as String?) ?? '',
+                  lastUpdate: (item['last_update'] as String?) ?? '',
+                  probabilidade: _getProbabilidade(applicability),
+                  probabilidadeColor: _getProbabilidadeColor(applicability),
+                );
+              },
             ),
+          if (_isDone && _precedents.isNotEmpty) ...[
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
