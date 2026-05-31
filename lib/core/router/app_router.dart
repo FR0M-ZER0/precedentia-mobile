@@ -8,6 +8,7 @@ import 'package:precedentia_mobile/features/precedents/presentation/pages/preced
 import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
     as generation_petition;
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_petition_edit_page.dart';
 import 'package:precedentia_mobile/features/profile/presentation/pages/user_page.dart';
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
@@ -158,10 +159,9 @@ class AppRouter {
         builder: (context, state) => const SendPetitionTextPage(),
       ),
       GoRoute(
-        path: '/petition-generation-form',
-        name: 'petition_generation_form',
-        builder: (context, state) =>
-            const generation_petition.SendPetitionTextPage(),
+        path: '/peticao-inicial-editar',
+        name: 'initial_petition_edit',
+        builder: (context, state) => const InitialPetitionEditPage(),
       ),
       GoRoute(
         path: '/peticao-inicial',
