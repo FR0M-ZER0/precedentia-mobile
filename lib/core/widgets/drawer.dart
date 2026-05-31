@@ -53,7 +53,7 @@ class CustomDrawer extends StatelessWidget {
             Icons.edit,
             "Editar Petição",
             "/peticao-inicial-editar",
-          );
+          ),
           _buildMenuItem(
             context,
             Icons.article_outlined,

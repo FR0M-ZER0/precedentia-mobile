@@ -5,8 +5,6 @@ import 'package:precedentia_mobile/features/home/presentation/pages/home_page.da
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
-import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
-    as generation_petition;
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_petition_edit_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_sentence_edit_page.dart';
@@ -169,7 +167,13 @@ class AppRouter {
       GoRoute(
         path: '/sentenca-inicial-editar',
         name: 'initial_sentence_edit',
-        builder: (context, state) => const InitialSentenceEditPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return InitialSentenceEditPage(
+            content: extra['content'] as String,
+            sentenceId: extra['sentenceId'] as int,
+          );
+        },
       ),
       GoRoute(
         path: '/assistente-sentenca',
@@ -179,7 +183,9 @@ class AppRouter {
       GoRoute(
         path: '/analysis-process',
         name: 'analysis_process',
-        builder: (context, state) => const AnalysisProcessPage(),
+        builder: (context, state) => AnalysisProcessPage(
+          stream: state.extra as Stream<Map<String, dynamic>>,
+        ),
       ),
       GoRoute(
         path: '/peticao-inicial',
