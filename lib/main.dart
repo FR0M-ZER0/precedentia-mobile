@@ -3,6 +3,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'features/precedents/data/models/precedent_model.dart';
 import 'features/petitions/data/models/petition_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/network/dio_client.dart';
+import 'core/storage/secure_storage_service.dart';
 import 'app.dart';
 
 void main() async {
@@ -17,6 +19,11 @@ void main() async {
   await Hive.openBox<PetitionModel>('petitions');
 
   await dotenv.load(fileName: ".env");
+
+  final token = await SecureStorageService.readToken();
+  if (token != null && token.isNotEmpty) {
+    DioClient.instance.options.headers['Authorization'] = 'Bearer $token';
+  }
 
   runApp(const App());
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
+import '../../data/auth_remote_datasource.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
@@ -11,12 +13,51 @@ class ResetPasswordPage extends StatefulWidget {
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _passwordController = TextEditingController();
+  final _codeController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _authRemoteDataSource = AuthRemoteDataSource();
   bool _obscurePassword1 = true;
   bool _obscurePassword2 = true;
+  bool _isLoading = false;
 
-  void _saveNewPassword() {
-    if (_formKey.currentState!.validate()) {
+  String _email = '';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _email = (GoRouterState.of(context).extra as String?) ?? '';
+  }
+
+  Future<void> _saveNewPassword() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Volte para solicitar o código de recuperação novamente.',
+          ),
+          backgroundColor: AppColors.detailsColor,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authRemoteDataSource.confirmPasswordReset(
+        email: _email,
+        code: _codeController.text.trim(),
+        newPassword: _newPasswordController.text,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Senha redefinida com sucesso! Faça login.'),
@@ -24,8 +65,23 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         ),
       );
 
-      // Volta direto para a tela de Login
       context.go('/login');
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      final message = error.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppColors.detailsColor,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -65,7 +121,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   void dispose() {
-    _passwordController.dispose();
+    _codeController.dispose();
+    _newPasswordController.dispose();
     super.dispose();
   }
 
@@ -123,11 +180,42 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
+                if (_email.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _email,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: AppColors.altDarkColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 const SizedBox(height: 40),
+
+                // Campo Código
+                TextFormField(
+                  controller: _codeController,
+                  style: textTheme.bodyMedium,
+                  keyboardType: TextInputType.number,
+                  decoration: _inputDecoration(
+                    'Código de verificação',
+                    true,
+                    () {},
+                    textTheme,
+                  ).copyWith(suffixIcon: null),
+                  validator: (value) {
+                    if ((value ?? '').trim().length != 6) {
+                      return 'Digite o código de 6 dígitos';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
 
                 // Campo Nova Senha
                 TextFormField(
-                  controller: _passwordController,
+                  controller: _newPasswordController,
                   obscureText: _obscurePassword1,
                   style: textTheme.bodyMedium,
                   decoration: _inputDecoration(
@@ -138,9 +226,12 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     },
                     textTheme,
                   ),
-                  validator: (value) => value == null || value.length < 6
-                      ? 'Mínimo de 6 caracteres'
-                      : null,
+                  validator: (value) {
+                    if ((value ?? '').length < 8) {
+                      return 'Mínimo de 8 caracteres';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
 
@@ -160,7 +251,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     if (value == null || value.isEmpty) {
                       return 'Confirme a senha';
                     }
-                    if (value != _passwordController.text) {
+                    if (value != _newPasswordController.text) {
                       return 'As senhas não coincidem';
                     }
                     return null;
@@ -172,7 +263,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: _saveNewPassword,
+                    onPressed: _isLoading ? null : _saveNewPassword,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.mainDarkColor,
                       foregroundColor: AppColors.mainWhiteColor,
@@ -180,13 +271,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Redefinir Senha',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Redefinir Senha',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ],
