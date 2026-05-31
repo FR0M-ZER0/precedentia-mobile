@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:precedentia_mobile/features/analysis/data/models/analysis_model.dart';
 import 'package:precedentia_mobile/features/home/presentation/pages/home_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
+import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
+    as generation_petition;
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_petition_edit_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_sentence_edit_page.dart';
@@ -13,7 +16,9 @@ import 'package:precedentia_mobile/features/profile/presentation/pages/user_page
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedent_datails_page.dart';
+import 'package:precedentia_mobile/features/home/presentation/pages/not_found_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/history_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/petition_initial_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/splash_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/tutorial_page.dart';
@@ -21,21 +26,18 @@ import 'package:precedentia_mobile/features/auth/presentation/pages/registration
 import 'package:precedentia_mobile/features/auth/presentation/pages/two_factor_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:precedentia_mobile/core/auth/auth_session.dart';
 
 class AppRouter {
-  // Estado global para simular a autenticação (false = deslogado, true = logado)
-  static final authNotifier = ValueNotifier<bool>(false);
+  static ValueNotifier<bool> get authNotifier =>
+      AuthSession.instance.authNotifier;
 
   static final router = GoRouter(
-    initialLocation:
-        '/splash', // O app agora sempre inicia na Splash para checar os dados
-    refreshListenable:
-        authNotifier, // O roteador "escuta" quando o usuário loga/desloga
-    // Lógica de proteção de rotas (Middleware)
+    initialLocation: '/splash',
+    refreshListenable: authNotifier,
     redirect: (context, state) {
       final isLoggedIn = authNotifier.value;
 
-      // Definimos quais rotas o usuário pode acessar sem estar logado
       final isGoingToAuth =
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/cadastro' ||
@@ -45,17 +47,14 @@ class AppRouter {
           state.matchedLocation == '/esqueci-senha' ||
           state.matchedLocation == '/redefinir-senha';
 
-      // 1. Se NÃO estiver logado e tentar acessar rota protegida (ex: Home) -> vai pro Login
       if (!isLoggedIn && !isGoingToAuth) {
         return '/login';
       }
 
-      // 2. Se JÁ estiver logado e tentar acessar Login/Cadastro/Splash -> vai direto pra Home
       if (isLoggedIn && isGoingToAuth) {
         return '/';
       }
 
-      // 3. Se estiver tudo certo, permite seguir o fluxo normal
       return null;
     },
 
@@ -94,7 +93,10 @@ class AppRouter {
       GoRoute(
         path: '/2fa',
         name: 'two_factor',
-        builder: (context, state) => const TwoFactorPage(),
+        builder: (context, state) {
+          final email = state.extra as String? ?? '';
+          return TwoFactorPage(email: email);
+        },
       ),
 
       GoRoute(
@@ -144,9 +146,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/resultados-precedentes',
-        name: 'precedents_results',
-        builder: (context, state) =>
-            PrecedentsResultsPage(data: state.extra as Map<String, dynamic>),
+        builder: (context, state) {
+          final stream = state.extra as Stream<Map<String, dynamic>>;
+          return PrecedentsResultsPage(stream: stream);
+        },
       ),
       GoRoute(
         path: '/history',
@@ -179,9 +182,20 @@ class AppRouter {
         builder: (context, state) => const AnalysisProcessPage(),
       ),
       GoRoute(
+        path: '/peticao-inicial',
+        name: 'peticao-inicial',
+        builder: (context, state) =>
+            PetitionInitialPage(analysis: state.extra as AnalysisModel),
+      ),
+      GoRoute(
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const UserPage(),
+      ),
+      GoRoute(
+        path: '/not-found',
+        name: 'not_found',
+        builder: (context, state) => const NotFoundPage(),
       ),
     ],
   );

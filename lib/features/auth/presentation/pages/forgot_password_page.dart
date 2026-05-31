@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
+import '../../data/auth_remote_datasource.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -11,21 +13,56 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _authRemoteDataSource = AuthRemoteDataSource();
+  bool _isLoading = false;
 
-  void _sendRecoveryEmail() {
-    if (_formKey.currentState!.validate()) {
-      // Feedback de Sucesso
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendRecoveryEmail() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authRemoteDataSource.requestPasswordReset(
+        _emailController.text.trim(),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Instruções enviadas para o seu e-mail!'),
+          content: Text('Código de recuperação enviado para o seu e-mail.'),
           backgroundColor: AppColors.accentColor,
         ),
       );
 
-      // Simula o usuário clicando no link do e-mail e indo para a tela de redefinir
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) context.push('/redefinir-senha');
-      });
+      context.push('/redefinir-senha', extra: _emailController.text.trim());
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      final message = error.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppColors.detailsColor,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -87,6 +124,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                 // Campo E-mail
                 TextFormField(
+                  controller: _emailController,
                   style: textTheme.bodyMedium,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
@@ -108,9 +146,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                     ),
                   ),
-                  validator: (value) => value == null || !value.contains('@')
-                      ? 'Insira um e-mail válido'
-                      : null,
+                  validator: (value) {
+                    final email = value?.trim() ?? '';
+                    if (email.isEmpty) {
+                      return 'Insira um e-mail válido';
+                    }
+                    if (!email.contains('@')) {
+                      return 'Insira um e-mail válido';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 32),
 
@@ -118,7 +163,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: _sendRecoveryEmail,
+                    onPressed: _isLoading ? null : _sendRecoveryEmail,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.mainDarkColor,
                       foregroundColor: AppColors.mainWhiteColor,
@@ -126,13 +171,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Enviar Instruções',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Enviar Instruções',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ],
