@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:precedentia_mobile/features/analysis/data/models/analysis_model.dart';
 import 'package:precedentia_mobile/features/home/presentation/pages/home_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
@@ -164,8 +165,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/peticao-inicial',
-        name: 'petition_initial',
-        builder: (context, state) => const PetitionInitialPage(),
+        name: 'peticao-inicial',
+          builder: (context, state) => PetitionInitialPage(
+            analysis: state.extra as AnalysisModel,
+          ),
       ),
       GoRoute(
         path: '/profile',

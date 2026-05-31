@@ -188,7 +188,6 @@ class _UserPageState extends State<UserPage> {
             ),
             const SizedBox(height: 16),
 
-            // Lista de Petições da API
             FutureBuilder<List<AnalysisModel>>(
               future: _analysesFuture,
               builder: (context, snapshot) {
@@ -249,7 +248,10 @@ class _UserPageState extends State<UserPage> {
                           fileName: DateFormat(
                             'dd/MM/yyyy HH:mm',
                           ).format(analysis.createdAt),
-                          onTap: () {},
+                          onTap: () => context.push(
+                            '/peticao-inicial',
+                            extra: analysis,
+                          ),
                         ),
                       )
                       .toList(),
