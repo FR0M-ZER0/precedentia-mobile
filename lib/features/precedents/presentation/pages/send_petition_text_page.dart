@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:precedentia_mobile/core/storage/secure_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 import '../../data/datasource/petition_text_remote_datasource.dart';
@@ -126,7 +127,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     setState(() => _pedidos.remove(pedido));
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (!_formKey.currentState!.validate()) {
       _showSnackError('Preencha os campos obrigatórios.');
       return;
@@ -137,13 +138,15 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
       return;
     }
 
+    final userId = await SecureStorageService.readUserId();
+    if (userId == null) return;
+
     final stream = _sendPetitionTextUseCase(
       type: _tipoAcao,
       facts: _resumoController.text,
       tribunal: _selectedTribunal!,
       requests: _pedidos,
-      // TODO: Substituir por ID real do usuário autenticado
-      userId: 4,
+      userId: userId,
     );
 
     if (!mounted) return;
