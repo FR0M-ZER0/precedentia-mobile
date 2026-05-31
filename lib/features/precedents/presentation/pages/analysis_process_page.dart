@@ -158,10 +158,10 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
       final content = json['content'] as String;
 
       if (!mounted) return;
-      context.push('/sentenca-inicial-editar', extra: {
-        'content': content,
-        'sentenceId': json['id'] as int,
-      });
+      context.push(
+        '/sentenca-inicial-editar',
+        extra: {'content': content, 'sentenceId': json['id'] as int},
+      );
     } catch (e) {
       debugPrint('Erro ao gerar sentença: $e');
       if (!mounted) return;

@@ -263,12 +263,18 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
                   child: pw.Row(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text('• ',
-                          style: pw.TextStyle(font: font, fontSize: 11)),
+                      pw.Text(
+                        '• ',
+                        style: pw.TextStyle(font: font, fontSize: 11),
+                      ),
                       pw.Expanded(
                         child: pw.Text(
                           line.replaceFirst(RegExp(r'^[-*] '), ''),
-                          style: pw.TextStyle(font: font, fontSize: 11, lineSpacing: 2),
+                          style: pw.TextStyle(
+                            font: font,
+                            fontSize: 11,
+                            lineSpacing: 2,
+                          ),
                         ),
                       ),
                     ],
@@ -281,7 +287,11 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
                   padding: const pw.EdgeInsets.only(left: 16, bottom: 4),
                   child: pw.Text(
                     line,
-                    style: pw.TextStyle(font: font, fontSize: 11, lineSpacing: 2),
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 11,
+                      lineSpacing: 2,
+                    ),
                   ),
                 ),
               );
@@ -291,7 +301,11 @@ class _InitialSentenceEditPageState extends State<InitialSentenceEditPage> {
                   padding: const pw.EdgeInsets.only(bottom: 6),
                   child: pw.Text(
                     line,
-                    style: pw.TextStyle(font: font, fontSize: 11, lineSpacing: 2),
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 11,
+                      lineSpacing: 2,
+                    ),
                     textAlign: pw.TextAlign.justify,
                   ),
                 ),
