@@ -177,7 +177,9 @@ class AppRouter {
       GoRoute(
         path: '/analysis-process',
         name: 'analysis_process',
-        builder: (context, state) => const AnalysisProcessPage(),
+        builder: (context, state) => AnalysisProcessPage(
+          stream: state.extra as Stream<Map<String, dynamic>>,
+        ),
       ),
       GoRoute(
         path: '/peticao-inicial',
