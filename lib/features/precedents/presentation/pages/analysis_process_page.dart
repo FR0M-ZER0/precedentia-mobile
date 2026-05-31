@@ -108,7 +108,8 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
             pw.Paragraph(text: 'Tribunal: ${data!['tribunal']}'),
           pw.Header(level: 1, text: 'Partes'),
           pw.Paragraph(
-            text: 'Autor: ${data?['autor'] ?? '-'}\nRéu: ${data?['reu'] ?? '-'}',
+            text:
+                'Autor: ${data?['autor'] ?? '-'}\nRéu: ${data?['reu'] ?? '-'}',
           ),
           if ((data?['fatos'] as String?)?.isNotEmpty == true) ...[
             pw.Header(level: 1, text: 'Fatos'),
@@ -267,10 +268,7 @@ class _AnalysisProcessPageState extends State<AnalysisProcessPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    data['fatos'] as String,
-                    style: textTheme.bodyMedium,
-                  ),
+                  Text(data['fatos'] as String, style: textTheme.bodyMedium),
                 ],
                 if (pedidos.isNotEmpty) ...[
                   const SizedBox(height: 18),
