@@ -26,6 +26,7 @@ import 'package:precedentia_mobile/features/auth/presentation/pages/registration
 import 'package:precedentia_mobile/features/auth/presentation/pages/two_factor_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_select_page.dart';
 import 'package:precedentia_mobile/core/auth/auth_session.dart';
 
 class AppRouter {
@@ -188,6 +189,13 @@ class AppRouter {
         path: '/assistente-sentenca',
         name: 'sentence_assistant',
         builder: (context, state) => const SentenceAssistantPage(),
+      ),
+      GoRoute(
+        path: '/selecao-precedente',
+        name: 'precedents_select',
+        builder: (context, state) => PrecedentsSelectPage(
+          stream: state.extra as Stream<Map<String, dynamic>>,
+        ),
       ),
       GoRoute(
         path: '/analysis-process',
