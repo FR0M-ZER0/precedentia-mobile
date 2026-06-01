@@ -7,7 +7,7 @@ import 'package:precedentia_mobile/features/precedents/presentation/pages/loadin
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
 import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
     as generation_petition;
-import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
+// import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_petition_edit_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_sentence_edit_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/analysis_process_page.dart';
@@ -163,11 +163,11 @@ class AppRouter {
         builder: (context, state) =>
             const generation_petition.SendPetitionTextPage(),
       ),
-      GoRoute(
-        path: '/peticao-inicial',
-        name: 'petition_initial',
-        builder: (context, state) => const PetitionInitialPage(),
-      ),
+      // GoRoute(
+      //   path: '/peticao-inicial',
+      //   name: 'petition_initial',
+      //   builder: (context, state) => const PetitionInitialPage(),
+      // ),
       GoRoute(
         path: '/peticao-inicial-editar',
         name: 'initial_petition_edit',
