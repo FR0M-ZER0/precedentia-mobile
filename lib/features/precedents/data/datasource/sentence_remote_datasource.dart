@@ -1,44 +1,52 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
-import 'package:precedentia_mobile/core/network/dio_client.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:http/http.dart' as http;
+import '../../../../core/network/dio_client.dart';
 
-abstract class PetitionRemoteDatasource {
-  Stream<Map<String, dynamic>> sendPetitionText({
-    required String type,
-    required String facts,
-    required String tribunal,
-    required List<String> requests,
-    required int userId,
-  });
+abstract class SentenceRemoteDatasource {
+  Stream<Map<String, dynamic>> extractSentenceStream(
+    PlatformFile file,
+    int userId,
+  );
 }
 
-class PetitionRemoteDatasourceImpl implements PetitionRemoteDatasource {
+class SentenceRemoteDatasourceImpl implements SentenceRemoteDatasource {
   final Dio _dio = DioClient.instance;
 
   @override
-  Stream<Map<String, dynamic>> sendPetitionText({
-    required String type,
-    required String facts,
-    required String tribunal,
-    required List<String> requests,
-    required int userId,
-  }) async* {
+  Stream<Map<String, dynamic>> extractSentenceStream(
+    PlatformFile file,
+    int userId,
+  ) async* {
+    if (file.bytes == null) {
+      throw Exception(
+        'Os bytes do arquivo estão nulos. Verifique o FilePicker.',
+      );
+    }
+
     final baseUrl = _dio.options.baseUrl.replaceAll(RegExp(r'/$'), '');
-    final uri = Uri.parse('$baseUrl/analysis/send-petition');
+    final uri = Uri.parse('$baseUrl/sentences/extract-process');
 
-    final body = json.encode({
-      'user_id': userId,
-      'type': type,
-      'facts': facts,
-      'tribunal': tribunal,
-      'requests': requests,
-    });
+    debugPrint('[SentenceDatasource] URI: $uri');
+    debugPrint('[SentenceDatasource] userId: $userId');
+    debugPrint(
+      '[SentenceDatasource] file: ${file.name} (${file.bytes!.length} bytes)',
+    );
 
-    final request = http.Request('POST', uri)
-      ..headers['Content-Type'] = 'application/json'
-      ..headers['Accept'] = 'text/event-stream'
-      ..body = body;
+    final request = http.MultipartRequest('POST', uri)
+      ..fields['user_id'] = userId.toString()
+      ..files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          file.bytes!,
+          filename: file.name,
+          contentType: MediaType('application', 'pdf'),
+        ),
+      );
 
     final dioHeaders = _dio.options.headers;
     if (dioHeaders['Authorization'] != null) {

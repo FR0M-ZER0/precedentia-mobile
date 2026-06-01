@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
+import 'package:precedentia_mobile/features/analysis/data/models/analysis_model.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
 
 class PetitionInitialPage extends StatelessWidget {
-  const PetitionInitialPage({super.key});
+  const PetitionInitialPage({super.key, required this.analysis});
+
+  final AnalysisModel analysis;
 
   Widget _detailRow({
     required String label,
@@ -36,26 +40,76 @@ class PetitionInitialPage extends StatelessWidget {
     );
   }
 
+  String _applicabilityLabel(String applicability) {
+    switch (applicability) {
+      case 'applicable':
+        return 'Muito provável';
+      case 'low_applicability':
+        return 'Baixa aplicabilidade';
+      default:
+        return applicability;
+    }
+  }
+
+  Color _applicabilityColor(String applicability) {
+    switch (applicability) {
+      case 'applicable':
+        return AppColors.accentColor;
+      case 'low_applicability':
+        return AppColors.detailsColor;
+      default:
+        return AppColors.altDarkColor;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final formattedDate = DateFormat('dd/MM/yyyy').format(analysis.createdAt);
+
+    final applicablePrecedents = analysis.precedents
+        .where((p) => p.applicability == 'applicable')
+        .toList();
+
+    final otherPrecedents = analysis.precedents
+        .where((p) => p.applicability != 'applicable')
+        .toList();
+
+    final orderedPrecedents = [...applicablePrecedents, ...otherPrecedents];
 
     return BasePageTemplate(
-      title: 'file.pdf',
-      subtitle: 'Enviado no dia 12/03/2035',
+      title: analysis.type,
+      subtitle: 'Enviado em $formattedDate',
       onBackPress: () => Navigator.of(context).pop(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          _detailRow(label: 'Tribunal', value: 'TJSP', textTheme: textTheme),
+          if (analysis.tribunal != null)
+            _detailRow(
+              label: 'Tribunal',
+              value: analysis.tribunal!,
+              textTheme: textTheme,
+            ),
           _detailRow(
             label: 'Tipo de ação',
-            value: 'Indenização por danos morais',
+            value: analysis.type,
             textTheme: textTheme,
           ),
           Text(
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus rutrum, leo id fermentum fermentum, augue lectus placerat ligula, a ornare eros odio sed ex. Etiam consequat pretium mollis. Sed felis purus, ultricies in maximus nec, placerat at diam. Quisque diam dui, fermentum vel sapien a, mattis tincidunt dui. Cras eleifend lobortis elit, et euismod lacus mattis a.',
+            analysis.facts,
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.altDarkColor,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Pedidos',
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            analysis.requests,
             style: textTheme.bodyMedium?.copyWith(
               color: AppColors.altDarkColor,
             ),
@@ -66,43 +120,36 @@ class PetitionInitialPage extends StatelessWidget {
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 18),
-          
-          // PRIMEIRO CARD
-          PrecedentResultCard(
-            tribunal: 'Superior Tribunal de Justiça',
-            siglaTribunal: 'STJ',
-            codigoPrecedente: 'Precedente abc123',
-            situacao: '',
-            descricao: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut turpis nisl, vulputate sit amet ultricies id, hendrerit id ligula.',
-            species: 'Herança familiar',
-            lastUpdate: '01/02/2035',
-            probabilidade: 'Muito provável',
-            probabilidadeColor: AppColors.accentColor,
-            isSelected: false,
-            onSelectionChanged: (bool? checked) {},
-            onTapDetails: () {},
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // SEGUNDO CARD
-          PrecedentResultCard(
-            tribunal: 'Supremo Tribunal Federal',
-            siglaTribunal: 'STF',
-            codigoPrecedente: 'Precedente xyz987',
-            situacao: 'Suspenso',
-            descricao: 'Exemplo de um segundo precedente na tela de petição inicial.',
-            species: 'Danos Morais',
-            lastUpdate: '15/03/2035',
-            probabilidade: 'Possível',
-            probabilidadeColor: Colors.orange,
-            isSelected: false,
-            onSelectionChanged: (bool? checked) {},
-            onTapDetails: () {},
-          ),
-          
-        ], // Aqui fecha o children da Column!
-      ), // Aqui fecha a Column!
-    ); // Aqui fecha o BasePageTemplate!
+          if (orderedPrecedents.isEmpty)
+            Text(
+              'Nenhum precedente encontrado.',
+              style: textTheme.bodySmall?.copyWith(
+                color: Colors.grey.shade500,
+                fontStyle: FontStyle.italic,
+              ),
+            )
+          else
+            ...orderedPrecedents.map(
+              (precedent) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: PrecedentResultCard(
+                  tribunal: precedent.name,
+                  siglaTribunal: precedent.tribunal ?? '-',
+                  codigoPrecedente: precedent.species,
+                  situacao: precedent.situation,
+                  descricao: precedent.summary,
+                  species: precedent.species,
+                  lastUpdate: precedent.lastUpdate,
+                  probabilidade: _applicabilityLabel(precedent.applicability),
+                  probabilidadeColor: _applicabilityColor(
+                    precedent.applicability,
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(height: 28),
+        ],
+      ),
+    );
   }
 }

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:google_sign_in/google_sign_in.dart'; // IMPORT DO GOOGLE
 import 'package:precedentia_mobile/core/router/app_router.dart'; // IMPORT PARA O LOGOUT
+import 'package:precedentia_mobile/core/auth/auth_session.dart';
+import 'package:precedentia_mobile/core/network/dio_client.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 import 'package:precedentia_mobile/core/theme/app_colors.dart';
-import '../../../petitions/data/models/petition_model.dart';
+import '../../../analysis/data/models/analysis_model.dart';
+import '../../../analysis/data/services/analysis_api_service.dart';
 import '../widgets/history_card.dart';
 
 class UserPage extends StatefulWidget {
@@ -23,26 +25,20 @@ class _UserPageState extends State<UserPage> {
   // Instância do Google e variável para guardar o usuário
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   GoogleSignInAccount? _currentUser;
+  late Future<List<AnalysisModel>> _analysesFuture;
+  late Future<String> _emailFuture;
 
   @override
   void initState() {
     super.initState();
-    _loadGoogleUser();
+    _analysesFuture = AnalysisApiService.getSearches();
+    _emailFuture = _fetchEmail();
   }
 
-  // Função que carrega os dados do Google
-  Future<void> _loadGoogleUser() async {
-    // Tenta pegar o usuário atual. Se o app foi reiniciado, tenta logar silenciosamente
-    var user = _googleSignIn.currentUser ?? await _googleSignIn.signInSilently();
-    setState(() {
-      _currentUser = user;
-    });
-  }
-
-  // Função para deslogar
-  Future<void> _handleLogout() async {
-    await _googleSignIn.signOut();
-    AppRouter.authNotifier.value = false; // Isso faz o GoRouter redirecionar pro Login
+  Future<String> _fetchEmail() async {
+    final response = await DioClient.instance.get('/auth/me');
+    final data = response.data as Map<String, dynamic>;
+    return data['email'] as String? ?? '—';
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -69,18 +65,20 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
-  Future<void> _openPdf(String path) async {
-    await OpenFilex.open(path);
-  }
-
-  List<PetitionModel> _filteredPetitions(List<PetitionModel> all) {
+  List<AnalysisModel> _filteredAnalyses(List<AnalysisModel> all) {
     if (selectedDate == null) return all;
-    return all.where((p) {
-      final d = p.sentAt;
+    return all.where((a) {
+      final d = a.createdAt;
       return d.year == selectedDate!.year &&
           d.month == selectedDate!.month &&
           d.day == selectedDate!.day;
     }).toList();
+  }
+
+  void _refresh() {
+    setState(() {
+      _analysesFuture = AnalysisApiService.getSearches();
+    });
   }
 
   @override
@@ -96,48 +94,38 @@ class _UserPageState extends State<UserPage> {
           children: [
             // Perfil Dinâmico do Google
             Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 55,
-                    backgroundColor: AppColors.altLightColor,
-                    // Se o usuário tiver foto no Google, mostramos. Se não, icone padrão.
-                    backgroundImage: _currentUser?.photoUrl != null
-                        ? NetworkImage(_currentUser!.photoUrl!)
-                        : null,
-                    child: _currentUser?.photoUrl == null
-                        ? const Icon(
-                            Icons.person_outline,
-                            size: 55,
-                            color: AppColors.mainDarkColor,
-                          )
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Nome do Google
-                  Text(
-                    _currentUser?.displayName ?? "Carregando...", 
-                    style: textTheme.titleMedium
-                  ),
-                  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+              child: FutureBuilder<String>(
+                future: _emailFuture,
+                builder: (context, snapshot) {
+                  final email = snapshot.data ?? '—';
+
+                  return Column(
                     children: [
-                      // E-mail do Google
-                      Text(
-                        _currentUser?.email ?? "", 
-                        style: textTheme.titleSmall
+                      const CircleAvatar(
+                        radius: 55,
+                        backgroundColor: AppColors.altLightColor,
+                        child: Icon(
+                          Icons.person_outline,
+                          size: 55,
+                          color: AppColors.mainDarkColor,
+                        ),
                       ),
-                      const SizedBox(width: 8),
-                      const Icon(
-                        Icons.edit_outlined,
-                        size: 18,
-                        color: AppColors.altDarkColor,
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(email, style: textTheme.titleSmall),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: AppColors.altDarkColor,
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
             ),
 
@@ -151,10 +139,18 @@ class _UserPageState extends State<UserPage> {
               ),
             ),
             const SizedBox(height: 12),
-            _buildPrefItem("Tema do aplicativo", onTap: () {}),
-            _buildPrefItem("Alterar senha", onTap: () {}),
-            // Passamos a função de logout para o botão Sair
-            _buildPrefItem("Sair", isError: true, onTap: _handleLogout),
+            _buildPrefItem("Tema do aplicativo"),
+            _buildPrefItem("Alterar senha"),
+            _buildPrefItem(
+              'Sair',
+              isError: true,
+              onTap: () async {
+                await AuthSession.instance.signOut();
+                if (context.mounted) {
+                  context.go('/login');
+                }
+              },
+            ),
 
             const SizedBox(height: 40),
 
@@ -214,17 +210,44 @@ class _UserPageState extends State<UserPage> {
             ),
             const SizedBox(height: 16),
 
-            // Lista de Petições do Hive
-            ValueListenableBuilder(
-              valueListenable: Hive.box<PetitionModel>(
-                'petitions',
-              ).listenable(),
-              builder: (context, Box<PetitionModel> box, _) {
-                final all = box.values.toList()
-                  ..sort((a, b) => b.sentAt.compareTo(a.sentAt));
-                final petitions = _filteredPetitions(all);
+            FutureBuilder<List<AnalysisModel>>(
+              future: _analysesFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
 
-                if (petitions.isEmpty) {
+                if (snapshot.hasError) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Erro ao carregar petições.',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.error,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: _refresh,
+                            child: const Text('Tentar novamente'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final all = (snapshot.data ?? [])
+                  ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+                final analyses = _filteredAnalyses(all);
+
+                if (analyses.isEmpty) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Center(
@@ -240,14 +263,15 @@ class _UserPageState extends State<UserPage> {
                 }
 
                 return Column(
-                  children: petitions
+                  children: analyses
                       .map(
-                        (petition) => HistoryCard(
-                          title: petition.name,
+                        (analysis) => HistoryCard(
+                          title: analysis.type,
                           fileName: DateFormat(
                             'dd/MM/yyyy HH:mm',
-                          ).format(petition.sentAt),
-                          onTap: () => _openPdf(petition.filePath),
+                          ).format(analysis.createdAt),
+                          onTap: () =>
+                              context.push('/peticao-inicial', extra: analysis),
                         ),
                       )
                       .toList(),
@@ -262,18 +286,19 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
-  // Atualizei esse widget para aceitar ações de clique (onTap)
-  Widget _buildPrefItem(String label, {bool isError = false, VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+  Widget _buildPrefItem(
+    String label, {
+    bool isError = false,
+    VoidCallback? onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: InkWell(
+        onTap: onTap,
         child: Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: isError ? AppColors.error : AppColors.mainDarkColor,
-            fontWeight: isError ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),

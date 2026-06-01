@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:precedentia_mobile/features/analysis/data/models/analysis_model.dart';
 import 'package:precedentia_mobile/features/home/presentation/pages/home_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
 import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
     as generation_petition;
+import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_petition_edit_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_sentence_edit_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/analysis_process_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/sentence_assistant_page.dart';
 import 'package:precedentia_mobile/features/profile/presentation/pages/user_page.dart';
 import 'package:precedentia_mobile/features/search/presentation/pages/search_page.dart';
 import 'package:precedentia_mobile/features/upload/presentation/pages/upload_page.dart';
@@ -20,9 +26,11 @@ import 'package:precedentia_mobile/features/auth/presentation/pages/registration
 import 'package:precedentia_mobile/features/auth/presentation/pages/two_factor_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:precedentia_mobile/core/auth/auth_session.dart';
 
 class AppRouter {
-  static final authNotifier = ValueNotifier<bool>(false);
+  static ValueNotifier<bool> get authNotifier =>
+      AuthSession.instance.authNotifier;
 
   static final router = GoRouter(
     initialLocation: '/splash',
@@ -45,23 +53,10 @@ class AppRouter {
           state.matchedLocation == '/esqueci-senha' ||
           state.matchedLocation == '/redefinir-senha';
 
-      // Se NÃO estiver logado e tentar acessar rota protegida -> vai pro Login
       if (!isLoggedIn && !isGoingToAuth) {
         return '/login';
       }
 
-      // ==========================================================
-      // 2. SOLUÇÃO PARA ROTAS PROTEGIDAS SEM PERMISSÃO (EXEMPLO)
-      // ==========================================================
-      // Caso você implemente níveis de acesso no futuro (Ex: Usuário comum tentando acessar área Admin):
-      // final isUserAdmin = verificarSeEhAdmin(); 
-      // final isRouteAdmin = state.matchedLocation.startsWith('/admin');
-      //
-      // if (isLoggedIn && isRouteAdmin && !isUserAdmin) {
-      //   return '/not-found'; // Bloqueia o acesso e joga para a tela de erro
-      // }
-
-      // Se JÁ estiver logado e tentar acessar Login/Cadastro/Splash -> vai direto pra Home
       if (isLoggedIn && isGoingToAuth) {
         return '/';
       }
@@ -101,7 +96,10 @@ class AppRouter {
       GoRoute(
         path: '/2fa',
         name: 'two_factor',
-        builder: (context, state) => const TwoFactorPage(),
+        builder: (context, state) {
+          final email = state.extra as String? ?? '';
+          return TwoFactorPage(email: email);
+        },
       ),
       GoRoute(
         path: '/esqueci-senha',
@@ -149,9 +147,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/resultados-precedentes',
-        name: 'precedents_results',
-        builder: (context, state) =>
-            PrecedentsResultsPage(data: state.extra as Map<String, dynamic>),
+        builder: (context, state) {
+          final stream = state.extra as Stream<Map<String, dynamic>>;
+          return PrecedentsResultsPage(stream: stream);
+        },
       ),
       GoRoute(
         path: '/history',
@@ -168,6 +167,40 @@ class AppRouter {
         path: '/peticao-inicial',
         name: 'petition_initial',
         builder: (context, state) => const PetitionInitialPage(),
+      ),
+      GoRoute(
+        path: '/peticao-inicial-editar',
+        name: 'initial_petition_edit',
+        builder: (context, state) => const InitialPetitionEditPage(),
+      ),
+      GoRoute(
+        path: '/sentenca-inicial-editar',
+        name: 'initial_sentence_edit',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return InitialSentenceEditPage(
+            content: extra['content'] as String,
+            sentenceId: extra['sentenceId'] as int,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/assistente-sentenca',
+        name: 'sentence_assistant',
+        builder: (context, state) => const SentenceAssistantPage(),
+      ),
+      GoRoute(
+        path: '/analysis-process',
+        name: 'analysis_process',
+        builder: (context, state) => AnalysisProcessPage(
+          stream: state.extra as Stream<Map<String, dynamic>>,
+        ),
+      ),
+      GoRoute(
+        path: '/peticao-inicial',
+        name: 'peticao-inicial',
+        builder: (context, state) =>
+            PetitionInitialPage(analysis: state.extra as AnalysisModel),
       ),
       GoRoute(
         path: '/profile',

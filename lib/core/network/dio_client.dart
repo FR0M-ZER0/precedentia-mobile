@@ -1,15 +1,18 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DioClient {
   DioClient._();
+  static final String precedentiaApiUrl =
+      dotenv.env['PRECEDENTIA_API_URL'] ?? '';
 
   static final Dio instance = Dio(
     BaseOptions(
-      baseUrl: 'http://192.168.137.109:8087',
-      connectTimeout: const Duration(seconds: 360),
+      baseUrl: precedentiaApiUrl,
+      connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(minutes: 5),
       sendTimeout: const Duration(minutes: 2),
-      headers: {'Content-Type': 'multipart/form-data'},
+      headers: {'Content-Type': 'application/json'},
     ),
   );
 }

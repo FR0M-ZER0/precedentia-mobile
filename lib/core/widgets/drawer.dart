@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:precedentia_mobile/core/auth/auth_session.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -47,6 +48,36 @@ class CustomDrawer extends StatelessWidget {
             "Precedentes",
             "/history",
           ),
+          _buildMenuItem(
+            context,
+            Icons.edit,
+            "Editar Petição",
+            "/peticao-inicial-editar",
+          ),
+          _buildMenuItem(
+            context,
+            Icons.article_outlined,
+            "Gerar Petição",
+            "/enviar-peticao-texto",
+          ),
+          _buildMenuItem(
+            context,
+            Icons.gavel,
+            "Editar Sentença",
+            "/sentenca-inicial-editar",
+          ),
+          _buildMenuItem(
+            context,
+            Icons.assistant,
+            "Assistente de Sentença",
+            "/assistente-sentenca",
+          ),
+          _buildMenuItem(
+            context,
+            Icons.analytics,
+            "Análise do processo",
+            "/analysis-process",
+          ),
           _buildMenuItem(context, Icons.person_outline, "Perfil", "/profile"),
 
           const Spacer(),
@@ -87,9 +118,16 @@ class CustomDrawer extends StatelessWidget {
         title,
         style: textTheme.titleSmall?.copyWith(color: textColor),
       ),
-      onTap: () {
-        context.pop(); // Fecha o drawer (GoRouter way)
-        context.go(route); // Navega para a rota usando GoRouter
+      onTap: () async {
+        final router = GoRouter.of(context);
+
+        context.pop();
+
+        if (isDestructive) {
+          await AuthSession.instance.signOut();
+        }
+
+        router.go(route);
       },
     );
   }

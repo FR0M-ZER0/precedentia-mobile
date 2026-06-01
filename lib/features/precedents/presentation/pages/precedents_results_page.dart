@@ -1,36 +1,76 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
 class PrecedentsResultsPage extends StatefulWidget {
-  final Map<String, dynamic> data;
-
-  const PrecedentsResultsPage({super.key, required this.data});
+  final Stream<Map<String, dynamic>> stream;
+  const PrecedentsResultsPage({super.key, required this.stream});
 
   @override
   State<PrecedentsResultsPage> createState() => _PrecedentsResultsPageState();
 }
 
 class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
-  late List<Map<String, dynamic>> _allResults;
-  late List<Map<String, dynamic>> _filteredResults;
+  final List<Map<String, dynamic>> _allResults = [];
+  List<Map<String, dynamic>> _filteredResults = [];
+  bool _isDone = false;
+  String? _queryFacts;
+  StreamSubscription? _subscription;
 
   String? _situacaoFilter;
   String? _speciesFilter;
   String? _tribunalFilter;
+  String? _applicabilityFilter;
   _DateSort _dateSort = _DateSort.none;
-
-  // === CONTROLE DE SELEÇÃO DOS PRECEDENTES ===
-  final Set<String> _selectedPrecedentIds = {};
+  _ApplicabilitySort _applicabilitySort = _ApplicabilitySort.none;
 
   @override
   void initState() {
     super.initState();
-    _allResults = List<Map<String, dynamic>>.from(
-      (widget.data['results'] as List<dynamic>?) ?? [],
+    _filteredResults = _allResults;
+    _listenToStream();
+  }
+
+  void _listenToStream() {
+    _subscription = widget.stream.listen(
+      (event) {
+        final eventName = event['event'] as String?;
+
+        if (eventName == 'precedent') {
+          setState(() {
+            _allResults.add(event);
+            _applyFilters();
+          });
+        } else if (eventName == 'search_complete' ||
+            eventName == 'rerank_complete') {
+        } else if (eventName == 'done') {
+          setState(() => _isDone = true);
+        } else if (eventName == 'error') {
+          setState(() => _isDone = true);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(event['message'] ?? 'Erro desconhecido')),
+            );
+          }
+        }
+      },
+      onError: (_) {
+        if (mounted) setState(() => _isDone = true);
+      },
+      onDone: () {
+        if (mounted) setState(() => _isDone = true);
+      },
     );
-    _filteredResults = List.from(_allResults);
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   DateTime _parseDate(String date) {
@@ -47,31 +87,46 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   }
 
   void _applyFilters() {
-    setState(() {
-      _filteredResults = _allResults.where((item) {
-        final situacaoOk =
-            _situacaoFilter == null || item['situation'] == _situacaoFilter;
-        final speciesOk =
-            _speciesFilter == null || item['species'] == _speciesFilter;
-        final tribunalOk =
-            _tribunalFilter == null || item['tribunal'] == _tribunalFilter;
-        return situacaoOk && speciesOk && tribunalOk;
-      }).toList();
+    _filteredResults = _allResults.where((item) {
+      final situacaoOk =
+          _situacaoFilter == null || item['situation'] == _situacaoFilter;
+      final speciesOk =
+          _speciesFilter == null || item['species'] == _speciesFilter;
+      final tribunalOk =
+          _tribunalFilter == null || item['tribunal'] == _tribunalFilter;
+      final applicabilityOk =
+          _applicabilityFilter == null ||
+          item['applicability'] == _applicabilityFilter;
+      return situacaoOk && speciesOk && tribunalOk && applicabilityOk;
+    }).toList();
 
-      if (_dateSort == _DateSort.newest) {
-        _filteredResults.sort(
-          (a, b) => _parseDate(
-            (b['last_update'] as String?) ?? '',
-          ).compareTo(_parseDate((a['last_update'] as String?) ?? '')),
-        );
-      } else if (_dateSort == _DateSort.oldest) {
-        _filteredResults.sort(
-          (a, b) => _parseDate(
-            (a['last_update'] as String?) ?? '',
-          ).compareTo(_parseDate((b['last_update'] as String?) ?? '')),
-        );
-      }
-    });
+    if (_applicabilitySort == _ApplicabilitySort.bestFirst) {
+      const order = {
+        'applicable': 0,
+        'possible_applicability': 1,
+        'low_applicability': 2,
+        'not_applicable': 3,
+      };
+      _filteredResults.sort((a, b) {
+        final aVal = order[a['applicability']] ?? 99;
+        final bVal = order[b['applicability']] ?? 99;
+        return aVal.compareTo(bVal);
+      });
+    }
+
+    if (_dateSort == _DateSort.newest) {
+      _filteredResults.sort(
+        (a, b) => _parseDate(
+          (b['last_update'] as String?) ?? '',
+        ).compareTo(_parseDate((a['last_update'] as String?) ?? '')),
+      );
+    } else if (_dateSort == _DateSort.oldest) {
+      _filteredResults.sort(
+        (a, b) => _parseDate(
+          (a['last_update'] as String?) ?? '',
+        ).compareTo(_parseDate((b['last_update'] as String?) ?? '')),
+      );
+    }
   }
 
   void _clearFilters() {
@@ -79,8 +134,10 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _situacaoFilter = null;
       _speciesFilter = null;
       _tribunalFilter = null;
+      _applicabilityFilter = null;
       _dateSort = _DateSort.none;
-      _filteredResults = List.from(_allResults);
+      _applicabilitySort = _ApplicabilitySort.none;
+      _applyFilters();
     });
   }
 
@@ -97,29 +154,17 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       _situacaoFilter != null ||
       _speciesFilter != null ||
       _tribunalFilter != null ||
-      _dateSort != _DateSort.none;
-
-  // Função executada ao clicar no botão de gerar petição
-  void _handleGeneratePetition() {
-    final selectedItems = _allResults
-        .where((item) => _selectedPrecedentIds.contains(item['id'].toString()))
-        .toList();
-
-    // Aqui você pode fazer o push para a tela de carregamento ou de edição da petição gerada
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            'Gerando petição com ${selectedItems.length} precedente(s) selecionado(s)...'),
-        backgroundColor: AppColors.accentColor,
-      ),
-    );
-  }
+      _applicabilityFilter != null ||
+      _dateSort != _DateSort.none ||
+      _applicabilitySort != _ApplicabilitySort.none;
 
   void _showFilterBottomSheet(BuildContext context) {
     String? tempSituacao = _situacaoFilter;
     String? tempSpecies = _speciesFilter;
     String? tempTribunal = _tribunalFilter;
+    String? tempApplicability = _applicabilityFilter;
     _DateSort tempDateSort = _dateSort;
+    _ApplicabilitySort tempApplicabilitySort = _applicabilitySort;
 
     showModalBottomSheet(
       context: context,
@@ -154,7 +199,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
                   _FilterDropdown(
                     label: 'Situação',
                     value: tempSituacao,
@@ -162,7 +206,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     onChanged: (v) => setSheetState(() => tempSituacao = v),
                   ),
                   const SizedBox(height: 12),
-
                   _FilterDropdown(
                     label: 'Tipo de precedente',
                     value: tempSpecies,
@@ -170,15 +213,22 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     onChanged: (v) => setSheetState(() => tempSpecies = v),
                   ),
                   const SizedBox(height: 12),
-
                   _FilterDropdown(
                     label: 'Tribunal',
                     value: tempTribunal,
                     options: _uniqueValues('tribunal'),
                     onChanged: (v) => setSheetState(() => tempTribunal = v),
                   ),
+                  const SizedBox(height: 12),
+                  _FilterDropdown(
+                    label: 'Aplicabilidade',
+                    value: tempApplicability,
+                    options: _uniqueValues('applicability'),
+                    onChanged: (v) =>
+                        setSheetState(() => tempApplicability = v),
+                    labelBuilder: _getProbabilidade,
+                  ),
                   const SizedBox(height: 20),
-
                   Text(
                     'Ordenar por data',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -215,8 +265,40 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Ordenar por aplicabilidade',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _DateSortChip(
+                        label: 'Padrão',
+                        selected:
+                            tempApplicabilitySort == _ApplicabilitySort.none,
+                        onTap: () => setSheetState(
+                          () => tempApplicabilitySort = _ApplicabilitySort.none,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _DateSortChip(
+                        label: 'Mais aplicável',
+                        icon: Icons.sort_rounded,
+                        selected:
+                            tempApplicabilitySort ==
+                            _ApplicabilitySort.bestFirst,
+                        onTap: () => setSheetState(
+                          () => tempApplicabilitySort =
+                              _ApplicabilitySort.bestFirst,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 24),
-
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -226,9 +308,11 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                           _situacaoFilter = tempSituacao;
                           _speciesFilter = tempSpecies;
                           _tribunalFilter = tempTribunal;
+                          _applicabilityFilter = tempApplicability;
                           _dateSort = tempDateSort;
+                          _applicabilitySort = tempApplicabilitySort;
+                          _applyFilters();
                         });
-                        _applyFilters();
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -339,7 +423,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       'TRESC': 'Tribunal Regional Eleitoral de Santa Catarina',
       'TRESP': 'Tribunal Regional Eleitoral de São Paulo',
       'TRESE': 'Tribunal Regional Eleitoral de Sergipe',
-      'TRETO': 'Tribunal Regional Eleitoral do Tocantins',
+      'TRETO': 'Tribunal Regional Eleitoral de Tocantins',
       'TJMMG': 'Tribunal de Justiça Militar de Minas Gerais',
       'TJMRS': 'Tribunal de Justiça Militar do Rio Grande do Sul',
       'TJMSP': 'Tribunal de Justiça Militar de São Paulo',
@@ -375,315 +459,245 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final queryData = widget.data['query'] as Map<String, dynamic>? ?? {};
-
-    final String fileName =
-        queryData['filename']?.toString() ?? 'peticao_inicial_1.pdf';
-    final String facts = queryData['facts']?.toString() ??
-        'Resumo dos fatos não disponível no momento.';
-    final String rawTribunal = queryData['tribunal']?.toString() ?? 'STJ';
-
-    List<String> requests = [];
-    final rawRequests = queryData['requests'];
-
-    if (rawRequests is String) {
-      if (rawRequests.trim().isNotEmpty) {
-        requests = rawRequests
-            .split(',')
-            .map((e) => e.trim())
-            .where((e) => e.isNotEmpty)
-            .toList();
-      }
-    } else if (rawRequests is List) {
-      requests = rawRequests.map((e) => e.toString()).toList();
-    }
-
-    if (requests.isEmpty) {
-      requests = ['Danos morais', 'Reparação', 'Indenização'];
-    }
-
-    if (_allResults.isEmpty) {
-      return const Center(child: Text('Nenhum precedente encontrado.'));
-    }
-
-    return Scaffold(
-      body: BasePageTemplate(
+    if (_allResults.isEmpty && !_isDone) {
+      return BasePageTemplate(
         title: 'Precedentes jurídicos',
         onBackPress: () => context.pop(),
-        floatingActionButton: Padding(
-          padding: EdgeInsets.only(
-            bottom: _selectedPrecedentIds.isNotEmpty ? 60.0 : 0.0,
-          ),
-          child: Stack(
-            children: [
-              FloatingActionButton(
-                mini: true,
-                onPressed: () => _showFilterBottomSheet(context),
-                backgroundColor: AppColors.detailsColor,
-                child: const Icon(Icons.filter_list_rounded, color: Colors.white),
-              ),
-              if (_hasActiveFilters)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: AppColors.accentColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 1.5),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        body: SingleChildScrollView(
+        body: Center(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _QueryDocumentCard(
-                fileName: fileName,
-                facts: facts,
-                requests: requests,
-                tribunal: rawTribunal,
+              const SizedBox(height: 40),
+              Lottie.asset(
+                'assets/animations/loading.json',
+                width: 120,
+                height: 120,
               ),
-              const SizedBox(height: 16),
-
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  '${_filteredResults.length} de ${_allResults.length} precedentes encontrados',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Colors.grey.shade600),
-                ),
-              ),
-
-              if (_filteredResults.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 40),
-                    child:
-                        Text('Nenhum resultado para os filtros selecionados.'),
-                  ),
-                )
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _filteredResults.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = _filteredResults[index];
-                    final String id = (item['id'] ?? index).toString();
-                    final String applicability =
-                        (item['applicability'] as String?) ?? '';
-                    final bool isSelected = _selectedPrecedentIds.contains(id);
-
-                    return PrecedentResultCard(
-                      tribunal: _nomeTribunal(item['tribunal'] as String),
-                      siglaTribunal: item['tribunal'] as String,
-                      codigoPrecedente: item['name'] as String,
-                      descricao: item['description'] as String,
-                      situacao: item['situation'] as String,
-                      species: item['species'] as String,
-                      lastUpdate: (item['last_update'] as String?) ?? '',
-                      probabilidade: _getProbabilidade(applicability),
-                      probabilidadeColor: _getProbabilidadeColor(applicability),
-                      isSelected: isSelected,
-                      onSelectionChanged: (bool? checked) {
-                        setState(() {
-                          if (checked == true) {
-                            _selectedPrecedentIds.add(id);
-                          } else {
-                            _selectedPrecedentIds.remove(id);
-                          }
-                        });
-                      },
-                      onTapDetails: () => context.push(
-                        '/precedents/details/$id',
-                        extra: {
-                          ...item,
-                          'query_facts': widget.data['query']?['facts'] ?? '',
-                        },
-                      ),
-                    );
-                  },
-                ),
-              const SizedBox(height: 80),
+              const Text('Buscando precedentes...'),
             ],
           ),
         ),
-      ),
+      );
+    }
 
-      // === BOTÃO INFERIOR FIXO ===
-      bottomNavigationBar: _selectedPrecedentIds.isEmpty
-          ? null
-          : Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -4),
-                  )
-                ],
+    if (_allResults.isEmpty && _isDone) {
+      return BasePageTemplate(
+        title: 'Precedentes jurídicos',
+        onBackPress: () => context.pop(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+              Lottie.asset(
+                'assets/animations/not_found.json',
+                width: 70,
+                height: 70,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: SafeArea(
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    onPressed: _handleGeneratePetition,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.mainDarkColor,
-                      foregroundColor: AppColors.mainWhiteColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    ),
-                    icon: const Icon(Icons.gavel_rounded),
-                    label: Text(
-                      'Criar Petição Inicial (${_selectedPrecedentIds.length})',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                  ),
+              const Text('Nenhum precedente encontrado'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return BasePageTemplate(
+      title: 'Precedentes jurídicos',
+      onBackPress: () => context.pop(),
+      floatingActionButton: Stack(
+        children: [
+          FloatingActionButton(
+            mini: true,
+            onPressed: () => _showFilterBottomSheet(context),
+            backgroundColor: AppColors.detailsColor,
+            child: const Icon(Icons.filter_list_rounded, color: Colors.white),
+          ),
+          if (_hasActiveFilters)
+            Positioned(
+              right: 0,
+              top: 0,
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: AppColors.accentColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 1.5),
                 ),
               ),
             ),
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              '${_filteredResults.length} de ${_allResults.length} precedentes',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+            ),
+          ),
+          if (_filteredResults.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.only(top: 40),
+                child: Text('Nenhum resultado para os filtros selecionados.'),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _filteredResults.length + (_isDone ? 0 : 1),
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                if (index == _filteredResults.length) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Lottie.asset(
+                        'assets/animations/loading.json',
+                        width: 80,
+                        height: 80,
+                      ),
+                    ),
+                  );
+                }
+
+                final item = _filteredResults[index];
+                final String applicability =
+                    (item['applicability'] as String?) ?? '';
+
+                return GestureDetector(
+                  onTap: () => context.push(
+                    '/precedents/details/${item['id']}',
+                    extra: {...item, 'query_facts': _queryFacts ?? ''},
+                  ),
+                  child: PrecedentResultCard(
+                    tribunal: _nomeTribunal(
+                      (item['tribunal'] as String?) ?? '',
+                    ),
+                    siglaTribunal: (item['tribunal'] as String?) ?? '',
+                    codigoPrecedente: (item['name'] as String?) ?? '',
+                    descricao: (item['description'] as String?) ?? '',
+                    situacao: (item['situation'] as String?) ?? '',
+                    species: (item['species'] as String?) ?? '',
+                    lastUpdate: (item['last_update'] as String?) ?? '',
+                    probabilidade: _getProbabilidade(applicability),
+                    probabilidadeColor: _getProbabilidadeColor(applicability),
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
     );
   }
 }
 
-class _QueryDocumentCard extends StatelessWidget {
-  final String fileName;
-  final String facts;
-  final List<String> requests;
-  final String tribunal;
+enum _DateSort { none, newest, oldest }
 
-  const _QueryDocumentCard({
-    required this.fileName,
-    required this.facts,
-    required this.requests,
-    required this.tribunal,
+enum _ApplicabilitySort { none, bestFirst }
+
+class _FilterDropdown extends StatelessWidget {
+  final String label;
+  final String? value;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  final String Function(String)? labelBuilder;
+
+  const _FilterDropdown({
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+    this.labelBuilder,
   });
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => DocumentSummaryPage(
-              fileName: fileName,
-              tribunal: tribunal,
-              facts: facts,
-              requests: requests,
-            ),
+
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      isExpanded: true,
+      style: textTheme.bodyMedium,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
+      ),
+      items: [
+        const DropdownMenuItem(value: null, child: Text('Todos')),
+        ...options.map(
+          (opt) => DropdownMenuItem(
+            value: opt,
+            child: Text(labelBuilder != null ? labelBuilder!(opt) : opt),
           ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
+        ),
+      ],
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _DateSortChip extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _DateSortChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-            color: const Color(0xFFE6E9EF),
-            borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          color: selected ? AppColors.mainDarkColor : AppColors.altLightColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected
+                ? AppColors.mainDarkColor
+                : AppColors.altDarkColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 75,
-                  height: 95,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(6)),
-                  clipBehavior: Clip.antiAlias,
-                  child: Stack(
-                    children: [
-                      const Center(
-                          child: Icon(Icons.insert_drive_file_outlined,
-                              color: Colors.black12, size: 36)),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 4),
-                          child: Text(fileName,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 10),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(tribunal,
-                          style: textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.mainDarkColor)),
-                      const SizedBox(height: 6),
-                      Text(facts,
-                          style: textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade800, height: 1.4),
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis),
-                      const SizedBox(height: 4),
-                      Text('Toque para ver o resumo completo',
-                          style: textTheme.labelSmall?.copyWith(
-                              color: AppColors.accentColor,
-                              fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (requests.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24)),
-                child: Wrap(
-                  spacing: 24,
-                  runSpacing: 8,
-                  children: requests
-                      .map((req) => Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('• ',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16)),
-                                Text(req,
-                                    style: textTheme.bodySmall?.copyWith(
-                                        color: Colors.grey.shade800,
-                                        fontWeight: FontWeight.w500))
-                              ]))
-                      .toList(),
-                ),
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: selected
+                    ? AppColors.mainWhiteColor
+                    : AppColors.altDarkColor,
               ),
-            ]
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: selected
+                    ? AppColors.mainWhiteColor
+                    : AppColors.altDarkColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
@@ -691,9 +705,6 @@ class _QueryDocumentCard extends StatelessWidget {
   }
 }
 
-// ==========================================================
-// CARD: SUPORTA SELEÇÃO MULTIPLA COM CHECKBOX E NOVO LAYOUT
-// ==========================================================
 class PrecedentResultCard extends StatelessWidget {
   final String tribunal;
   final String siglaTribunal;
@@ -704,9 +715,6 @@ class PrecedentResultCard extends StatelessWidget {
   final String lastUpdate;
   final String probabilidade;
   final Color probabilidadeColor;
-  final bool isSelected;
-  final ValueChanged<bool?> onSelectionChanged;
-  final VoidCallback onTapDetails;
 
   const PrecedentResultCard({
     super.key,
@@ -719,9 +727,6 @@ class PrecedentResultCard extends StatelessWidget {
     required this.lastUpdate,
     required this.probabilidade,
     required this.probabilidadeColor,
-    required this.isSelected,
-    required this.onSelectionChanged,
-    required this.onTapDetails,
   });
 
   @override
@@ -736,10 +741,7 @@ class PrecedentResultCard extends StatelessWidget {
           color: AppColors.mainWhiteColor,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected
-                ? AppColors.accentColor
-                : (isSuspended ? Colors.grey.shade400 : Colors.grey.shade300),
-            width: isSelected ? 2 : 1,
+            color: isSuspended ? Colors.grey.shade400 : Colors.grey.shade300,
           ),
           boxShadow: [
             BoxShadow(
@@ -761,13 +763,19 @@ class PrecedentResultCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.pause_circle_outline_rounded,
-                        size: 13, color: Colors.grey.shade800),
+                    Icon(
+                      Icons.pause_circle_outline_rounded,
+                      size: 13,
+                      color: Colors.grey.shade800,
+                    ),
                     const SizedBox(width: 4),
-                    Text('Precedente suspenso',
-                        style: textTheme.labelSmall?.copyWith(
-                            color: Colors.grey.shade800,
-                            fontWeight: FontWeight.w600)),
+                    Text(
+                      'Precedente suspenso',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -775,12 +783,9 @@ class PrecedentResultCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Lado Esquerdo: Identificação do Tribunal + Checkbox de seleção
                   Container(
                     width: 120,
-                    color: isSelected
-                        ? AppColors.altLightColor.withValues(alpha: 0.5)
-                        : AppColors.altLightColor,
+                    color: AppColors.altLightColor,
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -789,89 +794,99 @@ class PrecedentResultCard extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    siglaTribunal,
-                                    style: textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.mainDarkColor),
-                                  ),
-                                ),
-                                // Checkbox nativo integrado para seleção múltipla
-                                Checkbox(
-                                  value: isSelected,
-                                  onChanged: onSelectionChanged,
-                                  activeColor: AppColors.accentColor,
-                                ),
-                              ],
+                            Text(
+                              tribunal,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: AppColors.altDarkColor,
+                                height: 1.2,
+                              ),
                             ),
-                            Text(tribunal,
-                                style: textTheme.bodySmall?.copyWith(
-                                    color: AppColors.altDarkColor,
-                                    height: 1.2)),
-                            Container(
-                                height: 4,
-                                width: double.infinity,
+                            const SizedBox(height: 8),
+                            Text(
+                              siglaTribunal,
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
                                 color: AppColors.mainDarkColor,
-                                margin: const EdgeInsets.only(top: 4)),
+                              ),
+                            ),
+                            Container(
+                              height: 4,
+                              width: double.infinity,
+                              color: AppColors.mainDarkColor,
+                              margin: const EdgeInsets.only(top: 4),
+                            ),
                           ],
                         ),
+                        const SizedBox(height: 16),
                         if (lastUpdate.isNotEmpty)
-                          Text(lastUpdate,
-                              style: textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.altDarkColor)),
+                          Text(
+                            lastUpdate,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.altDarkColor,
+                            ),
+                          ),
                       ],
                     ),
                   ),
-
-                  // Lado Direito: Informações do precedente
                   Expanded(
-                    child: InkWell(
-                      onTap: onTapDetails,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(codigoPrecedente,
-                                style: textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey.shade600)),
-                            const SizedBox(height: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                  color: AppColors.altLightColor,
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(
-                                      color: AppColors.altDarkColor
-                                          .withValues(alpha: 0.3))),
-                              child: Text(species,
-                                  style: textTheme.labelSmall?.copyWith(
-                                      color: AppColors.altDarkColor,
-                                      fontWeight: FontWeight.w600),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            codigoPrecedente,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade600,
                             ),
-                            const SizedBox(height: 8),
-                            Text(descricao,
-                                style: textTheme.bodySmall?.copyWith(
-                                    color: AppColors.altDarkColor,
-                                    height: 1.4),
-                                maxLines: 4,
-                                overflow: TextOverflow.ellipsis),
-                            const SizedBox(height: 12),
-                            Align(
-                                alignment: Alignment.bottomRight,
-                                child: Text(probabilidade,
-                                    style: textTheme.labelSmall?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: probabilidadeColor))),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.altLightColor,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: AppColors.altDarkColor.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              species,
+                              style: textTheme.labelSmall?.copyWith(
+                                color: AppColors.altDarkColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            descricao,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.altDarkColor,
+                              height: 1.4,
+                            ),
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Text(
+                              probabilidade,
+                              style: textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: probabilidadeColor,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -882,186 +897,5 @@ class PrecedentResultCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class DocumentSummaryPage extends StatelessWidget {
-  final String fileName;
-  final String tribunal;
-  final String facts;
-  final List<String> requests;
-
-  const DocumentSummaryPage({
-    super.key,
-    required this.fileName,
-    required this.tribunal,
-    required this.facts,
-    required this.requests,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return BasePageTemplate(
-      title: 'Resumo Completo',
-      onBackPress: () => Navigator.of(context).pop(),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                  color: AppColors.altLightColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: AppColors.altDarkColor.withValues(alpha: 0.2))),
-              child: Row(
-                children: [
-                  const Icon(Icons.picture_as_pdf_rounded,
-                      color: AppColors.mainDarkColor, size: 32),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(fileName,
-                            style: textTheme.bodySmall
-                                ?.copyWith(color: Colors.grey.shade600)),
-                        const SizedBox(height: 4),
-                        Text('Tribunal Alvo: $tribunal',
-                            style: textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.mainDarkColor)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-            Text('Fatos e Fundamentos',
-                style: textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.mainDarkColor)),
-            const SizedBox(height: 16),
-            Text(facts,
-                style: textTheme.bodyMedium?.copyWith(
-                    height: 1.6, color: Colors.grey.shade800, fontSize: 15)),
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 24),
-            Text('Pedidos Identificados',
-                style: textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.mainDarkColor)),
-            const SizedBox(height: 16),
-            if (requests.isEmpty)
-              Text('Nenhum pedido extraído.', style: textTheme.bodyMedium)
-            else
-              ...requests.map((r) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.check_circle_outline,
-                              size: 20, color: AppColors.accentColor),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: Text(r,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                      color: Colors.grey.shade800,
-                                      height: 1.4)))
-                        ]),
-                  )),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-enum _DateSort { none, newest, oldest }
-
-class _FilterDropdown extends StatelessWidget {
-  final String label;
-  final String? value;
-  final List<String> options;
-  final ValueChanged<String?> onChanged;
-
-  const _FilterDropdown({
-    required this.label,
-    required this.value,
-    required this.options,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return DropdownButtonFormField<String>(
-        initialValue: value,
-        isExpanded: true,
-        style: textTheme.bodyMedium,
-        decoration: InputDecoration(
-            labelText: label,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
-        items: [
-          const DropdownMenuItem(value: null, child: Text('Todos')),
-          ...options
-              .map((opt) => DropdownMenuItem(value: opt, child: Text(opt)))
-        ],
-        onChanged: onChanged);
-  }
-}
-
-class _DateSortChip extends StatelessWidget {
-  final String label;
-  final IconData? icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _DateSortChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-                color: selected
-                    ? AppColors.mainDarkColor
-                    : AppColors.altLightColor,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                    color: selected
-                        ? AppColors.mainDarkColor
-                        : AppColors.altDarkColor.withValues(alpha: 0.3))),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              if (icon != null) ...[
-                Icon(icon,
-                    size: 14,
-                    color: selected
-                        ? AppColors.mainWhiteColor
-                        : AppColors.altDarkColor),
-                const SizedBox(width: 4)
-              ],
-              Text(label,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: selected
-                          ? AppColors.mainWhiteColor
-                          : AppColors.altDarkColor,
-                      fontWeight: FontWeight.w600))
-            ])));
   }
 }

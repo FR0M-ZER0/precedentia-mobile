@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:precedentia_mobile/core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/auth/auth_session.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -20,8 +21,8 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _initializeApp() async {
-    // Simula um tempo de carregamento para a Splash ficar visível
     await Future.delayed(const Duration(seconds: 3));
+    final isLoggedIn = await AuthSession.instance.initialize();
 
     if (!mounted) return;
 
