@@ -1,28 +1,51 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer' as developer;
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
 class PrecedentsSelectPage extends StatefulWidget {
-  final Stream<Map<String, dynamic>> stream;
-  const PrecedentsSelectPage({super.key, required this.stream});
+  final Map<String, dynamic> extra;
+
+  const PrecedentsSelectPage({super.key, required this.extra});
 
   @override
   State<PrecedentsSelectPage> createState() => _PrecedentsSelectPageState();
 }
 
 class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
+  // — stream
+  late final Stream<Map<String, dynamic>> _stream;
+
+  // — dados do formulário recebidos de SendPetitionTextPage
+  late final String _authorDescription;
+  late final String _defendantDescription;
+  late final String _actionType;
+  late final String _tribunal;
+  late final String _factsSummary;
+  late final List<String> _requests;
+  late final String _valueOfCause;
+  late final bool _urgentRelief;
+  late final bool _freeJustice;
+  late final List<PlatformFile> _files;
+
+  // — estado da listagem de precedentes
   final List<Map<String, dynamic>> _allResults = [];
   List<Map<String, dynamic>> _filteredResults = [];
   bool _isDone = false;
-  String? _queryFacts;
   StreamSubscription? _subscription;
 
   final Set<int> _selectedIds = {};
 
+  // — filtros e ordenação
   String? _situacaoFilter;
   String? _speciesFilter;
   String? _tribunalFilter;
@@ -30,15 +53,32 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
   _DateSort _dateSort = _DateSort.none;
   _ApplicabilitySort _applicabilitySort = _ApplicabilitySort.none;
 
+  // — estado de geração
+  bool _isGenerating = false;
+
   @override
   void initState() {
     super.initState();
+
+    _stream = widget.extra['stream'] as Stream<Map<String, dynamic>>;
+    _authorDescription = widget.extra['author_description'] as String? ?? '';
+    _defendantDescription =
+        widget.extra['defendant_description'] as String? ?? '';
+    _actionType = widget.extra['action_type'] as String? ?? '';
+    _tribunal = widget.extra['tribunal'] as String? ?? '';
+    _factsSummary = widget.extra['facts_summary'] as String? ?? '';
+    _requests = List<String>.from(widget.extra['requests'] as List? ?? []);
+    _valueOfCause = widget.extra['value_of_cause'] as String? ?? '';
+    _urgentRelief = widget.extra['urgent_relief'] as bool? ?? false;
+    _freeJustice = widget.extra['free_justice'] as bool? ?? false;
+    _files = List<PlatformFile>.from(widget.extra['files'] as List? ?? []);
+
     _filteredResults = _allResults;
     _listenToStream();
   }
 
   void _listenToStream() {
-    _subscription = widget.stream.listen(
+    _subscription = _stream.listen(
       (event) {
         final eventName = event['event'] as String?;
 
@@ -49,6 +89,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
           });
         } else if (eventName == 'search_complete' ||
             eventName == 'rerank_complete') {
+          // eventos intermediários — sem ação necessária
         } else if (eventName == 'done') {
           setState(() => _isDone = true);
         } else if (eventName == 'error') {
@@ -75,6 +116,8 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
     super.dispose();
   }
 
+  // ------------------------------------------------------------------ seleção
+
   void _toggleSelection(int id) {
     setState(() {
       if (_selectedIds.contains(id)) {
@@ -88,6 +131,8 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
   void _clearSelection() {
     setState(() => _selectedIds.clear());
   }
+
+  // ------------------------------------------------------------------ filtros
 
   DateTime _parseDate(String date) {
     try {
@@ -297,7 +342,8 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
                         selected:
                             tempApplicabilitySort == _ApplicabilitySort.none,
                         onTap: () => setSheetState(
-                          () => tempApplicabilitySort = _ApplicabilitySort.none,
+                          () =>
+                              tempApplicabilitySort = _ApplicabilitySort.none,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -350,6 +396,113 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
     );
   }
 
+  // ------------------------------------------------------------------ geração
+
+  Future<void> _onGenerate() async {
+    if (_selectedIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Selecione ao menos um precedente.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isGenerating = true);
+
+    try {
+      final token = await SecureStorageService.readToken();
+
+      final uri = Uri.parse(
+        '${DioClient.precedentiaApiUrl}/generation/petitions/generate',
+      );
+      final request = http.MultipartRequest('POST', uri);
+
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Campos de texto
+      request.fields['author_description'] = _authorDescription;
+      request.fields['defendant_description'] = _defendantDescription;
+      request.fields['action_type'] = _actionType;
+      request.fields['tribunal'] = _tribunal;
+      request.fields['facts_summary'] = _factsSummary;
+      request.fields['requests'] = jsonEncode(_requests);
+      request.fields['value_of_cause'] = _valueOfCause;
+      request.fields['urgent_relief'] = _urgentRelief.toString();
+      request.fields['free_justice'] = _freeJustice.toString();
+
+      // Precedentes selecionados
+      final selectedPrecedents = _allResults
+          .where((e) => _selectedIds.contains(e['id'] as int?))
+          .map(
+            (e) => {
+              'id': e['id'],
+              'name': e['name'],
+              'tribunal': e['tribunal'],
+              'description': e['description'],
+              'applicability': e['applicability'],
+            },
+          )
+          .toList();
+      request.fields['precedents'] = jsonEncode(selectedPrecedents);
+
+      developer.log(
+        'Gerando petição\nURI: $uri\nFields: ${request.fields}',
+        name: 'PrecedentsSelectPage',
+      );
+
+      // Arquivos PDF
+      for (final file in _files) {
+        if (file.bytes != null) {
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'files',
+              file.bytes!,
+              filename: file.name,
+            ),
+          );
+        }
+      }
+
+      final streamed = await request.send();
+      final body = await streamed.stream.bytesToString();
+
+      if (streamed.statusCode != 200) {
+        throw Exception('Erro ${streamed.statusCode}: $body');
+      }
+
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      developer.log(
+        'Petição gerada com sucesso: $data',
+        name: 'PrecedentsSelectPage',
+      );
+
+      if (!mounted) return;
+      context.push('/peticao-inicial-editar', extra: data);
+    } catch (e, st) {
+      developer.log(
+        'Erro ao gerar petição: $e',
+        stackTrace: st,
+        name: 'PrecedentsSelectPage',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao gerar petição: $e'),
+            backgroundColor: AppColors.detailsColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGenerating = false);
+    }
+  }
+
+  // ------------------------------------------------------------------ helpers
+
   String _nomeTribunal(String sigla) {
     const nomes = {
       'STF': 'Supremo Tribunal Federal',
@@ -388,7 +541,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
       'TJSC': 'Tribunal de Justiça de Santa Catarina',
       'TJSP': 'Tribunal de Justiça de São Paulo',
       'TJSE': 'Tribunal de Justiça de Sergipe',
-      'TJTO': 'Tribunal de Justiça do Tocantins',
+      'TJTO': 'Tribunal de Justiça de Tocantins',
       'TRT1': 'Tribunal Regional do Trabalho 1ª Região',
       'TRT2': 'Tribunal Regional do Trabalho 2ª Região',
       'TRT3': 'Tribunal Regional do Trabalho 3ª Região',
@@ -473,8 +626,11 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
     }
   }
 
+  // ------------------------------------------------------------------ build
+
   @override
   Widget build(BuildContext context) {
+    // Loading: ainda sem resultados e stream não terminou
     if (_allResults.isEmpty && !_isDone) {
       return BasePageTemplate(
         title: 'Precedentes jurídicos',
@@ -496,6 +652,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
       );
     }
 
+    // Vazio: stream terminou mas sem resultados
     if (_allResults.isEmpty && _isDone) {
       return BasePageTemplate(
         title: 'Precedentes jurídicos',
@@ -520,28 +677,68 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
     return BasePageTemplate(
       title: 'Precedentes jurídicos',
       onBackPress: () => context.pop(),
-      floatingActionButton: Stack(
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          FloatingActionButton(
-            mini: true,
-            onPressed: () => _showFilterBottomSheet(context),
-            backgroundColor: AppColors.detailsColor,
-            child: const Icon(Icons.filter_list_rounded, color: Colors.white),
-          ),
-          if (_hasActiveFilters)
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: AppColors.accentColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 1.5),
+          // Botão "Gerar petição" — aparece apenas quando a stream terminou
+          if (_isDone)
+            FloatingActionButton.extended(
+              heroTag: 'generate_petition',
+              onPressed: _isGenerating ? null : _onGenerate,
+              backgroundColor: AppColors.mainDarkColor,
+              label: _isGenerating
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.mainWhiteColor,
+                      ),
+                    )
+                  : Text(
+                      _selectedIds.isEmpty
+                          ? 'Gerar petição'
+                          : 'Gerar com ${_selectedIds.length} precedente${_selectedIds.length > 1 ? 's' : ''}',
+                      style: const TextStyle(color: AppColors.mainWhiteColor),
+                    ),
+              icon: _isGenerating
+                  ? const SizedBox.shrink()
+                  : const Icon(
+                      Icons.description_outlined,
+                      color: AppColors.mainWhiteColor,
+                    ),
+            ),
+          const SizedBox(height: 8),
+          // FAB de filtro
+          Stack(
+            children: [
+              FloatingActionButton(
+                heroTag: 'filter',
+                mini: true,
+                onPressed: () => _showFilterBottomSheet(context),
+                backgroundColor: AppColors.detailsColor,
+                child: const Icon(
+                  Icons.filter_list_rounded,
+                  color: Colors.white,
                 ),
               ),
-            ),
+              if (_hasActiveFilters)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
       body: Column(
@@ -570,11 +767,12 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
                         onTap: _clearSelection,
                         child: Text(
                           'Limpar selecionados',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.detailsColor,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.detailsColor,
+                          ),
                         ),
                       ),
                     ],
@@ -594,6 +792,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
               itemCount: _filteredResults.length + (_isDone ? 0 : 1),
               separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
+                // Loader no final enquanto a stream ainda está ativa
                 if (index == _filteredResults.length) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
@@ -615,7 +814,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
                 return GestureDetector(
                   onTap: () => context.push(
                     '/precedents/details/${item['id']}',
-                    extra: {...item, 'query_facts': _queryFacts ?? ''},
+                    extra: {...item, 'query_facts': ''},
                   ),
                   child: PrecedentResultCard(
                     tribunal: _nomeTribunal(
@@ -641,9 +840,13 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
   }
 }
 
+// ------------------------------------------------------------------ enums
+
 enum _DateSort { none, newest, oldest }
 
 enum _ApplicabilitySort { none, bestFirst }
+
+// ------------------------------------------------------------------ widgets auxiliares
 
 class _FilterDropdown extends StatelessWidget {
   final String label;

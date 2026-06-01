@@ -172,7 +172,9 @@ class AppRouter {
       GoRoute(
         path: '/peticao-inicial-editar',
         name: 'initial_petition_edit',
-        builder: (context, state) => const InitialPetitionEditPage(),
+        builder: (context, state) => InitialPetitionEditPage(
+          extra: state.extra as Map<String, dynamic>?,
+        ),
       ),
       GoRoute(
         path: '/sentenca-inicial-editar',
@@ -194,7 +196,7 @@ class AppRouter {
         path: '/selecao-precedente',
         name: 'precedents_select',
         builder: (context, state) => PrecedentsSelectPage(
-          stream: state.extra as Stream<Map<String, dynamic>>,
+          extra: state.extra as Map<String, dynamic>,
         ),
       ),
       GoRoute(

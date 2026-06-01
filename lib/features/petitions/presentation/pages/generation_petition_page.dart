@@ -181,7 +181,19 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
 
       if (!mounted) return;
 
-      context.push('/selecao-precedente', extra: controller.stream);
+      context.push('/selecao-precedente', extra: {
+        'stream': controller.stream,
+        'author_description': _descricaoAutorController.text.trim(),
+        'defendant_description': _descricaoReuController.text.trim(),
+        'action_type': _tipoAcao,
+        'tribunal': _selectedTribunal!,
+        'facts_summary': _resumoController.text.trim(),
+        'requests': _pedidos,
+        'value_of_cause': _valorCausaController.text.trim(),
+        'urgent_relief': _temTutelaUrgencia,
+        'free_justice': _temJusticaGratuita,
+        'files': _resumoArquivos,
+      });
     } catch (e, st) {
       developer.log(
         'Erro ao enviar petição: $e',

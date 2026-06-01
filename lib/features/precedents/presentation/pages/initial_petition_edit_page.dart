@@ -9,7 +9,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
 class InitialPetitionEditPage extends StatefulWidget {
-  const InitialPetitionEditPage({super.key});
+  final Map<String, dynamic>? extra;
+  const InitialPetitionEditPage({super.key, this.extra});
 
   @override
   State<InitialPetitionEditPage> createState() =>
@@ -20,53 +21,16 @@ class _InitialPetitionEditPageState extends State<InitialPetitionEditPage> {
   late EditorState _editorState;
   late TextEditingController _promptController;
 
-  static const String _mockPetitionMarkdown = '''# Petição Inicial
-
-## Partes Envolvidas
-
-**Autor:** João Góes  
-**Réu:** Empresa Batman Ltda.
-
----
-
-## Dos Fatos
-
-O autor, na qualidade de consumidor, adquiriu produto fabricado pelo réu no dia 15 de janeiro de 2024, pagando o valor de R\$ 1.500,00.
-
-O produto apresentou defeito grave em sua estrutura, inviabilizando seu uso conforme o propósito esperado. Apesar de todas as tentativas de resolução amigável com a empresa ré, a mesma recusou-se a fazer a substituição ou devolução do valor.
-
----
-
-## Fundamento Legal
-
-O caso se enquadra nos termos do **Código de Defesa do Consumidor (Lei 8.078/1990)**, especificamente:
-
-- Artigo 6º - Direitos básicos do consumidor
-- Artigo 18 - Obrigação de reparação do vício
-
----
-
-## Pedidos
-
-Pelo exposto, requer-se:
-
-1. Condenação do réu ao pagamento de indenização por danos morais no valor de R\$ 5.000,00
-2. Condenação ao pagamento de danos materiais referentes ao produto defeituoso
-3. Condenação ao pagamento de custas processuais
-
----
-
-## Valor da Causa
-
-R\$ 6.500,00
-''';
 
   @override
   void initState() {
     super.initState();
     _promptController = TextEditingController();
+
+    final content = widget.extra?['content'] as String?;
+
     _editorState = EditorState(
-      document: markdownToDocument(_mockPetitionMarkdown),
+      document: markdownToDocument(content ?? ''),
     );
   }
 
