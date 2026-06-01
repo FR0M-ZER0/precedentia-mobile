@@ -120,9 +120,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
     String? eventName;
     final dataBuffer = StringBuffer();
 
-    await for (final line in response.stream
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())) {
+    await for (final line
+        in response.stream
+            .transform(utf8.decoder)
+            .transform(const LineSplitter())) {
       if (line.startsWith('event:')) {
         eventName = line.substring('event:'.length).trim();
       } else if (line.startsWith('data:')) {
@@ -180,10 +181,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
 
       if (!mounted) return;
 
-      context.push(
-        '/selecao-precedente',
-        extra: controller.stream,
-      );
+      context.push('/selecao-precedente', extra: controller.stream);
     } catch (e, st) {
       developer.log(
         'Erro ao enviar petição: $e',
@@ -198,10 +196,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
 
   void _showSnackError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.detailsColor,
-      ),
+      SnackBar(content: Text(message), backgroundColor: AppColors.detailsColor),
     );
   }
 
@@ -247,8 +242,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
               controller: _descricaoAutorController,
               maxLines: 3,
               style: textTheme.bodyMedium,
-              decoration:
-                  _customInputDecoration('Descrição do autor', textTheme),
+              decoration: _customInputDecoration(
+                'Descrição do autor',
+                textTheme,
+              ),
               validator: (value) => value == null || value.trim().isEmpty
                   ? 'Campo obrigatório'
                   : null,
@@ -270,20 +267,17 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
               optionsBuilder: (value) => value.text.isEmpty
                   ? const Iterable<String>.empty()
                   : PetitionFormConstants.sugestoesAcao.where(
-                      (acao) => acao.toLowerCase().contains(
-                            value.text.toLowerCase(),
-                          ),
+                      (acao) =>
+                          acao.toLowerCase().contains(value.text.toLowerCase()),
                     ),
-              onSelected: (selection) =>
-                  setState(() => _tipoAcao = selection),
+              onSelected: (selection) => setState(() => _tipoAcao = selection),
               fieldViewBuilder: (context, textController, focusNode, _) {
                 return TextFormField(
                   controller: textController,
                   focusNode: focusNode,
                   style: textTheme.bodyMedium,
                   onChanged: (value) => _tipoAcao = value,
-                  decoration:
-                      _customInputDecoration('Tipo de ação', textTheme),
+                  decoration: _customInputDecoration('Tipo de ação', textTheme),
                   validator: (value) => value == null || value.isEmpty
                       ? 'Campo obrigatório'
                       : null,
@@ -296,9 +290,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
               optionsBuilder: (value) => value.text.isEmpty
                   ? const Iterable<String>.empty()
                   : PetitionFormConstants.tribunais.where(
-                      (t) => t.toLowerCase().contains(
-                            value.text.toLowerCase(),
-                          ),
+                      (t) => t.toLowerCase().contains(value.text.toLowerCase()),
                     ),
               onSelected: (selection) =>
                   setState(() => _selectedTribunal = selection),
@@ -321,13 +313,12 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
               controller: _resumoController,
               maxLines: 5,
               style: textTheme.bodyMedium,
-              decoration:
-                  _customInputDecoration('Resumo dos fatos', textTheme),
+              decoration: _customInputDecoration('Resumo dos fatos', textTheme),
               validator: (value) =>
                   (_resumoArquivos.isNotEmpty ||
-                          (value != null && value.trim().isNotEmpty))
-                      ? null
-                      : 'Informe o resumo ou anexe pelo menos um PDF',
+                      (value != null && value.trim().isNotEmpty))
+                  ? null
+                  : 'Informe o resumo ou anexe pelo menos um PDF',
             ),
             const SizedBox(height: 12),
 
@@ -364,10 +355,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                           Icons.picture_as_pdf_outlined,
                           size: 18,
                         ),
-                        label: Text(
-                          file.name,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        label: Text(file.name, overflow: TextOverflow.ellipsis),
                         deleteIcon: const Icon(Icons.close, size: 18),
                         onDeleted: () =>
                             setState(() => _resumoArquivos.remove(file)),
@@ -382,8 +370,10 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
             const SizedBox(height: 16),
 
             InputDecorator(
-              decoration: _customInputDecoration('Pedidos', textTheme)
-                  .copyWith(contentPadding: const EdgeInsets.all(12)),
+              decoration: _customInputDecoration(
+                'Pedidos',
+                textTheme,
+              ).copyWith(contentPadding: const EdgeInsets.all(12)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -394,8 +384,9 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                       return Chip(
                         label: Text(
                           pedido,
-                          style: textTheme.bodySmall
-                              ?.copyWith(color: AppColors.mainWhiteColor),
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppColors.mainWhiteColor,
+                          ),
                         ),
                         backgroundColor: AppColors.altDarkColor,
                         deleteIconColor: AppColors.mainWhiteColor,
@@ -424,8 +415,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                             ? 'Digite um pedido e aperte Enter'
                             : 'Adicionar outro...',
                         hintStyle: textTheme.bodyMedium?.copyWith(
-                          color:
-                              AppColors.altDarkColor.withValues(alpha: 0.6),
+                          color: AppColors.altDarkColor.withValues(alpha: 0.6),
                         ),
                         border: InputBorder.none,
                         isDense: true,
@@ -442,8 +432,9 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
 
             TextFormField(
               controller: _valorCausaController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               style: textTheme.bodyMedium,
               decoration: _customInputDecoration('Valor da causa', textTheme),
               validator: (value) => value == null || value.trim().isEmpty
@@ -463,16 +454,14 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                   PetitionSwitchTile(
                     title: 'Tutela de urgência',
                     value: _temTutelaUrgencia,
-                    onChanged: (v) =>
-                        setState(() => _temTutelaUrgencia = v),
+                    onChanged: (v) => setState(() => _temTutelaUrgencia = v),
                     textTheme: textTheme,
                   ),
                   const Divider(height: 1),
                   PetitionSwitchTile(
                     title: 'Justiça gratuita',
                     value: _temJusticaGratuita,
-                    onChanged: (v) =>
-                        setState(() => _temJusticaGratuita = v),
+                    onChanged: (v) => setState(() => _temJusticaGratuita = v),
                     textTheme: textTheme,
                   ),
                 ],
