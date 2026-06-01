@@ -5,6 +5,8 @@ import 'package:precedentia_mobile/features/home/presentation/pages/home_page.da
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/loading_precedents_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
+import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
+    as generation_petition;
 import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_petition_edit_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_sentence_edit_page.dart';
@@ -33,6 +35,12 @@ class AppRouter {
   static final router = GoRouter(
     initialLocation: '/splash',
     refreshListenable: authNotifier,
+    
+    // ==========================================================
+    // 1. SOLUÇÃO PARA ROTA INEXISTENTE (REDIRECIONAMENTO 404)
+    // ==========================================================
+    errorBuilder: (context, state) => const NotFoundPage(),
+
     redirect: (context, state) {
       final isLoggedIn = authNotifier.value;
 
@@ -75,19 +83,16 @@ class AppRouter {
         name: 'login',
         builder: (context, state) => const LoginPage(),
       ),
-
       GoRoute(
         path: '/tutorial',
         name: 'tutorial',
         builder: (context, state) => const TutorialPage(),
       ),
-
       GoRoute(
         path: '/cadastro',
         name: 'registration',
         builder: (context, state) => const RegistrationPage(),
       ),
-
       GoRoute(
         path: '/2fa',
         name: 'two_factor',
@@ -96,7 +101,6 @@ class AppRouter {
           return TwoFactorPage(email: email);
         },
       ),
-
       GoRoute(
         path: '/esqueci-senha',
         name: 'forgot_password',
@@ -116,7 +120,6 @@ class AppRouter {
         name: 'searchUpload',
         builder: (context, state) => const SearchUploadPage(),
       ),
-
       GoRoute(
         path: '/search/manual',
         name: 'searchManual',
@@ -157,7 +160,13 @@ class AppRouter {
       GoRoute(
         path: '/enviar-peticao-texto',
         name: 'send_petition_text',
-        builder: (context, state) => const SendPetitionTextPage(),
+        builder: (context, state) =>
+            const generation_petition.SendPetitionTextPage(),
+      ),
+      GoRoute(
+        path: '/peticao-inicial',
+        name: 'petition_initial',
+        builder: (context, state) => const PetitionInitialPage(),
       ),
       GoRoute(
         path: '/peticao-inicial-editar',

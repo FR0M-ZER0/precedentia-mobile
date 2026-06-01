@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // IMPORT DO GOOGLE
+import 'package:precedentia_mobile/core/router/app_router.dart'; // IMPORT PARA O LOGOUT
 import 'package:precedentia_mobile/core/auth/auth_session.dart';
 import 'package:precedentia_mobile/core/network/dio_client.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
@@ -18,6 +21,10 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   DateTime? selectedDate;
+  
+  // Instância do Google e variável para guardar o usuário
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  GoogleSignInAccount? _currentUser;
   late Future<List<AnalysisModel>> _analysesFuture;
   late Future<String> _emailFuture;
 
@@ -85,7 +92,7 @@ class _UserPageState extends State<UserPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Perfil
+            // Perfil Dinâmico do Google
             Center(
               child: FutureBuilder<String>(
                 future: _emailFuture,

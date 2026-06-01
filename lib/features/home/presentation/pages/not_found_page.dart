@@ -18,9 +18,14 @@ class NotFoundPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/robo.png',
+                'assets/images/not_found.gif', 
                 height: 220,
                 fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.smart_toy_outlined,
+                  size: 150,
+                  color: Colors.black26,
+                ),
               ),
               const SizedBox(height: 32),
               Text(

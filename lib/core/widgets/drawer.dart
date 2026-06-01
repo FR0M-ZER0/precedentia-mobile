@@ -46,7 +46,7 @@ class CustomDrawer extends StatelessWidget {
             context,
             Icons.description_outlined,
             "Precedentes",
-            "/precedents",
+            "/history",
           ),
           _buildMenuItem(
             context,
