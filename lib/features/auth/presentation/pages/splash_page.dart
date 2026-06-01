@@ -39,8 +39,9 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( // Removido o 'const' daqui para o Image.asset funcionar
-      backgroundColor: const Color(0xFF0C1B33), 
+    return Scaffold(
+      // Removido o 'const' daqui para o Image.asset funcionar
+      backgroundColor: const Color(0xFF0C1B33),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -48,11 +49,12 @@ class _SplashPageState extends State<SplashPage> {
             // === GIF ADICIONADO AQUI NO LUGAR DA BALANÇA ===
             Image.asset(
               'assets/images/wellcome.gif', // Ajuste o caminho se sua pasta for diferente
-              height: 120, // Altura que fica equivalente ao size 100 do ícone antigo
+              height:
+                  120, // Altura que fica equivalente ao size 100 do ícone antigo
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) => const Icon(
-                Icons.balance, 
-                size: 100, 
+                Icons.balance,
+                size: 100,
                 color: AppColors.accentColor,
               ),
             ),

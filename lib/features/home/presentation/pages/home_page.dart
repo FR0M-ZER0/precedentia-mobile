@@ -76,7 +76,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Pegamos a altura total da tela
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     // Descontamos um valor aproximado do seu cabeçalho (BasePageTemplate + AppBar)
     // E dividimos o espaço que sobra por 3.
     // O .clamp() garante que o botão nunca fique menor que 120 pixels para não espremer o GIF.
@@ -100,38 +100,38 @@ class HomePage extends StatelessWidget {
             ),
           ),
           const Divider(height: 1, thickness: 1, color: Colors.black12),
-          
+
           // 2º Botão: Assistente de sentença (GIF Esquerda, Texto Direita)
           SizedBox(
             height: cardHeight,
             child: _ActionGifCard(
               title: "Assistente de\nsentença",
               gifPath: "assets/images/assistente.gif",
-              imageAlignment: Alignment.bottomLeft, 
-              textAlign: TextAlign.right,           
+              imageAlignment: Alignment.bottomLeft,
+              textAlign: TextAlign.right,
               cardHeight: cardHeight,
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Em breve!')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Em breve!')));
               },
             ),
           ),
           const Divider(height: 1, thickness: 1, color: Colors.black12),
-          
+
           // 3º Botão: Geração de petição (GIF Direita, Texto Esquerda)
           SizedBox(
             height: cardHeight,
             child: _ActionGifCard(
               title: "Geração de\npetição inicial",
               gifPath: "assets/images/geracao.gif",
-              imageAlignment: Alignment.bottomRight, 
-              textAlign: TextAlign.left,             
+              imageAlignment: Alignment.bottomRight,
+              textAlign: TextAlign.left,
               cardHeight: cardHeight,
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Em breve!')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Em breve!')));
               },
             ),
           ),
@@ -161,47 +161,58 @@ class _ActionGifCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLeftAligned = textAlign == TextAlign.left;
-    
-    final gifHeight = cardHeight * 0.65; 
+
+    final gifHeight = cardHeight * 0.65;
 
     return InkWell(
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        color: const Color(0xFFE9EEF5), 
+        color: const Color(0xFFE9EEF5),
         child: Stack(
           children: [
             // Imagem/GIF
             Align(
               alignment: imageAlignment,
               child: Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+                padding: const EdgeInsets.only(
+                  top: 8.0,
+                  left: 16.0,
+                  right: 16.0,
+                ),
                 child: Image.asset(
                   gifPath,
-                  height: gifHeight, 
+                  height: gifHeight,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => Container(
                     height: gifHeight,
                     width: gifHeight,
                     alignment: Alignment.center,
-                    child: const Icon(Icons.gif_box, size: 40, color: Colors.black26),
+                    child: const Icon(
+                      Icons.gif_box,
+                      size: 40,
+                      color: Colors.black26,
+                    ),
                   ),
                 ),
               ),
             ),
-            
+
             // Texto do botão
             Align(
               alignment: isLeftAligned ? Alignment.topLeft : Alignment.topRight,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 16.0,
+                ),
                 child: Text(
                   title,
                   textAlign: textAlign,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF0F172A),
-                    fontSize: cardHeight < 140 ? 18 : 22, 
+                    fontSize: cardHeight < 140 ? 18 : 22,
                     height: 1.2,
                   ),
                 ),

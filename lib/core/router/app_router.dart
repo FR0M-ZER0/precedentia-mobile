@@ -35,7 +35,7 @@ class AppRouter {
   static final router = GoRouter(
     initialLocation: '/splash',
     refreshListenable: authNotifier,
-    
+
     // ==========================================================
     // 1. SOLUÇÃO PARA ROTA INEXISTENTE (REDIRECIONAMENTO 404)
     // ==========================================================

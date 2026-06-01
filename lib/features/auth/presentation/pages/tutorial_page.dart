@@ -37,13 +37,13 @@ class _TutorialPageState extends State<TutorialPage> {
     },
   ];
 
-final _storage = const FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage();
 
   // Função centralizada para finalizar o tutorial e salvar no cache
   Future<void> _finishTutorial() async {
     // Grava permanentemente que o usuário já viu o tutorial
     await _storage.write(key: 'hasSeenTutorial', value: 'true');
-    
+
     if (mounted) {
       context.go('/login');
     }
