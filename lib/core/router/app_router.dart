@@ -195,9 +195,8 @@ class AppRouter {
       GoRoute(
         path: '/selecao-precedente',
         name: 'precedents_select',
-        builder: (context, state) => PrecedentsSelectPage(
-          extra: state.extra as Map<String, dynamic>,
-        ),
+        builder: (context, state) =>
+            PrecedentsSelectPage(extra: state.extra as Map<String, dynamic>),
       ),
       GoRoute(
         path: '/analysis-process',

@@ -342,8 +342,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
                         selected:
                             tempApplicabilitySort == _ApplicabilitySort.none,
                         onTap: () => setSheetState(
-                          () =>
-                              tempApplicabilitySort = _ApplicabilitySort.none,
+                          () => tempApplicabilitySort = _ApplicabilitySort.none,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -401,9 +400,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
   Future<void> _onGenerate() async {
     if (_selectedIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecione ao menos um precedente.'),
-        ),
+        const SnackBar(content: Text('Selecione ao menos um precedente.')),
       );
       return;
     }
@@ -767,12 +764,11 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
                         onTap: _clearSelection,
                         child: Text(
                           'Limpar selecionados',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.detailsColor,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.detailsColor,
+                              ),
                         ),
                       ),
                     ],

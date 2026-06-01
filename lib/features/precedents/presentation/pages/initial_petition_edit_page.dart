@@ -21,7 +21,6 @@ class _InitialPetitionEditPageState extends State<InitialPetitionEditPage> {
   late EditorState _editorState;
   late TextEditingController _promptController;
 
-
   @override
   void initState() {
     super.initState();
@@ -29,9 +28,7 @@ class _InitialPetitionEditPageState extends State<InitialPetitionEditPage> {
 
     final content = widget.extra?['content'] as String?;
 
-    _editorState = EditorState(
-      document: markdownToDocument(content ?? ''),
-    );
+    _editorState = EditorState(document: markdownToDocument(content ?? ''));
   }
 
   @override
