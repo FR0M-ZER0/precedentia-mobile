@@ -21,6 +21,8 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
   String? _queryFacts;
   StreamSubscription? _subscription;
 
+  final Set<int> _selectedIds = {};
+
   String? _situacaoFilter;
   String? _speciesFilter;
   String? _tribunalFilter;
@@ -71,6 +73,20 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
   void dispose() {
     _subscription?.cancel();
     super.dispose();
+  }
+
+  void _toggleSelection(int id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() => _selectedIds.clear());
   }
 
   DateTime _parseDate(String date) {
@@ -468,11 +484,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              Lottie.asset(
-                'assets/animations/loading.json',
-                width: 120,
-                height: 120,
-              ),
+              Lottie.asset('assets/animations/loading.json', width: 120, height: 120),
               const Text('Buscando precedentes...'),
             ],
           ),
@@ -489,11 +501,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              Lottie.asset(
-                'assets/animations/not_found.json',
-                width: 70,
-                height: 70,
-              ),
+              Lottie.asset('assets/animations/not_found.json', width: 70, height: 70),
               const Text('Nenhum precedente encontrado'),
             ],
           ),
@@ -533,12 +541,35 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              '${_filteredResults.length} de ${_allResults.length} precedentes',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
-            ),
+            child: _selectedIds.isEmpty
+                ? Text(
+                    '${_filteredResults.length} de ${_allResults.length} precedentes',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade600,
+                        ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Selecionados: ${_selectedIds.length}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.mainDarkColor,
+                            ),
+                      ),
+                      GestureDetector(
+                        onTap: _clearSelection,
+                        child: Text(
+                          'Limpar selecionados',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.detailsColor,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
           if (_filteredResults.isEmpty)
             const Center(
@@ -568,8 +599,8 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
                 }
 
                 final item = _filteredResults[index];
-                final String applicability =
-                    (item['applicability'] as String?) ?? '';
+                final int itemId = item['id'] as int;
+                final String applicability = (item['applicability'] as String?) ?? '';
 
                 return GestureDetector(
                   onTap: () => context.push(
@@ -577,9 +608,7 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
                     extra: {...item, 'query_facts': _queryFacts ?? ''},
                   ),
                   child: PrecedentResultCard(
-                    tribunal: _nomeTribunal(
-                      (item['tribunal'] as String?) ?? '',
-                    ),
+                    tribunal: _nomeTribunal((item['tribunal'] as String?) ?? ''),
                     siglaTribunal: (item['tribunal'] as String?) ?? '',
                     codigoPrecedente: (item['name'] as String?) ?? '',
                     descricao: (item['description'] as String?) ?? '',
@@ -588,6 +617,8 @@ class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
                     lastUpdate: (item['last_update'] as String?) ?? '',
                     probabilidade: _getProbabilidade(applicability),
                     probabilidadeColor: _getProbabilidadeColor(applicability),
+                    isSelected: _selectedIds.contains(itemId),
+                    onToggleSelect: () => _toggleSelection(itemId),
                   ),
                 );
               },
@@ -628,10 +659,7 @@ class _FilterDropdown extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
       items: [
         const DropdownMenuItem(value: null, child: Text('Todos')),
@@ -683,20 +711,16 @@ class _DateSortChip extends StatelessWidget {
               Icon(
                 icon,
                 size: 14,
-                color: selected
-                    ? AppColors.mainWhiteColor
-                    : AppColors.altDarkColor,
+                color: selected ? AppColors.mainWhiteColor : AppColors.altDarkColor,
               ),
               const SizedBox(width: 4),
             ],
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: selected
-                    ? AppColors.mainWhiteColor
-                    : AppColors.altDarkColor,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: selected ? AppColors.mainWhiteColor : AppColors.altDarkColor,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ],
         ),
@@ -715,6 +739,8 @@ class PrecedentResultCard extends StatelessWidget {
   final String lastUpdate;
   final String probabilidade;
   final Color probabilidadeColor;
+  final bool isSelected;
+  final VoidCallback onToggleSelect;
 
   const PrecedentResultCard({
     super.key,
@@ -727,6 +753,8 @@ class PrecedentResultCard extends StatelessWidget {
     required this.lastUpdate,
     required this.probabilidade,
     required this.probabilidadeColor,
+    required this.isSelected,
+    required this.onToggleSelect,
   });
 
   @override
@@ -736,12 +764,18 @@ class PrecedentResultCard extends StatelessWidget {
 
     return Opacity(
       opacity: isSuspended ? 0.55 : 1.0,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
           color: AppColors.mainWhiteColor,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSuspended ? Colors.grey.shade400 : Colors.grey.shade300,
+            color: isSelected
+                ? AppColors.accentColor
+                : isSuspended
+                    ? Colors.grey.shade400
+                    : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
@@ -763,11 +797,7 @@ class PrecedentResultCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.pause_circle_outline_rounded,
-                      size: 13,
-                      color: Colors.grey.shade800,
-                    ),
+                    Icon(Icons.pause_circle_outline_rounded, size: 13, color: Colors.grey.shade800),
                     const SizedBox(width: 4),
                     Text(
                       'Precedente suspenso',
@@ -821,9 +851,7 @@ class PrecedentResultCard extends StatelessWidget {
                         if (lastUpdate.isNotEmpty)
                           Text(
                             lastUpdate,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: AppColors.altDarkColor,
-                            ),
+                            style: textTheme.bodySmall?.copyWith(color: AppColors.altDarkColor),
                           ),
                       ],
                     ),
@@ -834,25 +862,46 @@ class PrecedentResultCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            codigoPrecedente,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade600,
-                            ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  codigoPrecedente,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: onToggleSelect,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? AppColors.accentColor : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: isSelected ? AppColors.accentColor : Colors.grey.shade400,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: isSelected
+                                      ? const Icon(Icons.check, size: 14, color: AppColors.mainDarkColor)
+                                      : null,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: AppColors.altLightColor,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: AppColors.altDarkColor.withValues(
-                                  alpha: 0.3,
-                                ),
+                                color: AppColors.altDarkColor.withValues(alpha: 0.3),
                               ),
                             ),
                             child: Text(
