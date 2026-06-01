@@ -110,11 +110,7 @@ class HomePage extends StatelessWidget {
               imageAlignment: Alignment.bottomLeft,
               textAlign: TextAlign.right,
               cardHeight: cardHeight,
-              onTap: () {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Em breve!')));
-              },
+              onTap: () => context.push('/assistente-sentenca'),
             ),
           ),
           const Divider(height: 1, thickness: 1, color: Colors.black12),
@@ -128,11 +124,7 @@ class HomePage extends StatelessWidget {
               imageAlignment: Alignment.bottomRight,
               textAlign: TextAlign.left,
               cardHeight: cardHeight,
-              onTap: () {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Em breve!')));
-              },
+              onTap: () => context.push('/gerar-peticao-form'),
             ),
           ),
         ],

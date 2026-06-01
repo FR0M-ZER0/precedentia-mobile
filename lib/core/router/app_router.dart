@@ -7,7 +7,7 @@ import 'package:precedentia_mobile/features/precedents/presentation/pages/loadin
 import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_results_page.dart';
 import 'package:precedentia_mobile/features/petitions/presentation/pages/generation_petition_page.dart'
     as generation_petition;
-// import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/send_petition_text_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_petition_edit_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/initial_sentence_edit_page.dart';
 import 'package:precedentia_mobile/features/precedents/presentation/pages/analysis_process_page.dart';
@@ -158,16 +158,16 @@ class AppRouter {
         builder: (context, state) => const HistoryPage(),
       ),
       GoRoute(
-        path: '/enviar-peticao-texto',
-        name: 'send_petition_text',
+        path: '/gerar-peticao-form',
+        name: 'generate_petition_form',
         builder: (context, state) =>
             const generation_petition.SendPetitionTextPage(),
       ),
-      // GoRoute(
-      //   path: '/peticao-inicial',
-      //   name: 'petition_initial',
-      //   builder: (context, state) => const PetitionInitialPage(),
-      // ),
+      GoRoute(
+        path: '/enviar-peticao-texto',
+        name: 'send_petition_text',
+        builder: (context, state) => const SendPetitionTextPage(),
+      ),
       GoRoute(
         path: '/peticao-inicial-editar',
         name: 'initial_petition_edit',
