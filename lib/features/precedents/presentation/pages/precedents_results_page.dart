@@ -19,6 +19,10 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   List<Map<String, dynamic>> _filteredResults = [];
   bool _isDone = false;
   String? _queryFacts;
+  String? _queryType;
+  String? _queryTribunal;
+  List<String> _queryRequests = [];
+
   StreamSubscription? _subscription;
 
   String? _situacaoFilter;
@@ -48,7 +52,21 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
         } else if (eventName == 'search_complete' ||
             eventName == 'rerank_complete') {
         } else if (eventName == 'done') {
-          setState(() => _isDone = true);
+
+          debugPrint('evento done recebido: $event');
+          final query = event['query'] as Map<String, dynamic>?;
+          final rawRequests = query?['requests'];
+          setState(() {
+            _isDone = true;
+            _queryFacts = query?['facts'] as String?;
+            _queryType = query?['type'] as String?;
+            _queryTribunal = query?['tribunal'] as String?;
+            _queryRequests = rawRequests is List
+                ? List<String>.from(rawRequests)
+                : (rawRequests as String?)?.isNotEmpty == true
+                    ? [rawRequests!]
+                    : [];
+          });
         } else if (eventName == 'error') {
           setState(() => _isDone = true);
           if (mounted) {
@@ -281,7 +299,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                         selected:
                             tempApplicabilitySort == _ApplicabilitySort.none,
                         onTap: () => setSheetState(
-                          () => tempApplicabilitySort = _ApplicabilitySort.none,
+                          () =>
+                              tempApplicabilitySort = _ApplicabilitySort.none,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -531,6 +550,14 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _QueryDocumentCard(
+            fileName: _queryType ?? 'peticao_inicial_1.pdf',
+            facts: _queryFacts ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
+            requests: _queryRequests.isNotEmpty ? _queryRequests : ['Danos morais', 'Indenização', 'Reparação'],
+            tribunal: _queryTribunal ?? 'N/A',
+          ),
+          const SizedBox(height: 16),
+
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
@@ -592,6 +619,151 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                 );
               },
             ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QueryDocumentCard extends StatelessWidget {
+  final String fileName;
+  final String facts;
+  final List<String> requests;
+  final String tribunal;
+
+  const _QueryDocumentCard({
+    required this.fileName,
+    required this.facts,
+    required this.requests,
+    required this.tribunal,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE6E9EF),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (fileName.isNotEmpty) ...[
+                Container(
+                  width: 75,
+                  height: 95,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Stack(
+                    children: [
+                      const Center(
+                        child: Icon(
+                          Icons.insert_drive_file_outlined,
+                          color: Colors.black12,
+                          size: 36,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 4,
+                          ),
+                          child: Text(
+                            fileName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tribunal,
+                      style: textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.mainDarkColor,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      facts,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: Colors.grey.shade800,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (requests.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: requests
+                    .map(
+                      (req) => Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '• ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                req,
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey.shade800,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
         ],
       ),
     );
