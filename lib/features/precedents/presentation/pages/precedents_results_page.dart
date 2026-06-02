@@ -52,7 +52,6 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
         } else if (eventName == 'search_complete' ||
             eventName == 'rerank_complete') {
         } else if (eventName == 'done') {
-
           debugPrint('evento done recebido: $event');
           final query = event['query'] as Map<String, dynamic>?;
           final rawRequests = query?['requests'];
@@ -64,8 +63,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             _queryRequests = rawRequests is List
                 ? List<String>.from(rawRequests)
                 : (rawRequests as String?)?.isNotEmpty == true
-                    ? [rawRequests!]
-                    : [];
+                ? [rawRequests!]
+                : [];
           });
         } else if (eventName == 'error') {
           setState(() => _isDone = true);
@@ -299,8 +298,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                         selected:
                             tempApplicabilitySort == _ApplicabilitySort.none,
                         onTap: () => setSheetState(
-                          () =>
-                              tempApplicabilitySort = _ApplicabilitySort.none,
+                          () => tempApplicabilitySort = _ApplicabilitySort.none,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -552,8 +550,12 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
         children: [
           _QueryDocumentCard(
             fileName: _queryType ?? 'peticao_inicial_1.pdf',
-            facts: _queryFacts ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-            requests: _queryRequests.isNotEmpty ? _queryRequests : ['Danos morais', 'Indenização', 'Reparação'],
+            facts:
+                _queryFacts ??
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
+            requests: _queryRequests.isNotEmpty
+                ? _queryRequests
+                : ['Danos morais', 'Indenização', 'Reparação'],
             tribunal: _queryTribunal ?? 'N/A',
           ),
           const SizedBox(height: 16),
