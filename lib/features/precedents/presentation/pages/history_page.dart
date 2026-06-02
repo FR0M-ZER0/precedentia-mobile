@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/widgets/base_template.dart';
-// ATENÇÃO: Ajuste este import para o caminho correto do seu model
 import '../../data/models/precedent_model.dart';
 
 class HistoryPage extends StatelessWidget {
