@@ -51,7 +51,6 @@ dependencies:
   http: ^1.6.0
   path_provider: ^2.1.5
   open_filex: ^4.7.0
-  google_sign_in: ^6.2.0
   flutter_dotenv: ^6.0.1
   google_sign_in: ^7.2.0
   flutter_markdown: ^0.6.14

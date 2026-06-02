@@ -26,6 +26,7 @@ import 'package:precedentia_mobile/features/auth/presentation/pages/registration
 import 'package:precedentia_mobile/features/auth/presentation/pages/two_factor_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:precedentia_mobile/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:precedentia_mobile/features/precedents/presentation/pages/precedents_select_page.dart';
 import 'package:precedentia_mobile/core/auth/auth_session.dart';
 
 class AppRouter {
@@ -35,7 +36,7 @@ class AppRouter {
   static final router = GoRouter(
     initialLocation: '/splash',
     refreshListenable: authNotifier,
-    
+
     // ==========================================================
     // 1. SOLUÇÃO PARA ROTA INEXISTENTE (REDIRECIONAMENTO 404)
     // ==========================================================
@@ -158,20 +159,22 @@ class AppRouter {
         builder: (context, state) => const HistoryPage(),
       ),
       GoRoute(
-        path: '/enviar-peticao-texto',
-        name: 'send_petition_text',
+        path: '/gerar-peticao-form',
+        name: 'generate_petition_form',
         builder: (context, state) =>
             const generation_petition.SendPetitionTextPage(),
       ),
       GoRoute(
-        path: '/peticao-inicial',
-        name: 'petition_initial',
-        builder: (context, state) => const PetitionInitialPage(),
+        path: '/enviar-peticao-texto',
+        name: 'send_petition_text',
+        builder: (context, state) => const SendPetitionTextPage(),
       ),
       GoRoute(
         path: '/peticao-inicial-editar',
         name: 'initial_petition_edit',
-        builder: (context, state) => const InitialPetitionEditPage(),
+        builder: (context, state) => InitialPetitionEditPage(
+          extra: state.extra as Map<String, dynamic>?,
+        ),
       ),
       GoRoute(
         path: '/sentenca-inicial-editar',
@@ -188,6 +191,12 @@ class AppRouter {
         path: '/assistente-sentenca',
         name: 'sentence_assistant',
         builder: (context, state) => const SentenceAssistantPage(),
+      ),
+      GoRoute(
+        path: '/selecao-precedente',
+        name: 'precedents_select',
+        builder: (context, state) =>
+            PrecedentsSelectPage(extra: state.extra as Map<String, dynamic>),
       ),
       GoRoute(
         path: '/analysis-process',

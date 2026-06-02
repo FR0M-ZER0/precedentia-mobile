@@ -41,43 +41,36 @@ class CustomDrawer extends StatelessWidget {
           ),
 
           // Itens de Navegação
-          _buildMenuItem(context, Icons.home_outlined, "Home", "/search"),
+          _buildMenuItem(context, Icons.home_outlined, "Home", "/"),
+
           _buildMenuItem(
             context,
             Icons.description_outlined,
-            "Precedentes",
-            "/history",
+            "Pesquisar precedentes (arquivo)",
+            "/enviar-peticao",
           ),
+
           _buildMenuItem(
             context,
-            Icons.edit,
-            "Editar Petição",
-            "/peticao-inicial-editar",
+            Icons.edit_document,
+            "Pesquisar precedentes (texto)",
+            "/enviar-peticao-texto",
           ),
+
           _buildMenuItem(
             context,
             Icons.article_outlined,
-            "Gerar Petição",
+            "Gerar Minuta da Petição",
             "/enviar-peticao-texto",
           ),
-          _buildMenuItem(
-            context,
-            Icons.gavel,
-            "Editar Sentença",
-            "/sentenca-inicial-editar",
-          ),
+
           _buildMenuItem(
             context,
             Icons.assistant,
             "Assistente de Sentença",
             "/assistente-sentenca",
           ),
-          _buildMenuItem(
-            context,
-            Icons.analytics,
-            "Análise do processo",
-            "/analysis-process",
-          ),
+
           _buildMenuItem(context, Icons.person_outline, "Perfil", "/profile"),
 
           const Spacer(),

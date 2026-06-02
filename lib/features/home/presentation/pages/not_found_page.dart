@@ -18,7 +18,7 @@ class NotFoundPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/not_found.gif', 
+                'assets/images/not_found.gif',
                 height: 220,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) => const Icon(

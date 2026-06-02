@@ -1,30 +1,57 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer' as developer;
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/base_template.dart';
 
-class PrecedentsResultsPage extends StatefulWidget {
-  final Stream<Map<String, dynamic>> stream;
-  const PrecedentsResultsPage({super.key, required this.stream});
+class PrecedentsSelectPage extends StatefulWidget {
+  final Map<String, dynamic> extra;
+
+  const PrecedentsSelectPage({super.key, required this.extra});
 
   @override
-  State<PrecedentsResultsPage> createState() => _PrecedentsResultsPageState();
+  State<PrecedentsSelectPage> createState() => _PrecedentsSelectPageState();
 }
 
-class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
+class _PrecedentsSelectPageState extends State<PrecedentsSelectPage> {
+  // — stream
+  late final Stream<Map<String, dynamic>> _stream;
+
+  // — dados do formulário recebidos de SendPetitionTextPage
+  late final String _authorDescription;
+  late final String _defendantDescription;
+  late final String _actionType;
+  late final String _tribunal;
+  late final String _factsSummary;
+  late final List<String> _requests;
+  late final String _valueOfCause;
+  late final bool _urgentRelief;
+  late final bool _freeJustice;
+  late final List<PlatformFile> _files;
+
+  // — estado da listagem de precedentes
   final List<Map<String, dynamic>> _allResults = [];
   List<Map<String, dynamic>> _filteredResults = [];
   bool _isDone = false;
+  StreamSubscription? _subscription;
+
+  final Set<int> _selectedIds = {};
+
+  // — dados da query
   String? _queryFacts;
   String? _queryType;
   String? _queryTribunal;
   List<String> _queryRequests = [];
 
-  StreamSubscription? _subscription;
-
+  // — filtros e ordenação
   String? _situacaoFilter;
   String? _speciesFilter;
   String? _tribunalFilter;
@@ -32,15 +59,32 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
   _DateSort _dateSort = _DateSort.none;
   _ApplicabilitySort _applicabilitySort = _ApplicabilitySort.none;
 
+  // — estado de geração
+  bool _isGenerating = false;
+
   @override
   void initState() {
     super.initState();
+
+    _stream = widget.extra['stream'] as Stream<Map<String, dynamic>>;
+    _authorDescription = widget.extra['author_description'] as String? ?? '';
+    _defendantDescription =
+        widget.extra['defendant_description'] as String? ?? '';
+    _actionType = widget.extra['action_type'] as String? ?? '';
+    _tribunal = widget.extra['tribunal'] as String? ?? '';
+    _factsSummary = widget.extra['facts_summary'] as String? ?? '';
+    _requests = List<String>.from(widget.extra['requests'] as List? ?? []);
+    _valueOfCause = widget.extra['value_of_cause'] as String? ?? '';
+    _urgentRelief = widget.extra['urgent_relief'] as bool? ?? false;
+    _freeJustice = widget.extra['free_justice'] as bool? ?? false;
+    _files = List<PlatformFile>.from(widget.extra['files'] as List? ?? []);
+
     _filteredResults = _allResults;
     _listenToStream();
   }
 
   void _listenToStream() {
-    _subscription = widget.stream.listen(
+    _subscription = _stream.listen(
       (event) {
         final eventName = event['event'] as String?;
 
@@ -51,8 +95,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
           });
         } else if (eventName == 'search_complete' ||
             eventName == 'rerank_complete') {
+          // eventos intermediários — sem ação necessária
         } else if (eventName == 'done') {
-          debugPrint('evento done recebido: $event');
           final query = event['query'] as Map<String, dynamic>?;
           final rawRequests = query?['requests'];
           setState(() {
@@ -89,6 +133,24 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
     _subscription?.cancel();
     super.dispose();
   }
+
+  // ------------------------------------------------------------------ seleção
+
+  void _toggleSelection(int id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() => _selectedIds.clear());
+  }
+
+  // ------------------------------------------------------------------ filtros
 
   DateTime _parseDate(String date) {
     try {
@@ -351,6 +413,111 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
     );
   }
 
+  // ------------------------------------------------------------------ geração
+
+  Future<void> _onGenerate() async {
+    if (_selectedIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecione ao menos um precedente.')),
+      );
+      return;
+    }
+
+    setState(() => _isGenerating = true);
+
+    try {
+      final token = await SecureStorageService.readToken();
+
+      final uri = Uri.parse(
+        '${DioClient.precedentiaApiUrl}/generation/petitions/generate',
+      );
+      final request = http.MultipartRequest('POST', uri);
+
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Campos de texto
+      request.fields['author_description'] = _authorDescription;
+      request.fields['defendant_description'] = _defendantDescription;
+      request.fields['action_type'] = _actionType;
+      request.fields['tribunal'] = _tribunal;
+      request.fields['facts_summary'] = _factsSummary;
+      request.fields['requests'] = jsonEncode(_requests);
+      request.fields['value_of_cause'] = _valueOfCause;
+      request.fields['urgent_relief'] = _urgentRelief.toString();
+      request.fields['free_justice'] = _freeJustice.toString();
+
+      // Precedentes selecionados
+      final selectedPrecedents = _allResults
+          .where((e) => _selectedIds.contains(e['id'] as int?))
+          .map(
+            (e) => {
+              'id': e['id'],
+              'name': e['name'],
+              'tribunal': e['tribunal'],
+              'description': e['description'],
+              'applicability': e['applicability'],
+            },
+          )
+          .toList();
+      request.fields['precedents'] = jsonEncode(selectedPrecedents);
+
+      developer.log(
+        'Gerando petição\nURI: $uri\nFields: ${request.fields}',
+        name: 'PrecedentsSelectPage',
+      );
+
+      // Arquivos PDF
+      for (final file in _files) {
+        if (file.bytes != null) {
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'files',
+              file.bytes!,
+              filename: file.name,
+            ),
+          );
+        }
+      }
+
+      final streamed = await request.send();
+      final body = await streamed.stream.bytesToString();
+
+      if (streamed.statusCode != 200) {
+        throw Exception('Erro ${streamed.statusCode}: $body');
+      }
+
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      developer.log(
+        'Petição gerada com sucesso: $data',
+        name: 'PrecedentsSelectPage',
+      );
+
+      if (!mounted) return;
+      context.push('/peticao-inicial-editar', extra: data);
+    } catch (e, st) {
+      developer.log(
+        'Erro ao gerar petição: $e',
+        stackTrace: st,
+        name: 'PrecedentsSelectPage',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao gerar petição: $e'),
+            backgroundColor: AppColors.detailsColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGenerating = false);
+    }
+  }
+
+  // ------------------------------------------------------------------ helpers
+
   String _nomeTribunal(String sigla) {
     const nomes = {
       'STF': 'Supremo Tribunal Federal',
@@ -389,7 +556,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       'TJSC': 'Tribunal de Justiça de Santa Catarina',
       'TJSP': 'Tribunal de Justiça de São Paulo',
       'TJSE': 'Tribunal de Justiça de Sergipe',
-      'TJTO': 'Tribunal de Justiça do Tocantins',
+      'TJTO': 'Tribunal de Justiça de Tocantins',
       'TRT1': 'Tribunal Regional do Trabalho 1ª Região',
       'TRT2': 'Tribunal Regional do Trabalho 2ª Região',
       'TRT3': 'Tribunal Regional do Trabalho 3ª Região',
@@ -474,8 +641,11 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
     }
   }
 
+  // ------------------------------------------------------------------ build
+
   @override
   Widget build(BuildContext context) {
+    // Loading: ainda sem resultados e stream não terminou
     if (_allResults.isEmpty && !_isDone) {
       return BasePageTemplate(
         title: 'Precedentes jurídicos',
@@ -497,6 +667,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
       );
     }
 
+    // Vazio: stream terminou mas sem resultados
     if (_allResults.isEmpty && _isDone) {
       return BasePageTemplate(
         title: 'Precedentes jurídicos',
@@ -521,28 +692,68 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
     return BasePageTemplate(
       title: 'Precedentes jurídicos',
       onBackPress: () => context.pop(),
-      floatingActionButton: Stack(
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          FloatingActionButton(
-            mini: true,
-            onPressed: () => _showFilterBottomSheet(context),
-            backgroundColor: AppColors.detailsColor,
-            child: const Icon(Icons.filter_list_rounded, color: Colors.white),
-          ),
-          if (_hasActiveFilters)
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: AppColors.accentColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 1.5),
+          // Botão "Gerar petição" — aparece apenas quando a stream terminou
+          if (_isDone)
+            FloatingActionButton.extended(
+              heroTag: 'generate_petition',
+              onPressed: _isGenerating ? null : _onGenerate,
+              backgroundColor: AppColors.mainDarkColor,
+              label: _isGenerating
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.mainWhiteColor,
+                      ),
+                    )
+                  : Text(
+                      _selectedIds.isEmpty
+                          ? 'Gerar petição'
+                          : 'Gerar com ${_selectedIds.length} precedente${_selectedIds.length > 1 ? 's' : ''}',
+                      style: const TextStyle(color: AppColors.mainWhiteColor),
+                    ),
+              icon: _isGenerating
+                  ? const SizedBox.shrink()
+                  : const Icon(
+                      Icons.description_outlined,
+                      color: AppColors.mainWhiteColor,
+                    ),
+            ),
+          const SizedBox(height: 8),
+          // FAB de filtro
+          Stack(
+            children: [
+              FloatingActionButton(
+                heroTag: 'filter',
+                mini: true,
+                onPressed: () => _showFilterBottomSheet(context),
+                backgroundColor: AppColors.detailsColor,
+                child: const Icon(
+                  Icons.filter_list_rounded,
+                  color: Colors.white,
                 ),
               ),
-            ),
+              if (_hasActiveFilters)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
       body: Column(
@@ -559,15 +770,38 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
             tribunal: _queryTribunal ?? 'N/A',
           ),
           const SizedBox(height: 16),
-
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              '${_filteredResults.length} de ${_allResults.length} precedentes',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
-            ),
+            child: _selectedIds.isEmpty
+                ? Text(
+                    '${_filteredResults.length} de ${_allResults.length} precedentes',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Selecionados: ${_selectedIds.length}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.mainDarkColor,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: _clearSelection,
+                        child: Text(
+                          'Limpar selecionados',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.detailsColor,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
           if (_filteredResults.isEmpty)
             const Center(
@@ -583,6 +817,7 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
               itemCount: _filteredResults.length + (_isDone ? 0 : 1),
               separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
+                // Loader no final enquanto a stream ainda está ativa
                 if (index == _filteredResults.length) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
@@ -597,13 +832,14 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                 }
 
                 final item = _filteredResults[index];
+                final int itemId = item['id'] as int;
                 final String applicability =
                     (item['applicability'] as String?) ?? '';
 
                 return GestureDetector(
                   onTap: () => context.push(
                     '/precedents/details/${item['id']}',
-                    extra: {...item, 'query_facts': _queryFacts ?? ''},
+                    extra: {...item, 'query_facts': ''},
                   ),
                   child: PrecedentResultCard(
                     tribunal: _nomeTribunal(
@@ -617,6 +853,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
                     lastUpdate: (item['last_update'] as String?) ?? '',
                     probabilidade: _getProbabilidade(applicability),
                     probabilidadeColor: _getProbabilidadeColor(applicability),
+                    isSelected: _selectedIds.contains(itemId),
+                    onToggleSelect: () => _toggleSelection(itemId),
                   ),
                 );
               },
@@ -626,6 +864,8 @@ class _PrecedentsResultsPageState extends State<PrecedentsResultsPage> {
     );
   }
 }
+
+// ------------------------------------------------------------------ query card
 
 class _QueryDocumentCard extends StatelessWidget {
   final String fileName;
@@ -772,9 +1012,13 @@ class _QueryDocumentCard extends StatelessWidget {
   }
 }
 
+// ------------------------------------------------------------------ enums
+
 enum _DateSort { none, newest, oldest }
 
 enum _ApplicabilitySort { none, bestFirst }
+
+// ------------------------------------------------------------------ widgets auxiliares
 
 class _FilterDropdown extends StatelessWidget {
   final String label;
@@ -889,6 +1133,8 @@ class PrecedentResultCard extends StatelessWidget {
   final String lastUpdate;
   final String probabilidade;
   final Color probabilidadeColor;
+  final bool isSelected;
+  final VoidCallback onToggleSelect;
 
   const PrecedentResultCard({
     super.key,
@@ -901,6 +1147,8 @@ class PrecedentResultCard extends StatelessWidget {
     required this.lastUpdate,
     required this.probabilidade,
     required this.probabilidadeColor,
+    required this.isSelected,
+    required this.onToggleSelect,
   });
 
   @override
@@ -910,12 +1158,18 @@ class PrecedentResultCard extends StatelessWidget {
 
     return Opacity(
       opacity: isSuspended ? 0.55 : 1.0,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
           color: AppColors.mainWhiteColor,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSuspended ? Colors.grey.shade400 : Colors.grey.shade300,
+            color: isSelected
+                ? AppColors.accentColor
+                : isSuspended
+                ? Colors.grey.shade400
+                : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
@@ -1008,11 +1262,45 @@ class PrecedentResultCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            codigoPrecedente,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade600,
-                            ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  codigoPrecedente,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: onToggleSelect,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? AppColors.accentColor
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? AppColors.accentColor
+                                          : Colors.grey.shade400,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 14,
+                                          color: AppColors.mainDarkColor,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 6),
                           Container(

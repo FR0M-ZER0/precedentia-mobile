@@ -1,51 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_sign_in/google_sign_in.dart'; // Importação oficial
 import '../../../../core/theme/app_colors.dart';
 import '../../data/auth_remote_datasource.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
-
-  // Função oficial de Autenticação com Google
-  Future<void> _signInWithGoogle(BuildContext context) async {
-    try {
-      // 1. Inicializa a instância (S-I-G-N, com 'gn')
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      
-      // 2. Limpa qualquer sessão anterior para garantir a escolha da conta
-      await googleSignIn.signOut(); 
-      
-      // 3. Abre o seletor de contas nativo do Android
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
-      if (googleUser != null) {
-        // Se o usuário selecionou uma conta, ativamos o notifier
-        // Isso fará o AppRouter redirecionar automaticamente para a Home
-        AppRouter.authNotifier.value = true;
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Bem-vindo, ${googleUser.displayName}!'),
-              backgroundColor: AppColors.accentColor,
-            ),
-          );
-        }
-      }
-    } catch (error) {
-      // Caso ocorra algum erro na comunicação com o Google Cloud
-      debugPrint('Erro Google Auth: $error');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Não foi possível conectar com o Google.'),
-            backgroundColor: AppColors.detailsColor,
-          ),
-        );
-      }
-    }
-  }
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -196,7 +155,6 @@ class _LoginPageState extends State<LoginPage> {
                       style: textTheme.bodySmall,
                     ),
                   ),
-                  child: const Text('Entrar', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
