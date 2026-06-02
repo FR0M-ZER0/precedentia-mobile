@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TutorialPage extends StatefulWidget {
   const TutorialPage({super.key});
@@ -36,6 +37,18 @@ class _TutorialPageState extends State<TutorialPage> {
     },
   ];
 
+  final _storage = const FlutterSecureStorage();
+
+  // Função centralizada para finalizar o tutorial e salvar no cache
+  Future<void> _finishTutorial() async {
+    // Grava permanentemente que o usuário já viu o tutorial
+    await _storage.write(key: 'hasSeenTutorial', value: 'true');
+
+    if (mounted) {
+      context.go('/login');
+    }
+  }
+
   void _nextPage() {
     if (_currentPage < _tutorialData.length - 1) {
       _pageController.nextPage(
@@ -43,14 +56,14 @@ class _TutorialPageState extends State<TutorialPage> {
         curve: Curves.easeInOut,
       );
     } else {
-      // Se for a última página, vai para o Login
-      context.go('/login');
+      // Se for a última página, finaliza e salva
+      _finishTutorial();
     }
   }
 
   void _skipTutorial() {
-    // Pula direto para o Login
-    context.go('/login');
+    // Pula, finaliza e salva
+    _finishTutorial();
   }
 
   @override
