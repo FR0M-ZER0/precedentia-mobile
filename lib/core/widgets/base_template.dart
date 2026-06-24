@@ -49,7 +49,7 @@ class BasePageTemplate extends StatelessWidget {
                       left: 15,
                       right: 15,
                       top: 30,
-                      bottom: 0
+                      bottom: 0,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
