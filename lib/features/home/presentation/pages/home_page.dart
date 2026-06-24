@@ -85,6 +85,7 @@ class HomePage extends StatelessWidget {
     return BasePageTemplate(
       title: "O que deseja fazer hoje?",
       subtitle: "Escolha um dos modos",
+      bodyPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 30),
       body: Column(
         children: [
           // 1º Botão: Pesquisa (GIF Direita, Texto Esquerda)

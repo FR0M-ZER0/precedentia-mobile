@@ -11,6 +11,7 @@ class BasePageTemplate extends StatelessWidget {
   final Widget body;
   // 1. Adicione o parâmetro aqui
   final Widget? floatingActionButton;
+  final EdgeInsetsGeometry bodyPadding;
 
   const BasePageTemplate({
     super.key,
@@ -20,6 +21,7 @@ class BasePageTemplate extends StatelessWidget {
     this.detailText,
     this.onBackPress,
     this.floatingActionButton, // 2. E aqui no construtor
+    this.bodyPadding = const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
   });
 
   @override
@@ -36,7 +38,7 @@ class BasePageTemplate extends StatelessWidget {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
+              padding: bodyPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
