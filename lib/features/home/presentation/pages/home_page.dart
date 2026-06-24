@@ -165,7 +165,7 @@ class _ActionGifCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        color: const Color(0xFFE9EEF5),
+        color: AppColors.altLightColor,
         child: Stack(
           children: [
             // Imagem/GIF
