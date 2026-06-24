@@ -89,10 +89,7 @@ class BasePageTemplate extends StatelessWidget {
                                     ),
                                   ),
                                 if (detailText != null)
-                                  Text(
-                                    detailText!,
-                                    style: textTheme.bodySmall,
-                                  ),
+                                  Text(detailText!, style: textTheme.bodySmall),
                               ],
                             ),
                           ),
@@ -100,10 +97,7 @@ class BasePageTemplate extends StatelessWidget {
                     ),
                   ),
 
-                  Padding(
-                    padding: bodyPadding,
-                    child: body,
-                  ),
+                  Padding(padding: bodyPadding, child: body),
                 ],
               ),
             ),
