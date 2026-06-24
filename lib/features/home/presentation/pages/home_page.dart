@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:precedentia_mobile/core/theme/app_colors.dart';
 import 'package:precedentia_mobile/core/widgets/base_template.dart';
 
 class HomePage extends StatelessWidget {
@@ -89,6 +90,7 @@ class HomePage extends StatelessWidget {
       body: Column(
         children: [
           // 1º Botão: Pesquisa (GIF Direita, Texto Esquerda)
+          Container(height: 1, color: AppColors.altDarkColor),
           SizedBox(
             height: cardHeight,
             child: _ActionGifCard(
@@ -103,6 +105,7 @@ class HomePage extends StatelessWidget {
           const Divider(height: 1, thickness: 1, color: Colors.black12),
 
           // 2º Botão: Assistente de sentença (GIF Esquerda, Texto Direita)
+          Container(height: 1, color: AppColors.altDarkColor),
           SizedBox(
             height: cardHeight,
             child: _ActionGifCard(
@@ -117,6 +120,7 @@ class HomePage extends StatelessWidget {
           const Divider(height: 1, thickness: 1, color: Colors.black12),
 
           // 3º Botão: Geração de petição (GIF Direita, Texto Esquerda)
+          Container(height: 1, color: AppColors.altDarkColor),
           SizedBox(
             height: cardHeight,
             child: _ActionGifCard(
