@@ -20,7 +20,12 @@ class BasePageTemplate extends StatelessWidget {
     this.detailText,
     this.onBackPress,
     this.floatingActionButton,
-    this.bodyPadding = const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
+    this.bodyPadding = const EdgeInsets.only(
+      left: 15,
+      right: 15,
+      top: 0,
+      bottom: 30,
+    ),
   });
 
   @override
@@ -40,9 +45,11 @@ class BasePageTemplate extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 30,
+                    padding: const EdgeInsets.only(
+                      left: 15,
+                      right: 15,
+                      top: 30,
+                      bottom: 0
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
