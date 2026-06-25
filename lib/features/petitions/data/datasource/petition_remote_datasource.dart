@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importe o pacote dotenv
 import '../models/petition_model.dart';
-
-//Fiz isso com algumas boas recomendações do gemini qualquer coisa me mande
-//uma mensagem
 
 // 1. O Contrato: Define O QUE essa fonte de dados deve fazer
 abstract class PetitionsRemoteDataSource {
@@ -18,8 +16,11 @@ class PetitionsRemoteDataSourceImpl implements PetitionsRemoteDataSource {
   @override
   Future<PetitionModel> fetchPetition(String id) async {
     try {
-      // Faz a requisição HTTP para a sua API real
-      final response = await dio.get('URL_DA_SUA_API/precedentes/$id');
+      // 1. Puxa a URL base do .env (com um fallback de segurança caso falhe)
+      final baseUrl = dotenv.env['PRECEDENTIA_API_URL'] ?? 'http://168.138.158.39:32373';
+      
+      // Faz a requisição HTTP montando a URL completa
+      final response = await dio.get('$baseUrl/precedentes/$id');
 
       if (response.statusCode == 200) {
         // Aqui você vai converter o JSON da API para o seu PetitionModel
@@ -31,7 +32,7 @@ class PetitionsRemoteDataSourceImpl implements PetitionsRemoteDataSource {
         );
       } else {
         // Lança uma exceção que será capturada pelo Repositório
-        throw Exception('Erro no servidor');
+        throw Exception('Erro no servidor. Status: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Erro de conexão ou servidor: $e');
