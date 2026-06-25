@@ -8,7 +8,9 @@ COPY . .
 
 RUN git config --global --add safe.directory /sdks/flutter
 RUN flutter config --no-analytics
-RUN flutter pub get
+
+RUN flutter pub upgrade
+
 RUN flutter build web --release --no-source-maps -v
 
 FROM public.ecr.aws/docker/library/nginx:alpine
