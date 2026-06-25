@@ -461,7 +461,7 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.altLightColor,
+                // color: AppColors.altLightColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -472,7 +472,6 @@ class _SendPetitionTextPageState extends State<SendPetitionTextPage> {
                     onChanged: (v) => setState(() => _temTutelaUrgencia = v),
                     textTheme: textTheme,
                   ),
-                  const Divider(height: 1),
                   PetitionSwitchTile(
                     title: 'Justiça gratuita',
                     value: _temJusticaGratuita,

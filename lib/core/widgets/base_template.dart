@@ -9,8 +9,8 @@ class BasePageTemplate extends StatelessWidget {
   final String? detailText;
   final VoidCallback? onBackPress;
   final Widget body;
-  // 1. Adicione o parâmetro aqui
   final Widget? floatingActionButton;
+  final EdgeInsetsGeometry bodyPadding;
 
   const BasePageTemplate({
     super.key,
@@ -19,7 +19,13 @@ class BasePageTemplate extends StatelessWidget {
     this.subtitle,
     this.detailText,
     this.onBackPress,
-    this.floatingActionButton, // 2. E aqui no construtor
+    this.floatingActionButton,
+    this.bodyPadding = const EdgeInsets.only(
+      left: 15,
+      right: 15,
+      top: 0,
+      bottom: 30,
+    ),
   });
 
   @override
@@ -30,64 +36,75 @@ class BasePageTemplate extends StatelessWidget {
     return Scaffold(
       appBar: const NavBar(),
       endDrawer: const CustomDrawer(),
-      // 3. Adicione esta linha para o Scaffold renderizar o botão
       floatingActionButton: floatingActionButton,
       body: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (onBackPress != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: InkWell(
-                        onTap: onBackPress,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.arrow_back,
-                              size: 16,
-                              color: colorScheme.error,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Voltar',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.error,
-                                fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 15,
+                      right: 15,
+                      top: 30,
+                      bottom: 0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (onBackPress != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: InkWell(
+                              onTap: onBackPress,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.arrow_back,
+                                    size: 16,
+                                    color: colorScheme.error,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Voltar',
+                                    style: textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.error,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
+                          ),
 
-                  Text(title, style: textTheme.titleMedium),
+                        Text(title, style: textTheme.titleMedium),
 
-                  if (subtitle != null || detailText != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (subtitle != null)
-                            Expanded(
-                              child: Text(
-                                subtitle!,
-                                style: textTheme.titleSmall,
-                              ),
+                        if (subtitle != null || detailText != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8, bottom: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                if (subtitle != null)
+                                  Expanded(
+                                    child: Text(
+                                      subtitle!,
+                                      style: textTheme.titleSmall,
+                                    ),
+                                  ),
+                                if (detailText != null)
+                                  Text(detailText!, style: textTheme.bodySmall),
+                              ],
                             ),
-                          if (detailText != null)
-                            Text(detailText!, style: textTheme.bodySmall),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
+                  ),
 
-                  body,
+                  Padding(padding: bodyPadding, child: body),
                 ],
               ),
             ),
